@@ -1,14 +1,24 @@
 <view class="container">
-  <view class="title">今日打卡</view>
-  <view class="date">{{today}}</view>
+  <view class="title">上下班打卡工具</view>
+  <view class="date-time">
+    <picker 
+      mode="date" 
+      value="{{selectedDate}}"
+      start="2000-01-01"
+      end="2030-12-31"
+      bindchange="onDateChange">
+      <text>{{selectedDate}}</text>
+    </picker>
+    <text class="time">{{currentTime}}</text>
+  </view>
   <view class="card">
     <view class="record-item">
       <text>上班时间：</text>
-      <text class="time">{{todayRecord.on || '未打卡'}}</text>
+      <text class="time" style="color:{{todayRecord.on ? '#07C160' : ''}}">{{todayRecord.on || '未打卡'}}</text>
     </view>
     <view class="record-item">
       <text>下班时间：</text>
-      <text class="time">{{todayRecord.off || '未打卡'}}</text>
+      <text class="time" style="color:{{todayRecord.off ? '#07C160' : ''}}">{{todayRecord.off || '未打卡'}}</text>
     </view>
   </view>
   <view class="btn-group">
@@ -18,4 +28,4 @@
   <view class="tips">
     <text>提示：所有数据仅保存在本机，请定期导出备份</text>
   </view>
-</view> 
+</view>

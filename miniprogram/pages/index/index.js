@@ -1,46 +1,99 @@
 Page({
   data: {
     today: '',
-    todayRecord: {}
+    todayRecord: {},
+    selectedDate: ''
+  },
+  
+  onLoad() {
+    this.setCurrentDate();
   },
   
   onShow() {
     this.loadTodayData();
   },
   
+  setCurrentDate() {
+    // 获取网络时间（东八区）
+    wx.request({
+      url: 'https://worldtimeapi.org/api/timezone/Asia/Shanghai',
+      success: (res) => {
+        const datetime = new Date(res.data.datetime);
+        const today = datetime.toISOString().slice(0, 10);
+        const timeStr = datetime.toLocaleTimeString('zh-CN', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true
+        });
+        
+        this.setData({
+          today: today,
+          selectedDate: today,
+          currentTime: timeStr
+        });
+      },
+      fail: () => {
+        // 网络请求失败时使用本地时间
+        const now = new Date();
+        const today = now.toISOString().slice(0, 10);
+        const timeStr = now.toLocaleTimeString('zh-CN', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true
+        });
+        
+        this.setData({
+          today: today,
+          selectedDate: today,
+          currentTime: timeStr + ' (本地)'
+        });
+      }
+    });
+  },
+  
   loadTodayData() {
-    // 获取今天的日期，格式为YYYY-MM-DD
-    const today = new Date().toISOString().slice(0, 10);
+    const { selectedDate } = this.data;
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
     
-    // 查找今天的记录
-    const todayRecord = records.find(r => r.date === today) || { date: today };
+    // 查找选中日期的记录
+    const todayRecord = records.find(r => r.date === selectedDate) || { date: selectedDate };
     
     this.setData({
-      today: today,
       todayRecord: todayRecord
     });
   },
   
+  
+  // 日期变更
+  onDateChange(e) {
+    this.setData({
+      selectedDate: e.detail.value
+    }, () => {
+      this.loadTodayData();
+    });
+  },
+  
   checkIn() {
-    const today = new Date().toISOString().slice(0, 10);
-    const now = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+    const { selectedDate } = this.data;
+    // 获取东八区当前时间
+    const now = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+    const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
     
-    // 查找今天的记录索引
-    const idx = records.findIndex(r => r.date === today);
+    // 查找选中日期的记录索引
+    const idx = records.findIndex(r => r.date === selectedDate);
     
-    // 如果已有今天的记录，更新上班时间；否则添加新记录
+    // 如果已有选中日期的记录，更新上班时间；否则添加新记录
     if (idx >= 0) {
-      records[idx].on = now;
+      records[idx].on = timeStr;
     } else {
       records.push({
-        date: today,
-        on: now
+        date: selectedDate,
+        on: timeStr
       });
     }
     
@@ -58,18 +111,20 @@ Page({
   },
   
   checkOut() {
-    const today = new Date().toISOString().slice(0, 10);
-    const now = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+    const { selectedDate } = this.data;
+    // 获取东八区当前时间
+    const now = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+    const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
     
-    // 查找今天的记录索引
-    const idx = records.findIndex(r => r.date === today);
+    // 查找选中日期的记录索引
+    const idx = records.findIndex(r => r.date === selectedDate);
     
-    // 如果已有今天的记录，更新下班时间；否则提示先打上班卡
+    // 如果已有选中日期的记录，更新下班时间；否则提示先打上班卡
     if (idx >= 0) {
-      records[idx].off = now;
+      records[idx].off = timeStr;
       
       // 保存到本地存储
       wx.setStorageSync('records', records);

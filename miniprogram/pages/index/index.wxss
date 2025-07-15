@@ -10,11 +10,18 @@
   font-weight: bold;
   margin-bottom: 20rpx;
 }
-
-.date {
-  font-size: 32rpx;
+.date-time {
+  font-size: 18px;
+  margin: 10px 0;
   color: #666;
-  margin-bottom: 40rpx;
+  display: flex;
+  align-items: center;
+}
+
+.date-time .time {
+  margin-left: 10px;
+  color: #07C160;
+  font-weight: bold;
 }
 
 .card {

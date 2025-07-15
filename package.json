@@ -16,10 +16,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vitest": "^0.34.6",
-    "miniprogram-automator": "^0.12.1",
+    "@types/node": "^20.0.0",
     "@vitest/ui": "^0.34.6",
+    "miniprogram-automator": "^0.12.1",
     "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
   }
-} 
+}
