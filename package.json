@@ -1,0 +1,23 @@
+{
+  "name": "tap-tap",
+  "version": "1.0.0",
+  "description": "上下班打卡工具小程序",
+  "main": "miniprogram/app.js",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [
+    "miniprogram",
+    "checkin"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "miniprogram-automator": "^2.0.0",
+    "@vitest/ui": "^1.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+} 
