@@ -4,7 +4,9 @@
   "description": "上下班打卡工具小程序",
   "main": "miniprogram/app.js",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "vitest run tests/e2e",
     "test:ui": "vitest --ui"
   },
   "keywords": [
