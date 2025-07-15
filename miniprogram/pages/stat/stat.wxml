@@ -16,10 +16,29 @@
     </view>
     <view wx:for="{{list}}" wx:key="date" class="record-item">
       <text class="date-cell">{{item.date}}</text>
-      <text class="time-cell">{{item.on || '-'}}</text>
-      <text class="time-cell">{{item.off || '-'}}</text>
+      <text class="time-cell" bindtap="onEditTime" data-type="on" data-date="{{item.date}}">{{item.on || '-'}}</text>
+      <text class="time-cell" bindtap="onEditTime" data-type="off" data-date="{{item.date}}">{{item.off || '-'}}</text>
     </view>
   </scroll-view>
+
+  <view wx:if="{{showPicker}}" class="picker-mask">
+    <view class="picker-container">
+      <view class="picker-header">
+        <text bindtap="onPickerCancel">取消</text>
+        <text>修改{{pickerType === 'on' ? '上班' : '下班'}}时间</text>
+        <text bindtap="onPickerConfirm">确定</text>
+      </view>
+      <picker 
+        mode="multiSelector" 
+        range="{{[hours, minutes]}}" 
+        value="{{pickerValue}}"
+        bindchange="onPickerChange">
+        <view class="picker-content">
+          <text class="picker-time">{{pickerValue[0]}}:{{pickerValue[1]}}</text>
+        </view>
+      </picker>
+    </view>
+  </view>
   
   <view class="summary" wx:if="{{list.length > 0}}">
     <view class="summary-item">

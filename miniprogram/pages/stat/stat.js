@@ -4,7 +4,13 @@ Page({
     currentMonth: '',
     monthDays: 0,
     weekHours: 0,
-    avgDailyHours: 0
+    avgDailyHours: 0,
+    showPicker: false,
+    pickerType: '',
+    pickerDate: '',
+    pickerValue: ['09', '00'],
+    hours: Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0')),
+    minutes: Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'))
   },
   
   onShow() {
@@ -25,6 +31,83 @@ Page({
     }
     
     return weekDates;
+  },
+
+  checkIn() {
+    const today = new Date().toISOString().slice(0,10);
+    const hours = new Date().getHours().toString().padStart(2, '0');
+    const minutes = new Date().getMinutes().toString().padStart(2, '0');
+    const now = `${hours}:${minutes}`;
+    const records = wx.getStorageSync('records') || [];
+    const idx = records.findIndex(r=>r.date===today);
+    idx>=0 ? records[idx].on = now : records.push({date:today,on:now});
+    wx.setStorageSync('records',records);
+    wx.showToast({title:'已上班打卡'});
+  },
+
+  checkOut() {
+    const today = new Date().toISOString().slice(0,10);
+    const hours = new Date().getHours().toString().padStart(2, '0');
+    const minutes = new Date().getMinutes().toString().padStart(2, '0');
+    const now = `${hours}:${minutes}`;
+    const records = wx.getStorageSync('records') || [];
+    const idx = records.findIndex(r=>r.date===today);
+    idx>=0 ? records[idx].off = now : records.push({date:today,off:now});
+    wx.setStorageSync('records',records);
+    wx.showToast({title:'已下班打卡'});
+  },
+
+  onEditTime(e) {
+    const { date, type } = e.currentTarget.dataset;
+    const currentValue = this.data.list.find(item => item.date === date)[type];
+    const currentHour = currentValue ? currentValue.split(':')[0] : '09';
+    const currentMinute = currentValue ? currentValue.split(':')[1] : '00';
+    
+    this.setData({
+      showPicker: true,
+      pickerType: type,
+      pickerDate: date,
+      pickerValue: [currentHour, currentMinute]
+    });
+  },
+
+  onPickerChange(e) {
+    const [hour, minute] = e.detail.value;
+    this.setData({
+      pickerValue: [hour, minute]
+    });
+  },
+
+  onPickerConfirm() {
+    const { pickerType, pickerDate, pickerValue } = this.data;
+    const [hour, minute] = pickerValue;
+    const newTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    this.updateRecord(pickerDate, pickerType, newTime);
+    this.setData({ showPicker: false });
+  },
+
+  onPickerCancel() {
+    this.setData({ showPicker: false });
+  },
+
+  updateRecord(date, type, newTime) {
+    const allRecords = wx.getStorageSync('records') || [];
+    const recordIndex = allRecords.findIndex(r => r.date === date);
+    
+    if (recordIndex >= 0) {
+      allRecords[recordIndex][type] = newTime;
+    } else {
+      const newRecord = { date };
+      newRecord[type] = newTime;
+      allRecords.push(newRecord);
+    }
+    
+    wx.setStorageSync('records', allRecords);
+    this.loadMonthData();
+    wx.showToast({
+      title: '修改成功',
+      icon: 'success'
+    });
   },
 
   loadMonthData() {
@@ -71,4 +154,4 @@ Page({
       avgDailyHours: workDays > 0 ? (weekHours / workDays).toFixed(1) : '0'
     });
   }
-}) 
+})

@@ -17,12 +17,9 @@ Page({
     // 获取设备本地时间
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
-    const timeStr = now.toLocaleTimeString('zh-CN', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true
-    });
-    const fullTimeStr = timeStr;
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const fullTimeStr = `${hours}:${minutes}`;
     
     this.setData({
       today: today,
@@ -59,8 +56,9 @@ Page({
     const { selectedDate } = this.data;
     // 获取设备本地时间
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
-    const fullTimeStr = timeStr;
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const fullTimeStr = `${hours}:${minutes}`;
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
@@ -95,8 +93,9 @@ Page({
     const { selectedDate } = this.data;
     // 获取设备本地时间
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
-    const fullTimeStr = timeStr;
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const fullTimeStr = `${hours}:${minutes}`;
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];

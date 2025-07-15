@@ -1,5 +1,5 @@
 <view class="container">
-  <view class="title">上下班打卡工具</view>
+  <view class="title">打卡</view>
   <view class="date-time">
     <picker 
       mode="date" 
