@@ -14,40 +14,20 @@ Page({
   },
   
   setCurrentDate() {
-    // 获取网络时间（东八区）
-    wx.request({
-      url: 'https://worldtimeapi.org/api/timezone/Asia/Shanghai',
-      success: (res) => {
-        const datetime = new Date(res.data.datetime);
-        const today = datetime.toISOString().slice(0, 10);
-        const timeStr = datetime.toLocaleTimeString('zh-CN', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: true
-        });
-        
-        this.setData({
-          today: today,
-          selectedDate: today,
-          currentTime: timeStr
-        });
-      },
-      fail: () => {
-        // 网络请求失败时使用本地时间
-        const now = new Date();
-        const today = now.toISOString().slice(0, 10);
-        const timeStr = now.toLocaleTimeString('zh-CN', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: true
-        });
-        
-        this.setData({
-          today: today,
-          selectedDate: today,
-          currentTime: timeStr + ' (本地)'
-        });
-      }
+    // 获取设备本地时间
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+    const timeStr = now.toLocaleTimeString('zh-CN', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true
+    });
+    const fullTimeStr = timeStr;
+    
+    this.setData({
+      today: today,
+      selectedDate: today,
+      currentTime: fullTimeStr
     });
   },
   
@@ -77,9 +57,10 @@ Page({
   
   checkIn() {
     const { selectedDate } = this.data;
-    // 获取东八区当前时间
-    const now = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+    // 获取设备本地时间
+    const now = new Date();
     const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+    const fullTimeStr = timeStr;
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
@@ -89,11 +70,11 @@ Page({
     
     // 如果已有选中日期的记录，更新上班时间；否则添加新记录
     if (idx >= 0) {
-      records[idx].on = timeStr;
+      records[idx].on = fullTimeStr;
     } else {
       records.push({
         date: selectedDate,
-        on: timeStr
+        on: fullTimeStr
       });
     }
     
@@ -112,9 +93,10 @@ Page({
   
   checkOut() {
     const { selectedDate } = this.data;
-    // 获取东八区当前时间
-    const now = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+    // 获取设备本地时间
+    const now = new Date();
     const timeStr = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+    const fullTimeStr = timeStr;
     
     // 从本地存储获取记录
     const records = wx.getStorageSync('records') || [];
@@ -124,7 +106,7 @@ Page({
     
     // 如果已有选中日期的记录，更新下班时间；否则提示先打上班卡
     if (idx >= 0) {
-      records[idx].off = timeStr;
+      records[idx].off = fullTimeStr;
       
       // 保存到本地存储
       wx.setStorageSync('records', records);
