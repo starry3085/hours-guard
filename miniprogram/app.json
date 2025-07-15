@@ -7,13 +7,16 @@
   "window":{
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "打卡黑匣子 Lite",
+    "navigationBarTitleText": "上下班打卡工具",
     "navigationBarTextStyle":"black"
   },
   "tabBar": {
     "color": "#999",
     "selectedColor": "#1aad19",
     "backgroundColor": "#fff",
+    "borderStyle": "white",
+    "fontSize": "20px",
+    "height": "60px",
     "list": [
       {
         "pagePath": "pages/index/index",

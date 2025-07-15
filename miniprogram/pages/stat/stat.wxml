@@ -1,6 +1,6 @@
 <view class="container">
   <view class="header">
-    <view class="title">本月打卡记录</view>
+    <view class="title">打卡记录</view>
     <view class="month">{{currentMonth}}</view>
   </view>
   
@@ -23,7 +23,20 @@
   
   <view class="summary" wx:if="{{list.length > 0}}">
     <view class="summary-item">
-      <text>本月打卡天数：</text>
+      <view class="stat-container">
+        <view class="stat-row">
+          <text>本月打卡天数：</text>
+          <text>{{monthDays}}</text>
+        </view>
+        <view class="stat-row">
+          <text>本周工作时长：</text>
+          <text>{{weekHours}}小时</text>
+        </view>
+        <view class="stat-row">
+          <text>本周平均每日：</text>
+          <text>{{avgDailyHours}}小时</text>
+        </view>
+      </view>
       <text class="highlight">{{list.length}}天</text>
     </view>
   </view>

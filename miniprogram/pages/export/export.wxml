@@ -1,7 +1,7 @@
 <view class="container">
   <view class="header">
     <view class="title">导出打卡记录</view>
-    <view class="subtitle">将本月打卡记录导出为PDF</view>
+    <view class="subtitle">将打卡记录导出为PDF</view>
   </view>
   
   <view class="card">
