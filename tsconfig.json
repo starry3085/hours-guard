@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["vitest/globals", "node"],
+    "types": ["node"],
     "lib": ["ES2020", "DOM"],
     "outDir": "./dist"
   },

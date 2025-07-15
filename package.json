@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vitest": "^1.0.0",
-    "miniprogram-automator": "^2.0.0",
-    "@vitest/ui": "^1.0.0",
+    "vitest": "^0.34.6",
+    "miniprogram-automator": "^0.12.1",
+    "@vitest/ui": "^0.34.6",
     "typescript": "^5.0.0",
     "@types/node": "^20.0.0"
   }

@@ -1,4 +1,6 @@
-import { expect, it, describe } from 'vitest';
+/// <reference types="vitest" />
+/// <reference path="../types.d.ts" />
+import { expect, it, describe, vi } from 'vitest';
 
 describe('导出功能', () => {
   it('导出PDF生成临时文件', async () => {

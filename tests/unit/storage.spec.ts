@@ -1,4 +1,6 @@
-import { expect, it, describe, beforeEach } from 'vitest';
+/// <reference types="vitest" />
+/// <reference path="../types.d.ts" />
+import { expect, it, describe, beforeEach, vi } from 'vitest';
 
 describe('本地存储功能', () => {
   beforeEach(async () => {

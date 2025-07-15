@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+/// <reference path="./types.d.ts" />
 import { beforeAll, afterAll } from 'vitest';
 import automator from 'miniprogram-automator';
 

@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+/// <reference path="../types.d.ts" />
 import { expect, it, describe } from 'vitest';
 
 describe('统计功能', () => {
