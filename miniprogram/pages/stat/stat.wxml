@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="header">
+    <view class="title">本月打卡记录</view>
+    <view class="month">{{currentMonth}}</view>
+  </view>
+  
+  <view class="empty-tip" wx:if="{{list.length === 0}}">
+    <text>本月暂无打卡记录</text>
+  </view>
+  
+  <scroll-view scroll-y class="record-list" wx:else>
+    <view class="list-header">
+      <text class="date-header">日期</text>
+      <text class="time-header">上班</text>
+      <text class="time-header">下班</text>
+    </view>
+    <view wx:for="{{list}}" wx:key="date" class="record-item">
+      <text class="date-cell">{{item.date}}</text>
+      <text class="time-cell">{{item.on || '-'}}</text>
+      <text class="time-cell">{{item.off || '-'}}</text>
+    </view>
+  </scroll-view>
+  
+  <view class="summary" wx:if="{{list.length > 0}}">
+    <view class="summary-item">
+      <text>本月打卡天数：</text>
+      <text class="highlight">{{list.length}}天</text>
+    </view>
+  </view>
+</view> 

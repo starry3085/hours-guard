@@ -1,0 +1,90 @@
+.container {
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.month {
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 10rpx;
+}
+
+.empty-tip {
+  text-align: center;
+  color: #999;
+  margin-top: 100rpx;
+  font-size: 28rpx;
+}
+
+.record-list {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.list-header {
+  display: flex;
+  background-color: #f8f8f8;
+  padding: 20rpx 0;
+  font-weight: bold;
+  border-bottom: 1rpx solid #eee;
+}
+
+.date-header {
+  flex: 2;
+  text-align: center;
+}
+
+.time-header {
+  flex: 1;
+  text-align: center;
+}
+
+.record-item {
+  display: flex;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.date-cell {
+  flex: 2;
+  text-align: center;
+}
+
+.time-cell {
+  flex: 1;
+  text-align: center;
+  color: #1aad19;
+}
+
+.summary {
+  margin-top: 30rpx;
+  padding: 20rpx;
+  background-color: #f8f8f8;
+  border-radius: 16rpx;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 28rpx;
+}
+
+.highlight {
+  color: #1aad19;
+  font-weight: bold;
+} 

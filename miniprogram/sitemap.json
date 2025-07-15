@@ -1,0 +1,7 @@
+{
+  "desc": "小程序的sitemap，用于配置小程序及其页面是否允许被微信索引",
+  "rules": [{
+    "action": "disallow",
+    "page": "*"
+  }]
+} 

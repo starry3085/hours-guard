@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="header">
+    <view class="title">导出打卡记录</view>
+    <view class="subtitle">将本月打卡记录导出为PDF</view>
+  </view>
+  
+  <view class="card">
+    <view class="card-title">导出选项</view>
+    <view class="option-item">
+      <text>导出月份</text>
+      <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange">
+        <view class="picker">{{selectedMonth}}</view>
+      </picker>
+    </view>
+  </view>
+  
+  <view class="btn-group">
+    <button type="primary" bindtap="makePdf">导出本月 PDF</button>
+    <button type="default" bindtap="sharePdf" disabled="{{!pdfPath}}">把 PDF 发给自己</button>
+  </view>
+  
+  <view class="tips">
+    <text class="tip">提示：PDF 生成后可长期保存在聊天记录</text>
+    <text class="warning">警告：所有数据仅保存在本机，请定期导出备份！</text>
+  </view>
+  
+  <canvas type="2d" id="canvas" style="position:fixed;left:-9999px;width:595px;height:842px"></canvas>
+</view> 
