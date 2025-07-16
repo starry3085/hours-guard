@@ -72,7 +72,7 @@ Page({
     }
   },
 
-  // 更新当前时间
+  // 更新当前时间（优化版本，减少不必要的setData调用）
   updateCurrentTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -80,9 +80,12 @@ Page({
     const seconds = now.getSeconds().toString().padStart(2, '0');
     const currentTime = `${hours}:${minutes}:${seconds}`;
     
-    this.setData({
-      currentTime: currentTime
-    });
+    // 只有时间真正变化时才更新
+    if (this.data.currentTime !== currentTime) {
+      this.setData({
+        currentTime: currentTime
+      });
+    }
   },
   
   setCurrentDate() {

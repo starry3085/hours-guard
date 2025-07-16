@@ -16,27 +16,61 @@ class StorageManager {
     this.currentVersion = '1.0.0';
     this.maxRetries = 3;
     this.backupInterval = 24 * 60 * 60 * 1000; // 24小时
+    
+    // 性能优化：添加内存缓存
+    this.cache = new Map();
+    this.cacheExpiry = new Map();
+    this.cacheTimeout = 5 * 60 * 1000; // 5分钟缓存
+    
+    // 防抖写入队列
+    this.writeQueue = new Map();
+    this.writeDebounceTime = 300; // 300ms防抖
+    
+    // 预编译正则表达式
+    this.datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    this.timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
   }
 
   /**
-   * 安全读取存储数据
+   * 安全读取存储数据（带缓存优化）
    * @param {string} key 存储键
    * @param {*} defaultValue 默认值
    * @returns {*} 存储的数据或默认值
    */
   safeGetStorage(key, defaultValue = null) {
+    // 检查缓存
+    if (this.cache.has(key)) {
+      const expiry = this.cacheExpiry.get(key);
+      if (expiry && Date.now() < expiry) {
+        return this.cache.get(key);
+      } else {
+        // 缓存过期，清除
+        this.cache.delete(key);
+        this.cacheExpiry.delete(key);
+      }
+    }
+    
     let retries = 0;
     
     while (retries < this.maxRetries) {
       try {
         const data = wx.getStorageSync(key);
+        let result;
         
         // 验证数据完整性
         if (key === this.storageKeys.records) {
-          return this.validateRecordsData(data) ? data : (defaultValue || []);
+          result = this.validateRecordsData(data) ? data : (defaultValue || []);
+        } else {
+          result = data !== '' ? data : defaultValue;
         }
         
-        return data !== '' ? data : defaultValue;
+        // 缓存结果（仅缓存重要数据）
+        if (key === this.storageKeys.records && result !== defaultValue) {
+          this.cache.set(key, result);
+          this.cacheExpiry.set(key, Date.now() + this.cacheTimeout);
+        }
+        
+        return result;
         
       } catch (error) {
         retries++;
@@ -59,12 +93,51 @@ class StorageManager {
   }
 
   /**
-   * 安全写入存储数据
+   * 安全写入存储数据（带防抖优化）
    * @param {string} key 存储键
    * @param {*} data 要存储的数据
-   * @returns {boolean} 是否成功
+   * @returns {Promise<boolean>} 是否成功
    */
   safeSetStorage(key, data) {
+    // 对于频繁写入的数据使用防抖
+    if (key === this.storageKeys.records) {
+      return this.debouncedWrite(key, data);
+    }
+    
+    return this.immediateWrite(key, data);
+  }
+
+  /**
+   * 防抖写入
+   * @param {string} key 存储键
+   * @param {*} data 数据
+   * @returns {Promise<boolean>} 是否成功
+   */
+  debouncedWrite(key, data) {
+    return new Promise((resolve) => {
+      // 清除之前的定时器
+      if (this.writeQueue.has(key)) {
+        clearTimeout(this.writeQueue.get(key));
+      }
+      
+      // 设置新的防抖定时器
+      const timeoutId = setTimeout(async () => {
+        const success = await this.immediateWrite(key, data);
+        this.writeQueue.delete(key);
+        resolve(success);
+      }, this.writeDebounceTime);
+      
+      this.writeQueue.set(key, timeoutId);
+    });
+  }
+
+  /**
+   * 立即写入存储数据
+   * @param {string} key 存储键
+   * @param {*} data 要存储的数据
+   * @returns {Promise<boolean>} 是否成功
+   */
+  async immediateWrite(key, data) {
     let retries = 0;
     
     while (retries < this.maxRetries) {
@@ -82,6 +155,12 @@ class StorageManager {
         
         // 写入数据
         wx.setStorageSync(key, data);
+        
+        // 更新缓存
+        if (key === this.storageKeys.records) {
+          this.cache.set(key, data);
+          this.cacheExpiry.set(key, Date.now() + this.cacheTimeout);
+        }
         
         // 验证写入是否成功
         const verification = wx.getStorageSync(key);
@@ -106,7 +185,7 @@ class StorageManager {
         }
         
         // 短暂延迟后重试
-        this.sleep(100 * retries);
+        await this.sleep(100 * retries);
       }
     }
     
@@ -114,7 +193,7 @@ class StorageManager {
   }
 
   /**
-   * 验证记录数据格式
+   * 验证记录数据格式（使用预编译正则表达式优化性能）
    * @param {Array} data 记录数据
    * @returns {boolean} 是否有效
    */
@@ -129,18 +208,16 @@ class StorageManager {
         return false;
       }
       
-      // 验证日期格式 YYYY-MM-DD
-      const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-      if (!datePattern.test(record.date)) {
+      // 验证日期格式 YYYY-MM-DD（使用预编译正则）
+      if (!this.datePattern.test(record.date)) {
         return false;
       }
       
-      // 验证时间格式 HH:MM（如果存在）
-      const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-      if (record.on && !timePattern.test(record.on)) {
+      // 验证时间格式 HH:MM（如果存在，使用预编译正则）
+      if (record.on && !this.timePattern.test(record.on)) {
         return false;
       }
-      if (record.off && !timePattern.test(record.off)) {
+      if (record.off && !this.timePattern.test(record.off)) {
         return false;
       }
       
@@ -352,14 +429,12 @@ class StorageManager {
   }
 
   /**
-   * 延迟函数
+   * 延迟函数（异步版本，避免阻塞主线程）
    * @param {number} ms 毫秒数
+   * @returns {Promise} Promise对象
    */
   sleep(ms) {
-    const start = Date.now();
-    while (Date.now() - start < ms) {
-      // 忙等待
-    }
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**

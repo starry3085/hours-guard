@@ -73,9 +73,15 @@ Page({
     return weekDates;
   },
 
-  // 计算工作时长（小时）
+  // 计算工作时长（小时）- 优化版本，添加缓存
   calculateWorkHours(onTime, offTime, date) {
     if (!onTime || !offTime) return 0;
+    
+    // 使用缓存键避免重复计算
+    const cacheKey = `${date}_${onTime}_${offTime}`;
+    if (this.workHoursCache && this.workHoursCache.has(cacheKey)) {
+      return this.workHoursCache.get(cacheKey);
+    }
     
     try {
       const onDateTime = new Date(`${date} ${onTime}`);
@@ -87,7 +93,21 @@ Page({
       }
       
       const diffMs = offDateTime - onDateTime;
-      return diffMs / (1000 * 60 * 60); // 转换为小时
+      const hours = diffMs / (1000 * 60 * 60); // 转换为小时
+      
+      // 缓存计算结果
+      if (!this.workHoursCache) {
+        this.workHoursCache = new Map();
+      }
+      this.workHoursCache.set(cacheKey, hours);
+      
+      // 限制缓存大小，避免内存泄漏
+      if (this.workHoursCache.size > 100) {
+        const firstKey = this.workHoursCache.keys().next().value;
+        this.workHoursCache.delete(firstKey);
+      }
+      
+      return hours;
     } catch (error) {
       console.error('计算工作时长失败:', error);
       return 0;

@@ -1,9 +1,13 @@
 const storageManager = require('./utils/storage');
 const errorHandler = require('./utils/error-handler');
+const performanceMonitor = require('./utils/performance-monitor');
 
 App({
   onLaunch() {
     try {
+      // 开始应用启动性能监控
+      performanceMonitor.startTiming('app_launch');
+      
       // 初始化全局数据
       this.initGlobalData();
       
@@ -22,7 +26,16 @@ App({
       // 检查网络状态（用于离线模式提示）
       this.checkNetworkStatusOnLaunch();
       
+      // 结束应用启动性能监控
+      performanceMonitor.endTiming('app_launch', 'page');
+      
+      // 开始定期内存监控
+      this.startPerformanceMonitoring();
+      
     } catch (error) {
+      // 确保性能监控结束
+      performanceMonitor.endTiming('app_launch', 'page');
+      
       errorHandler.handleError(error, '应用启动', {
         showModal: true,
         recovery: () => {
@@ -301,6 +314,7 @@ App({
     this.globalData = {
       version: '1.0.0',
       storageManager: storageManager,
+      performanceMonitor: performanceMonitor,
       storageKeys: {
         records: 'records',
         hasShownWarning: 'hasShownWarning',
@@ -313,6 +327,35 @@ App({
   // 获取存储管理器实例
   getStorageManager() {
     return storageManager;
+  },
+
+  // 获取性能监控器实例
+  getPerformanceMonitor() {
+    return performanceMonitor;
+  },
+
+  // 显示性能报告
+  showPerformanceReport() {
+    performanceMonitor.showPerformanceReport();
+  },
+
+  // 开始定期性能监控
+  startPerformanceMonitoring() {
+    // 立即执行一次内存监控
+    performanceMonitor.monitorMemoryUsage();
+    
+    // 设置定期监控（每5分钟监控一次内存使用）
+    this.performanceInterval = setInterval(() => {
+      performanceMonitor.monitorMemoryUsage();
+    }, 5 * 60 * 1000);
+  },
+
+  // 停止性能监控
+  stopPerformanceMonitoring() {
+    if (this.performanceInterval) {
+      clearInterval(this.performanceInterval);
+      this.performanceInterval = null;
+    }
   },
 
   globalData: {}
