@@ -1,31 +1,108 @@
-<view class="container">
-  <view class="title">打卡</view>
-  <view class="date-time">
-    <picker 
-      mode="date" 
-      value="{{selectedDate}}"
-      start="2000-01-01"
-      end="2030-12-31"
-      bindchange="onDateChange">
-      <text>{{selectedDate}}</text>
-    </picker>
-    <text class="time">{{currentTime}}</text>
+<view class="page-container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">{{isToday ? '今日打卡' : '补录打卡'}}</text>
+    <text class="subtitle">{{isToday ? '记录您的工作时间' : '补录历史记录'}}</text>
   </view>
-  <view class="card">
-    <view class="record-item">
-      <text>上班时间：</text>
-      <text class="time" style="color:{{todayRecord.on ? '#07C160' : ''}}">{{todayRecord.on || '未打卡'}}</text>
+
+  <!-- 日期和时间显示 -->
+  <view class="datetime-section">
+    <view class="date-picker-wrapper">
+      <picker 
+        mode="date" 
+        value="{{selectedDate}}"
+        start="2020-01-01"
+        end="2030-12-31"
+        bindchange="onDateChange"
+        class="date-picker">
+        <view class="date-display">
+          <text class="date-text">{{selectedDate}}</text>
+          <text class="date-icon">📅</text>
+        </view>
+      </picker>
     </view>
-    <view class="record-item">
-      <text>下班时间：</text>
-      <text class="time" style="color:{{todayRecord.off ? '#07C160' : ''}}">{{todayRecord.off || '未打卡'}}</text>
+    
+    <view class="current-time" wx:if="{{isToday}}">
+      <text class="time-label">当前时间</text>
+      <text class="time-value">{{currentTime}}</text>
     </view>
   </view>
-  <view class="btn-group">
-    <button type="primary" bindtap="checkIn" disabled="{{!!todayRecord.on}}">上班打卡</button>
-    <button type="warn" bindtap="checkOut" disabled="{{!!todayRecord.off || !todayRecord.on}}">下班打卡</button>
+
+  <!-- 打卡记录卡片 -->
+  <view class="record-card">
+    <view class="card-header">
+      <text class="card-title">打卡记录</text>
+      <text class="card-date">{{selectedDate}}</text>
+    </view>
+    
+    <view class="record-list">
+      <view class="record-item">
+        <view class="record-info">
+          <text class="record-label">上班时间</text>
+          <text class="record-status {{todayRecord.on ? 'completed' : 'pending'}}">
+            {{todayRecord.on ? '已打卡' : '未打卡'}}
+          </text>
+        </view>
+        <view class="record-time-wrapper">
+          <text class="record-time {{todayRecord.on ? 'has-time' : 'no-time'}}" 
+                bindtap="onEditTime" 
+                data-type="on">
+            {{todayRecord.on || '--:--'}}
+          </text>
+          <text class="edit-hint" wx:if="{{todayRecord.on}}">点击编辑</text>
+        </view>
+      </view>
+      
+      <view class="record-item">
+        <view class="record-info">
+          <text class="record-label">下班时间</text>
+          <text class="record-status {{todayRecord.off ? 'completed' : 'pending'}}">
+            {{todayRecord.off ? '已打卡' : '未打卡'}}
+          </text>
+        </view>
+        <view class="record-time-wrapper">
+          <text class="record-time {{todayRecord.off ? 'has-time' : 'no-time'}}" 
+                bindtap="onEditTime" 
+                data-type="off">
+            {{todayRecord.off || '--:--'}}
+          </text>
+          <text class="edit-hint" wx:if="{{todayRecord.off}}">点击编辑</text>
+        </view>
+      </view>
+    </view>
   </view>
-  <view class="tips">
-    <text>提示：所有数据仅保存在本机，请定期导出备份</text>
+
+  <!-- 打卡按钮组 -->
+  <view class="action-section">
+    <button class="punch-btn punch-in {{todayRecord.on ? 'disabled' : ''}}" 
+            bindtap="checkIn" 
+            disabled="{{!!todayRecord.on}}"
+            hover-class="btn-hover">
+      <text class="btn-icon">🕘</text>
+      <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
+      <text class="btn-status" wx:if="{{todayRecord.on}}">已完成</text>
+    </button>
+    
+    <button class="punch-btn punch-out {{(todayRecord.off || !todayRecord.on) ? 'disabled' : ''}}" 
+            bindtap="checkOut" 
+            disabled="{{!!todayRecord.off || !todayRecord.on}}"
+            hover-class="btn-hover">
+      <text class="btn-icon">🕕</text>
+      <text class="btn-text">{{isToday ? '下班打卡' : '补录下班'}}</text>
+      <text class="btn-status" wx:if="{{todayRecord.off}}">已完成</text>
+      <text class="btn-status" wx:elif="{{!todayRecord.on}}">需先上班打卡</text>
+    </button>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tips-section">
+    <view class="tip-item">
+      <text class="tip-icon">💡</text>
+      <text class="tip-text">所有数据仅保存在本机，请定期导出备份</text>
+    </view>
+    <view class="tip-item" wx:if="{{!isToday}}">
+      <text class="tip-icon">📝</text>
+      <text class="tip-text">补录模式：可以修改历史日期的打卡记录</text>
+    </view>
   </view>
 </view>

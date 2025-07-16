@@ -1,69 +1,250 @@
-.container {
+/* 页面容器 */
+.page-container {
   padding: 30rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: #f7f7f7;
+  min-height: 100vh;
+}
+
+/* 页面标题区域 */
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
 }
 
 .title {
-  font-size: 40rpx;
-  font-weight: bold;
+  font-size: 48rpx;
+  font-weight: 500;
+  color: #191919;
+  margin-bottom: 10rpx;
+}
+
+.subtitle {
+  font-size: 32rpx;
+  color: #888;
+}
+
+/* 日期时间区域 */
+.datetime-section {
+  margin-bottom: 40rpx;
+}
+
+.date-picker-wrapper {
+  background: white;
+  border-radius: 8rpx;
+  padding: 30rpx;
   margin-bottom: 20rpx;
 }
-.date-time {
-  font-size: 18px;
-  margin: 10px 0;
-  color: #666;
+
+.date-picker {
+  width: 100%;
+}
+
+.date-display {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.date-text {
+  font-weight: 500;
+}
+
+.current-time {
+  background: white;
+  border-radius: 8rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.date-time .time {
-  margin-left: 10px;
-  color: #07C160;
-  font-weight: bold;
+.time-label {
+  font-size: 28rpx;
+  color: #666;
 }
 
-.card {
-  width: 100%;
-  background-color: #f8f8f8;
-  border-radius: 16rpx;
+.time-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #07c160;
+  font-family: 'Courier New', monospace;
+}
+
+/* 打卡记录卡片 */
+.record-card {
+  background: white;
+  border-radius: 8rpx;
   padding: 30rpx;
   margin-bottom: 40rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #191919;
+}
+
+.card-date {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
 .record-item {
   display: flex;
   justify-content: space-between;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #eee;
+  align-items: center;
+  padding: 20rpx;
+  background: #f7f7f7;
+  border-radius: 8rpx;
 }
 
-.record-item:last-child {
-  border-bottom: none;
+.record-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
-.time {
+.record-label {
+  font-size: 28rpx;
+  color: #191919;
+  font-weight: 500;
+}
+
+.record-status {
+  font-size: 24rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+  text-align: center;
+}
+
+.record-status.completed {
+  background: #e8f5e8;
+  color: #07c160;
+}
+
+.record-status.pending {
+  background: #f7f7f7;
+  color: #888;
+}
+
+.record-time-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.record-time {
+  font-size: 32rpx;
   font-weight: bold;
-  color: #1aad19;
+  font-family: 'Courier New', monospace;
+  padding: 8rpx 16rpx;
+  border-radius: 4rpx;
+  min-width: 120rpx;
+  text-align: center;
 }
 
-.btn-group {
-  width: 100%;
+.record-time.has-time {
+  color: #07c160;
+  background: #e8f5e8;
+}
+
+.record-time.no-time {
+  color: #888;
+  background: #f7f7f7;
+}
+
+.edit-hint {
+  font-size: 20rpx;
+  color: #888;
+}
+
+/* 打卡按钮区域 */
+.action-section {
+  margin-bottom: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.punch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 32rpx;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.punch-in {
+  background: #07c160;
+  color: white;
+}
+
+.punch-out {
+  background: white;
+  color: #07c160;
+  border: 2rpx solid #07c160;
+}
+
+.punch-btn.disabled {
+  background: #f7f7f7 !important;
+  color: #ccc !important;
+  border-color: #f7f7f7 !important;
+}
+
+.btn-hover {
+  opacity: 0.8;
+}
+
+.btn-text {
+  font-size: 32rpx;
+}
+
+.btn-status {
+  position: absolute;
+  right: 20rpx;
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+/* 提示信息区域 */
+.tips-section {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  margin-bottom: 40rpx;
 }
 
-button {
-  width: 100% !important;
+.tip-item {
+  padding: 24rpx;
+  background: white;
+  border-radius: 8rpx;
 }
 
-.tips {
-  font-size: 24rpx;
-  color: #999;
-  text-align: center;
-  margin-top: 30rpx;
+.tip-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.4;
 } 

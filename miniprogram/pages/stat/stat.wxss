@@ -1,155 +1,320 @@
-.container {
+/* 页面容器 */
+.page-container {
   padding: 30rpx;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  background: #f7f7f7;
+  min-height: 100vh;
 }
 
+/* 页面标题区域 */
 .header {
-  margin-bottom: 30rpx;
   text-align: center;
+  margin-bottom: 40rpx;
 }
 
 .title {
-  font-size: 40rpx;
-  font-weight: bold;
+  font-size: 48rpx;
+  font-weight: 500;
+  color: #191919;
+  margin-bottom: 10rpx;
 }
 
-.month {
-  font-size: 28rpx;
-  color: #666;
-  margin-top: 10rpx;
+.subtitle {
+  font-size: 32rpx;
+  color: #888;
 }
 
-.empty-tip {
+/* 统计卡片区域 */
+.stats-section {
+  margin-bottom: 40rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8rpx;
+  padding: 30rpx;
   text-align: center;
-  color: #999;
-  margin-top: 100rpx;
-  font-size: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
 }
 
-.record-list {
+.stat-number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #07c160;
+  font-family: 'Courier New', monospace;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 记录列表区域 */
+.records-section {
   flex: 1;
-  background-color: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 0 10rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.record-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 40rpx;
+  background: white;
+  border-radius: 8rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 记录列表 */
+.record-list {
+  background: white;
+  border-radius: 8rpx;
   overflow: hidden;
+  max-height: 60vh;
 }
 
 .list-header {
   display: flex;
-  background-color: #f8f8f8;
+  background: #f8f9fa;
   padding: 20rpx 0;
   font-weight: bold;
-  border-bottom: 1rpx solid #eee;
+  font-size: 26rpx;
+  color: #666;
+  border-bottom: 2rpx solid #e9ecef;
 }
 
-.date-header {
+.header-date {
   flex: 2;
   text-align: center;
 }
 
-.time-header {
+.header-time {
+  flex: 1.5;
+  text-align: center;
+}
+
+.header-duration {
   flex: 1;
   text-align: center;
 }
 
-.record-item {
-  display: flex;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #eee;
+.header-action {
+  flex: 1;
+  text-align: center;
 }
 
-.date-cell {
+.record-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.record-row:hover {
+  background-color: #f8f9fa;
+}
+
+.record-row:last-child {
+  border-bottom: none;
+}
+
+.cell-date {
   flex: 2;
   text-align: center;
-}
-
-.time-cell {
-  flex: 1;
-  text-align: center;
-  color: #1aad19;
-}
-
-.summary {
-  margin-top: 10px;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-}
-
-.stat-container {
-  margin-top: 10px;
-}
-
-.stat-row {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
-.stat-row text:last-child {
-  font-weight: bold;
-  color: #1aad19;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
+.date-text {
   font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
 }
 
-.highlight {
-  color: #1aad19;
+.weekday {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.cell-time {
+  flex: 1.5;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  cursor: pointer;
+}
+
+.time-text {
+  font-size: 28rpx;
+  font-family: 'Courier New', monospace;
   font-weight: bold;
+  padding: 4rpx 8rpx;
+  border-radius: 6rpx;
 }
 
-/* Picker Styles */
-.picker-mask {
+.time-text.has-time {
+  color: #07c160;
+  background: #e8f5e8;
+}
+
+.time-text.no-time {
+  color: #999;
+  background: #f5f5f5;
+}
+
+.edit-hint {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.cell-duration {
+  flex: 1;
+  text-align: center;
+}
+
+.duration-text {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.cell-action {
+  flex: 1;
+  text-align: center;
+}
+
+.delete-btn {
+  font-size: 24rpx;
+  color: #ff4757;
+  padding: 8rpx 16rpx;
+  border-radius: 6rpx;
+  background: #fff5f5;
+  border: 1rpx solid #ffebee;
+}
+
+/* 时间选择器弹窗 */
+.picker-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: flex-end;
-  z-index: 999;
+  z-index: 1000;
 }
 
-.picker-container {
+.picker-modal {
   width: 100%;
-  background-color: #fff;
-  border-radius: 12px 12px 0 0;
+  background: white;
+  border-radius: 20rpx 20rpx 0 0;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .picker-header {
   display: flex;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid #f5f5f5;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 2rpx solid #f0f0f0;
 }
 
-.picker-header text:nth-child(1) {
+.picker-cancel {
+  font-size: 32rpx;
   color: #999;
 }
 
-.picker-header text:nth-child(2) {
+.picker-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.picker-confirm {
+  font-size: 32rpx;
+  color: #07c160;
   font-weight: bold;
 }
 
-.picker-header text:nth-child(3) {
-  color: #07C160;
+.picker-body {
+  padding: 40rpx;
+  position: relative;
 }
 
-.picker-content {
-  padding: 20px;
-  text-align: center;
+.picker-view {
+  height: 400rpx;
 }
 
-.picker-time {
-  font-size: 24px;
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.picker-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.time-display {
+  font-size: 36rpx;
   font-weight: bold;
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+  padding: 10rpx 20rpx;
+  border-radius: 10rpx;
+  font-family: 'Courier New', monospace;
 }

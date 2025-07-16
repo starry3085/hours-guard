@@ -1,4 +1,5 @@
 {
+  "description": "上下班打卡工具",
   "setting": {
     "es6": true,
     "postcss": true,
@@ -12,14 +13,33 @@
       "outputPath": ""
     },
     "useCompilerPlugins": false,
-    "minifyWXML": true
+    "minifyWXML": true,
+    "coverView": true,
+    "lazyCodeLoading": "requiredComponents"
   },
   "compileType": "miniprogram",
+  "libVersion": "2.19.4",
+  "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "file",
+        "value": ".eslintrc.js"
+      }
+    ],
     "include": []
   },
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
   "appid": "wx47af5ec4c9ef603c",
-  "editorSetting": {}
+  "projectname": "attendance-tracker",
+  "cloudfunctionTemplateRoot": "",
+  "watchOptions": {
+    "ignore": []
+  },
+  "scripts": {}
 }

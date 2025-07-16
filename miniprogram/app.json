@@ -1,38 +1,45 @@
 {
-  "pages":[
+  "pages": [
     "pages/index/index",
     "pages/stat/stat",
-    "pages/export/export"
+    "pages/export/export",
+    "pages/storage/storage"
   ],
-  "window":{
-    "backgroundTextStyle":"light",
+  "window": {
+    "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "上下班打卡工具",
-    "navigationBarTextStyle":"black"
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": false
   },
   "tabBar": {
-    "color": "#999",
-    "selectedColor": "#1aad19",
-    "backgroundColor": "#fff",
-    "borderStyle": "white",
-    "fontSize": "20px",
-    "height": "60px",
+    "color": "#7A7E83",
+    "selectedColor": "#3cc51f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
+        "iconPath": "images/tabbar/home.png",
+        "selectedIconPath": "images/tabbar/home-active.png",
         "text": "打卡"
       },
       {
         "pagePath": "pages/stat/stat",
+        "iconPath": "images/tabbar/stat.png",
+        "selectedIconPath": "images/tabbar/stat-active.png",
         "text": "统计"
       },
       {
         "pagePath": "pages/export/export",
+        "iconPath": "images/tabbar/export.png",
+        "selectedIconPath": "images/tabbar/export-active.png",
         "text": "导出"
       }
     ]
   },
   "usingComponents": {},
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
 }

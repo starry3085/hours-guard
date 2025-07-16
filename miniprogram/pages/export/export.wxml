@@ -1,28 +1,95 @@
-<view class="container">
+<view class="page-container">
+  <!-- 页面标题 -->
   <view class="header">
-    <view class="title">导出打卡记录</view>
-    <view class="subtitle">将打卡记录导出为PDF</view>
+    <text class="title">记录导出</text>
+    <text class="subtitle">支持Excel表格、图片报告、文本记录</text>
   </view>
   
-  <view class="card">
-    <view class="card-title">导出选项</view>
-    <view class="option-item">
-      <text>导出月份</text>
-      <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange">
-        <view class="picker">{{selectedMonth}}</view>
-      </picker>
+  <!-- 月份选择卡片 -->
+  <view class="month-card">
+    <view class="card-header">
+      <text class="card-title">选择导出月份</text>
+    </view>
+    
+    <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange" class="month-picker">
+      <view class="picker-display">
+        <text class="selected-month">{{selectedMonth}}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 数据统计卡片 -->
+  <view class="stats-card" wx:if="{{recordCount > 0}}">
+    <view class="card-header">
+      <text class="card-title">数据概览</text>
+    </view>
+    
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{recordCount}}</text>
+        <text class="stat-label">打卡天数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{totalWorkHours}}</text>
+        <text class="stat-label">总工作时长(h)</text>
+      </view>
     </view>
   </view>
-  
-  <view class="btn-group">
-    <button type="primary" bindtap="makePdf">导出本月 PDF</button>
-    <button type="default" bindtap="sharePdf" disabled="{{!pdfPath}}">把 PDF 发给自己</button>
+
+  <!-- 空数据提示 -->
+  <view class="empty-card" wx:if="{{recordCount === 0}}">
+    <text class="empty-text">该月份暂无打卡数据</text>
+    <text class="empty-hint">请选择其他月份或先去打卡页面记录</text>
   </view>
-  
-  <view class="tips">
-    <text class="tip">提示：PDF 生成后可长期保存在聊天记录</text>
-    <text class="warning">警告：所有数据仅保存在本机，请定期导出备份！</text>
+
+  <!-- 操作按钮 -->
+  <view class="action-section">
+    <button class="export-btn {{isGenerating ? 'generating' : ''}}" 
+            bindtap="makeReport" 
+            disabled="{{isGenerating || recordCount === 0}}"
+            hover-class="btn-hover">
+      <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
+    </button>
+    
+    <button class="share-btn {{!pdfPath ? 'disabled' : ''}}" 
+            bindtap="sharePdf" 
+            disabled="{{!pdfPath}}"
+            hover-class="btn-hover">
+      <text class="btn-text">分享文件</text>
+    </button>
+    
+    <button class="storage-btn" 
+            bindtap="onGoToStorage"
+            hover-class="btn-hover">
+      <text class="btn-text">存储管理</text>
+    </button>
   </view>
-  
-  <canvas type="2d" id="canvas" style="position:fixed;left:-9999px;width:595px;height:842px"></canvas>
+
+  <!-- 功能说明 -->
+  <view class="info-section">
+    <view class="info-card">
+      <view class="info-header">
+        <text class="info-title">导出内容包含</text>
+      </view>
+      <view class="info-list">
+        <view class="info-item">
+          <text class="info-text">完整的打卡记录表格</text>
+        </view>
+        <view class="info-item">
+          <text class="info-text">工作时长统计分析</text>
+        </view>
+        <view class="info-item">
+          <text class="info-text">专业的报告格式</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="warning-card">
+      <text class="warning-text">数据仅保存在本机，请定期导出备份！</text>
+    </view>
+  </view>
+
+  <!-- 隐藏的Canvas用于图片生成 -->
+  <canvas type="2d" id="canvas" class="hidden-canvas"></canvas>
 </view> 
