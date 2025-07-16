@@ -8,29 +8,44 @@ Page({
     isGenerating: false,
     recordCount: 0,
     totalWorkHours: 0,
-    storageManager: null
+    storageManager: null,
+    errorHandler: null
   },
   
   onLoad() {
-    // 获取存储管理器实例
-    this.setData({
-      storageManager: app.getStorageManager()
-    });
-    
-    // 初始化为当前月份
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    
-    const selectedDate = `${year}-${month.toString().padStart(2, '0')}`;
-    const selectedMonth = `${year}年${month}月`;
-    
-    this.setData({
-      selectedDate: selectedDate,
-      selectedMonth: selectedMonth
-    });
-    
-    this.loadMonthData();
+    try {
+      // 获取存储管理器和错误处理器实例
+      this.setData({
+        storageManager: app.getStorageManager(),
+        errorHandler: app.getErrorHandler()
+      });
+      
+      // 初始化为当前月份
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      
+      const selectedDate = `${year}-${month.toString().padStart(2, '0')}`;
+      const selectedMonth = `${year}年${month}月`;
+      
+      this.setData({
+        selectedDate: selectedDate,
+        selectedMonth: selectedMonth
+      });
+      
+      this.loadMonthData();
+      
+    } catch (error) {
+      const errorHandler = app.getErrorHandler();
+      errorHandler.handleError(error, '导出页面初始化', {
+        showModal: true,
+        recovery: () => {
+          setTimeout(() => {
+            this.onLoad();
+          }, 1000);
+        }
+      });
+    }
   },
   
   onShow() {
@@ -39,7 +54,7 @@ Page({
   
   // 加载月份数据统计
   loadMonthData() {
-    const { storageManager } = this.data;
+    const { storageManager, errorHandler } = this.data;
     
     if (!storageManager) {
       console.error('存储管理器未初始化');
@@ -67,12 +82,23 @@ Page({
         totalWorkHours: totalHours.toFixed(1)
       });
     } catch (error) {
-      console.error('加载月份数据失败:', error);
-      wx.showToast({
-        title: '数据加载失败',
-        icon: 'none',
-        duration: 2000
-      });
+      if (errorHandler) {
+        errorHandler.handleError(error, '加载导出数据', {
+          showToast: true,
+          recovery: () => {
+            setTimeout(() => {
+              this.loadMonthData();
+            }, 1000);
+          }
+        });
+      } else {
+        console.error('加载月份数据失败:', error);
+        wx.showToast({
+          title: '数据加载失败',
+          icon: 'none',
+          duration: 2000
+        });
+      }
     }
   },
   
@@ -110,10 +136,10 @@ Page({
     });
   },
   
-  makeReport() {
-    const { storageManager } = this.data;
+  async makeReport() {
+    const { storageManager, errorHandler, isGenerating } = this.data;
     
-    if (this.data.isGenerating) {
+    if (isGenerating) {
       wx.showToast({
         title: '正在生成中...',
         icon: 'none'
@@ -141,25 +167,29 @@ Page({
       
       this.setData({ isGenerating: true });
       
-      // 使用存储管理器安全获取所有记录
-      const allRecords = storageManager.safeGetStorage('records', []);
-      
-      // 筛选选定月份的记录
-      const monthRecords = allRecords.filter(record => record.date.startsWith(monthPrefix));
-      
-      if (!monthRecords.length) {
-        wx.hideLoading();
-        this.setData({ isGenerating: false });
-        wx.showToast({
-          title: '无打卡数据',
-          icon: 'none',
-          duration: 2000
-        });
-        return;
-      }
-      
-      // 按日期排序（从早到晚）
-      monthRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+      // 使用错误处理器的重试机制
+      const monthRecords = await errorHandler.withRetry(async () => {
+        // 使用存储管理器安全获取所有记录
+        const allRecords = storageManager.safeGetStorage('records', []);
+        
+        // 筛选选定月份的记录
+        const records = allRecords.filter(record => record.date.startsWith(monthPrefix));
+        
+        if (!records.length) {
+          throw new Error('无打卡数据');
+        }
+        
+        // 按日期排序（从早到晚）
+        records.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        return records;
+      }, {
+        maxRetries: 2,
+        context: '获取导出数据',
+        onRetry: (error, attempt) => {
+          console.log(`获取导出数据重试第${attempt}次:`, error.message);
+        }
+      });
       
       // 显示导出格式选择
       this.showExportOptions(monthRecords);
@@ -167,12 +197,22 @@ Page({
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
-      console.error('报告生成失败:', error);
-      wx.showToast({
-        title: '报告生成失败，请重试',
-        icon: 'none',
-        duration: 2000
-      });
+      
+      if (error.message === '无打卡数据') {
+        wx.showToast({
+          title: '无打卡数据',
+          icon: 'none',
+          duration: 2000
+        });
+      } else {
+        errorHandler.handleError(error, '生成报告', {
+          showToast: true,
+          recovery: () => {
+            // 恢复策略：重新加载数据
+            this.loadMonthData();
+          }
+        });
+      }
     }
   },
 
@@ -200,163 +240,223 @@ Page({
   },
 
   // 生成CSV文件
-  generateCSV(monthRecords) {
+  async generateCSV(monthRecords) {
+    const { errorHandler } = this.data;
+    
     try {
       wx.showLoading({ title: '生成Excel表格中...', mask: true });
+      this.setData({ isGenerating: true });
       
-      // CSV头部
-      let csvContent = '\uFEFF'; // BOM for UTF-8
-      csvContent += '日期,星期,上班时间,下班时间,工作时长(小时),备注\n';
-      
-      // 添加数据行
-      monthRecords.forEach(record => {
-        const date = new Date(record.date);
-        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-        const weekday = `周${weekdays[date.getDay()]}`;
-        const workHours = this.calculateWorkHours(record.on, record.off, record.date);
-        const workHoursText = workHours > 0 ? workHours.toFixed(2) : '';
+      // 使用错误处理器的重试机制
+      const result = await errorHandler.withRetry(async () => {
+        // CSV头部
+        let csvContent = '\uFEFF'; // BOM for UTF-8
+        csvContent += '日期,星期,上班时间,下班时间,工作时长(小时),备注\n';
         
-        csvContent += `${record.date},${weekday},${record.on || ''},${record.off || ''},${workHoursText},\n`;
-      });
-      
-      // 添加统计信息
-      csvContent += '\n统计信息\n';
-      csvContent += `打卡天数,${monthRecords.length}\n`;
-      csvContent += `总工作时长,${this.data.totalWorkHours}小时\n`;
-      csvContent += `平均每日工作时长,${monthRecords.length > 0 ? (parseFloat(this.data.totalWorkHours) / monthRecords.length).toFixed(2) : 0}小时\n`;
-      csvContent += `生成时间,${new Date().toLocaleString('zh-CN')}\n`;
-      
-      // 写入临时文件
-      const fs = wx.getFileSystemManager();
-      const fileName = `打卡记录-${this.data.selectedMonth}.csv`;
-      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
-      
-      fs.writeFile({
-        filePath: filePath,
-        data: csvContent,
-        encoding: 'utf8',
-        success: () => {
-          wx.hideLoading();
-          this.setData({ 
-            isGenerating: false,
-            pdfPath: filePath 
-          });
+        // 添加数据行
+        monthRecords.forEach(record => {
+          const date = new Date(record.date);
+          const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+          const weekday = `周${weekdays[date.getDay()]}`;
+          const workHours = this.calculateWorkHours(record.on, record.off, record.date);
+          const workHoursText = workHours > 0 ? workHours.toFixed(2) : '';
           
-          wx.showToast({
-            title: 'Excel表格生成成功',
-            icon: 'success'
+          csvContent += `${record.date},${weekday},${record.on || ''},${record.off || ''},${workHoursText},\n`;
+        });
+        
+        // 添加统计信息
+        csvContent += '\n统计信息\n';
+        csvContent += `打卡天数,${monthRecords.length}\n`;
+        csvContent += `总工作时长,${this.data.totalWorkHours}小时\n`;
+        csvContent += `平均每日工作时长,${monthRecords.length > 0 ? (parseFloat(this.data.totalWorkHours) / monthRecords.length).toFixed(2) : 0}小时\n`;
+        csvContent += `生成时间,${new Date().toLocaleString('zh-CN')}\n`;
+        
+        // 写入临时文件
+        const fs = wx.getFileSystemManager();
+        const fileName = `打卡记录-${this.data.selectedMonth}.csv`;
+        const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+        
+        return new Promise((resolve, reject) => {
+          fs.writeFile({
+            filePath: filePath,
+            data: csvContent,
+            encoding: 'utf8',
+            success: () => {
+              resolve({ filePath, fileName });
+            },
+            fail: (err) => {
+              reject(new Error(`CSV文件写入失败: ${err.errMsg}`));
+            }
           });
-          
-          // 提供分享选项
-          this.showShareOptions(filePath, fileName);
-        },
-        fail: (err) => {
-          wx.hideLoading();
-          this.setData({ isGenerating: false });
-          console.error('CSV文件生成失败:', err);
-          wx.showToast({
-            title: '文件生成失败',
-            icon: 'none'
-          });
+        });
+      }, {
+        maxRetries: 2,
+        context: '生成CSV文件',
+        onRetry: (error, attempt) => {
+          console.log(`CSV生成重试第${attempt}次:`, error.message);
         }
       });
+      
+      wx.hideLoading();
+      this.setData({ 
+        isGenerating: false,
+        pdfPath: result.filePath 
+      });
+      
+      wx.showToast({
+        title: 'Excel表格生成成功',
+        icon: 'success'
+      });
+      
+      // 提供分享选项
+      this.showShareOptions(result.filePath, result.fileName);
       
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
-      console.error('CSV生成失败:', error);
-      wx.showToast({
-        title: 'Excel表格生成失败',
-        icon: 'none'
+      
+      errorHandler.handleError(error, '生成CSV文件', {
+        showModal: true,
+        recovery: () => {
+          // 恢复策略：重新尝试生成
+          setTimeout(() => {
+            this.generateCSV(monthRecords);
+          }, 1000);
+        }
       });
     }
   },
 
   // 生成文本文件
-  generateText(monthRecords) {
+  async generateText(monthRecords) {
+    const { errorHandler } = this.data;
+    
     try {
       wx.showLoading({ title: '生成文本记录中...', mask: true });
+      this.setData({ isGenerating: true });
       
-      let textContent = `打卡记录报告 - ${this.data.selectedMonth}\n`;
-      textContent += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
-      textContent += `${'='.repeat(50)}\n\n`;
-      
-      // 统计信息
-      textContent += `统计信息:\n`;
-      textContent += `打卡天数: ${monthRecords.length} 天\n`;
-      textContent += `总工作时长: ${this.data.totalWorkHours} 小时\n`;
-      textContent += `平均每日工作时长: ${monthRecords.length > 0 ? (parseFloat(this.data.totalWorkHours) / monthRecords.length).toFixed(2) : 0} 小时\n\n`;
-      
-      // 详细记录
-      textContent += `详细记录:\n`;
-      textContent += `${'='.repeat(50)}\n`;
-      
-      monthRecords.forEach(record => {
-        const date = new Date(record.date);
-        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-        const weekday = `周${weekdays[date.getDay()]}`;
-        const workHours = this.calculateWorkHours(record.on, record.off, record.date);
+      // 使用错误处理器的重试机制
+      const result = await errorHandler.withRetry(async () => {
+        let textContent = `打卡记录报告 - ${this.data.selectedMonth}\n`;
+        textContent += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
+        textContent += `${'='.repeat(50)}\n\n`;
         
-        textContent += `${record.date} (${weekday})\n`;
-        textContent += `  上班时间: ${record.on || '未打卡'}\n`;
-        textContent += `  下班时间: ${record.off || '未打卡'}\n`;
-        textContent += `  工作时长: ${workHours > 0 ? workHours.toFixed(2) + '小时' : '-'}\n`;
-        textContent += `${'-'.repeat(30)}\n`;
+        // 统计信息
+        textContent += `统计信息:\n`;
+        textContent += `打卡天数: ${monthRecords.length} 天\n`;
+        textContent += `总工作时长: ${this.data.totalWorkHours} 小时\n`;
+        textContent += `平均每日工作时长: ${monthRecords.length > 0 ? (parseFloat(this.data.totalWorkHours) / monthRecords.length).toFixed(2) : 0} 小时\n\n`;
+        
+        // 详细记录
+        textContent += `详细记录:\n`;
+        textContent += `${'='.repeat(50)}\n`;
+        
+        monthRecords.forEach(record => {
+          const date = new Date(record.date);
+          const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+          const weekday = `周${weekdays[date.getDay()]}`;
+          const workHours = this.calculateWorkHours(record.on, record.off, record.date);
+          
+          textContent += `${record.date} (${weekday})\n`;
+          textContent += `  上班时间: ${record.on || '未打卡'}\n`;
+          textContent += `  下班时间: ${record.off || '未打卡'}\n`;
+          textContent += `  工作时长: ${workHours > 0 ? workHours.toFixed(2) + '小时' : '-'}\n`;
+          textContent += `${'-'.repeat(30)}\n`;
+        });
+        
+        textContent += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份文件。`;
+        
+        // 写入临时文件
+        const fs = wx.getFileSystemManager();
+        const fileName = `打卡记录-${this.data.selectedMonth}.txt`;
+        const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+        
+        return new Promise((resolve, reject) => {
+          fs.writeFile({
+            filePath: filePath,
+            data: textContent,
+            encoding: 'utf8',
+            success: () => {
+              resolve({ filePath, fileName });
+            },
+            fail: (err) => {
+              reject(new Error(`文本文件写入失败: ${err.errMsg}`));
+            }
+          });
+        });
+      }, {
+        maxRetries: 2,
+        context: '生成文本文件',
+        onRetry: (error, attempt) => {
+          console.log(`文本生成重试第${attempt}次:`, error.message);
+        }
       });
       
-      textContent += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份文件。`;
+      wx.hideLoading();
+      this.setData({ 
+        isGenerating: false,
+        pdfPath: result.filePath 
+      });
       
-      // 写入临时文件
-      const fs = wx.getFileSystemManager();
-      const fileName = `打卡记录-${this.data.selectedMonth}.txt`;
-      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+      wx.showToast({
+        title: '文本记录生成成功',
+        icon: 'success'
+      });
       
-      fs.writeFile({
-        filePath: filePath,
-        data: textContent,
-        encoding: 'utf8',
-        success: () => {
-          wx.hideLoading();
-          this.setData({ 
-            isGenerating: false,
-            pdfPath: filePath 
-          });
-          
-          wx.showToast({
-            title: '文本记录生成成功',
-            icon: 'success'
-          });
-          
-          // 提供分享选项
-          this.showShareOptions(filePath, fileName);
-        },
-        fail: (err) => {
-          wx.hideLoading();
-          this.setData({ isGenerating: false });
-          console.error('文本文件生成失败:', err);
-          wx.showToast({
-            title: '文件生成失败',
-            icon: 'none'
-          });
+      // 提供分享选项
+      this.showShareOptions(result.filePath, result.fileName);
+      
+    } catch (error) {
+      wx.hideLoading();
+      this.setData({ isGenerating: false });
+      
+      errorHandler.handleError(error, '生成文本文件', {
+        showModal: true,
+        recovery: () => {
+          // 恢复策略：重新尝试生成
+          setTimeout(() => {
+            this.generateText(monthRecords);
+          }, 1000);
+        }
+      });
+    }
+  },
+
+  // 生成图片报告
+  async generateImage(monthRecords) {
+    const { errorHandler } = this.data;
+    
+    try {
+      wx.showLoading({ title: '生成图片报告中...', mask: true });
+      this.setData({ isGenerating: true });
+      
+      // 使用错误处理器的重试机制
+      await errorHandler.withRetry(async () => {
+        return new Promise((resolve, reject) => {
+          this.generatePDF(monthRecords, resolve, reject);
+        });
+      }, {
+        maxRetries: 2,
+        context: '生成图片报告',
+        onRetry: (error, attempt) => {
+          console.log(`图片生成重试第${attempt}次:`, error.message);
         }
       });
       
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
-      console.error('文本生成失败:', error);
-      wx.showToast({
-        title: '文本记录生成失败',
-        icon: 'none'
+      
+      errorHandler.handleError(error, '生成图片报告', {
+        showModal: true,
+        recovery: () => {
+          // 恢复策略：重新尝试生成
+          setTimeout(() => {
+            this.generateImage(monthRecords);
+          }, 1000);
+        }
       });
     }
-  },
-
-  // 生成图片报告
-  generateImage(monthRecords) {
-    wx.showLoading({ title: '生成图片报告中...', mask: true });
-    this.setData({ isGenerating: true });
-    this.generatePDF(monthRecords);
   },
 
   // 显示分享选项
@@ -415,34 +515,81 @@ Page({
     });
   },
   
-  generatePDF(monthRecords) {
-    const query = wx.createSelectorQuery();
-    query.select('#canvas').fields({ node: true, size: true }).exec(res => {
-      if (!res[0] || !res[0].node) {
+  generatePDF(monthRecords, resolve, reject) {
+    const { errorHandler } = this.data;
+    
+    try {
+      const query = wx.createSelectorQuery();
+      query.select('#canvas').fields({ node: true, size: true }).exec(res => {
+        try {
+          if (!res[0] || !res[0].node) {
+            const error = new Error('Canvas初始化失败');
+            if (reject) reject(error);
+            else {
+              wx.hideLoading();
+              this.setData({ isGenerating: false });
+              if (errorHandler) {
+                errorHandler.handleError(error, 'Canvas初始化', { showToast: true });
+              } else {
+                wx.showToast({
+                  title: 'Canvas初始化失败',
+                  icon: 'none'
+                });
+              }
+            }
+            return;
+          }
+          
+          const canvas = res[0].node;
+          const ctx = canvas.getContext('2d');
+          
+          // 设置Canvas尺寸
+          const dpr = wx.getSystemInfoSync().pixelRatio;
+          canvas.width = 595 * dpr;
+          canvas.height = 842 * dpr;
+          ctx.scale(dpr, dpr);
+          
+          // 绘制PDF内容
+          this.drawPDFContent(ctx, monthRecords, canvas, resolve, reject);
+          
+        } catch (error) {
+          if (reject) reject(error);
+          else {
+            wx.hideLoading();
+            this.setData({ isGenerating: false });
+            if (errorHandler) {
+              errorHandler.handleError(error, 'Canvas设置', { showToast: true });
+            } else {
+              console.error('Canvas设置失败:', error);
+              wx.showToast({
+                title: 'Canvas设置失败',
+                icon: 'none'
+              });
+            }
+          }
+        }
+      });
+    } catch (error) {
+      if (reject) reject(error);
+      else {
         wx.hideLoading();
         this.setData({ isGenerating: false });
-        wx.showToast({
-          title: 'Canvas初始化失败',
-          icon: 'none'
-        });
-        return;
+        if (errorHandler) {
+          errorHandler.handleError(error, '生成PDF', { showToast: true });
+        } else {
+          console.error('生成PDF失败:', error);
+          wx.showToast({
+            title: '生成PDF失败',
+            icon: 'none'
+          });
+        }
       }
-      
-      const canvas = res[0].node;
-      const ctx = canvas.getContext('2d');
-      
-      // 设置Canvas尺寸
-      const dpr = wx.getSystemInfoSync().pixelRatio;
-      canvas.width = 595 * dpr;
-      canvas.height = 842 * dpr;
-      ctx.scale(dpr, dpr);
-      
-      // 绘制PDF内容
-      this.drawPDFContent(ctx, monthRecords, canvas);
-    });
+    }
   },
   
-  drawPDFContent(ctx, monthRecords, canvas) {
+  drawPDFContent(ctx, monthRecords, canvas, resolve, reject) {
+    const { errorHandler } = this.data;
+    
     try {
       // 背景
       ctx.fillStyle = '#ffffff';
@@ -551,20 +698,29 @@ Page({
       ctx.fillText('上下班打卡工具 - 数据仅保存在本地，请妥善保管', 297.5, 820);
       
       // 转换为临时文件
-      this.convertToFile(canvas);
+      this.convertToFile(canvas, resolve, reject);
       
     } catch (error) {
-      wx.hideLoading();
-      this.setData({ isGenerating: false });
-      console.error('绘制PDF内容失败:', error);
-      wx.showToast({
-        title: 'PDF绘制失败',
-        icon: 'none'
-      });
+      if (reject) reject(error);
+      else {
+        wx.hideLoading();
+        this.setData({ isGenerating: false });
+        if (errorHandler) {
+          errorHandler.handleError(error, '绘制PDF内容', { showToast: true });
+        } else {
+          console.error('绘制PDF内容失败:', error);
+          wx.showToast({
+            title: 'PDF绘制失败',
+            icon: 'none'
+          });
+        }
+      }
     }
   },
   
-  convertToFile(canvas) {
+  convertToFile(canvas, resolve, reject) {
+    const { errorHandler } = this.data;
+    
     wx.canvasToTempFilePath({
       canvas,
       fileType: 'png',
@@ -583,15 +739,27 @@ Page({
         
         // 提供预览选项
         this.showPreviewOptions(res.tempFilePath);
+        
+        if (resolve) resolve(res.tempFilePath);
       },
       fail: err => {
-        wx.hideLoading();
-        this.setData({ isGenerating: false });
-        console.error('转换文件失败:', err);
-        wx.showToast({
-          title: '文件生成失败',
-          icon: 'none'
-        });
+        const error = new Error(`Canvas转换文件失败: ${err.errMsg}`);
+        
+        if (reject) reject(error);
+        else {
+          wx.hideLoading();
+          this.setData({ isGenerating: false });
+          
+          if (errorHandler) {
+            errorHandler.handleError(error, 'Canvas转换文件', { showToast: true });
+          } else {
+            console.error('转换文件失败:', err);
+            wx.showToast({
+              title: '文件生成失败',
+              icon: 'none'
+            });
+          }
+        }
       }
     });
   },
@@ -732,5 +900,170 @@ Page({
     wx.navigateTo({
       url: '/pages/storage/storage'
     });
+  },
+
+  // 显示操作指导
+  onShowGuide() {
+    const { errorHandler } = this.data;
+    if (errorHandler) {
+      errorHandler.showOperationGuide('export');
+    } else {
+      app.showOperationGuide('export');
+    }
+  },
+
+  // 长按显示更多选项
+  onLongPress() {
+    wx.showActionSheet({
+      itemList: ['操作指导', '检查网络状态', '系统诊断', '查看错误日志'],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            this.onShowGuide();
+            break;
+          case 1:
+            this.checkNetworkStatus();
+            break;
+          case 2:
+            this.performDiagnosis();
+            break;
+          case 3:
+            this.showErrorLogs();
+            break;
+        }
+      }
+    });
+  },
+
+  // 检查网络状态
+  async checkNetworkStatus() {
+    const { errorHandler } = this.data;
+    if (errorHandler) {
+      await errorHandler.showNetworkStatus();
+    }
+  },
+
+  // 执行系统诊断
+  async performDiagnosis() {
+    await app.performSystemDiagnosis();
+  },
+
+  // 显示错误日志
+  showErrorLogs() {
+    const { errorHandler } = this.data;
+    if (errorHandler) {
+      const logs = errorHandler.getErrorLogs(10);
+      
+      if (logs.length === 0) {
+        wx.showToast({
+          title: '暂无错误日志',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      let logContent = `最近${logs.length}条错误记录：\n\n`;
+      logs.forEach((log, index) => {
+        logContent += `${index + 1}. ${log.userMessage}\n`;
+        logContent += `   时间: ${new Date(log.timestamp).toLocaleString()}\n`;
+        logContent += `   类型: ${errorHandler.getErrorTypeText(log.type)}\n\n`;
+      });
+      
+      wx.showModal({
+        title: '错误日志',
+        content: logContent,
+        showCancel: true,
+        confirmText: '确定',
+        cancelText: '清除日志',
+        success: (res) => {
+          if (!res.confirm && res.cancel) {
+            this.clearErrorLogs();
+          }
+        }
+      });
+    }
+  },
+
+  // 清除错误日志
+  clearErrorLogs() {
+    wx.showModal({
+      title: '确认清除',
+      content: '确定要清除所有错误日志吗？',
+      success: (res) => {
+        if (res.confirm) {
+          const { errorHandler } = this.data;
+          if (errorHandler) {
+            errorHandler.clearErrorLogs();
+          }
+        }
+      }
+    });
+  },
+
+  // 导出错误日志
+  async exportErrorLogs() {
+    const { errorHandler } = this.data;
+    if (!errorHandler) {
+      wx.showToast({
+        title: '系统初始化中，请稍后',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    try {
+      wx.showLoading({
+        title: '导出日志中...',
+        mask: true
+      });
+      
+      const logContent = errorHandler.exportErrorLogs();
+      
+      if (!logContent) {
+        wx.hideLoading();
+        return;
+      }
+      
+      // 写入临时文件
+      const fs = wx.getFileSystemManager();
+      const fileName = `错误日志-${new Date().toISOString().slice(0, 10)}.txt`;
+      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+      
+      fs.writeFile({
+        filePath: filePath,
+        data: logContent,
+        encoding: 'utf8',
+        success: () => {
+          wx.hideLoading();
+          
+          wx.showToast({
+            title: '日志导出成功',
+            icon: 'success'
+          });
+          
+          // 提供分享选项
+          this.showShareOptions(filePath, fileName);
+        },
+        fail: (err) => {
+          wx.hideLoading();
+          console.error('日志导出失败:', err);
+          wx.showToast({
+            title: '导出失败',
+            icon: 'none'
+          });
+        }
+      });
+      
+    } catch (error) {
+      wx.hideLoading();
+      if (errorHandler) {
+        errorHandler.handleError(error, '导出错误日志', { showToast: true });
+      } else {
+        wx.showToast({
+          title: '导出失败',
+          icon: 'none'
+        });
+      }
+    }
   }
 }) 

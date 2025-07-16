@@ -17,14 +17,29 @@ Page({
     minutes: Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0')),
     monthCache: null,
     lastUpdateTime: 0,
-    storageManager: null
+    storageManager: null,
+    errorHandler: null,
+    isLoading: false
   },
   
   onLoad() {
-    // 获取存储管理器实例
-    this.setData({
-      storageManager: app.getStorageManager()
-    });
+    try {
+      // 获取存储管理器和错误处理器实例
+      this.setData({
+        storageManager: app.getStorageManager(),
+        errorHandler: app.getErrorHandler()
+      });
+    } catch (error) {
+      const errorHandler = app.getErrorHandler();
+      errorHandler.handleError(error, '统计页面初始化', {
+        showModal: true,
+        recovery: () => {
+          setTimeout(() => {
+            this.onLoad();
+          }, 1000);
+        }
+      });
+    }
   },
   
   onShow() {
@@ -138,8 +153,16 @@ Page({
   },
 
   // 更新记录
-  updateRecord(date, type, newTime) {
-    const { storageManager } = this.data;
+  async updateRecord(date, type, newTime) {
+    const { storageManager, errorHandler, isLoading } = this.data;
+    
+    if (isLoading) {
+      wx.showToast({
+        title: '操作进行中，请稍后',
+        icon: 'none'
+      });
+      return;
+    }
     
     if (!storageManager) {
       wx.showToast({
@@ -149,42 +172,59 @@ Page({
       return;
     }
     
+    this.setData({ isLoading: true });
+    
     try {
-      const allRecords = storageManager.safeGetStorage('records', []);
-      const recordIndex = allRecords.findIndex(r => r.date === date);
-      
-      if (recordIndex >= 0) {
-        allRecords[recordIndex][type] = newTime;
-      } else {
-        const newRecord = { date };
-        newRecord[type] = newTime;
-        allRecords.push(newRecord);
-      }
-      
-      const success = storageManager.safeSetStorage('records', allRecords);
-      
-      if (success) {
-        // 清除缓存，强制重新计算
-        this.setData({ 
-          monthCache: null,
-          lastUpdateTime: 0 
-        });
-        this.loadMonthData();
+      // 使用错误处理器的重试机制
+      await errorHandler.withRetry(async () => {
+        const allRecords = storageManager.safeGetStorage('records', []);
+        const recordIndex = allRecords.findIndex(r => r.date === date);
         
-        wx.showToast({
-          title: '修改成功',
-          icon: 'success'
-        });
-      } else {
-        throw new Error('数据保存失败');
-      }
-    } catch (error) {
-      console.error('更新记录失败:', error);
-      wx.showToast({
-        title: '修改失败，请重试',
-        icon: 'none',
-        duration: 2000
+        if (recordIndex >= 0) {
+          allRecords[recordIndex][type] = newTime;
+        } else {
+          const newRecord = { date };
+          newRecord[type] = newTime;
+          allRecords.push(newRecord);
+        }
+        
+        const success = storageManager.safeSetStorage('records', allRecords);
+        
+        if (!success) {
+          throw new Error('数据保存失败');
+        }
+        
+        return { date, type, newTime };
+      }, {
+        maxRetries: 2,
+        context: '更新统计记录',
+        onRetry: (error, attempt) => {
+          console.log(`更新记录重试第${attempt}次:`, error.message);
+        }
       });
+      
+      // 清除缓存，强制重新计算
+      this.setData({ 
+        monthCache: null,
+        lastUpdateTime: 0 
+      });
+      this.loadMonthData();
+      
+      wx.showToast({
+        title: '修改成功',
+        icon: 'success'
+      });
+      
+    } catch (error) {
+      errorHandler.handleError(error, '更新统计记录', {
+        showToast: true,
+        recovery: () => {
+          // 恢复策略：重新加载数据
+          this.loadMonthData();
+        }
+      });
+    } finally {
+      this.setData({ isLoading: false });
     }
   },
 
@@ -203,8 +243,16 @@ Page({
     });
   },
 
-  deleteRecord(date) {
-    const { storageManager } = this.data;
+  async deleteRecord(date) {
+    const { storageManager, errorHandler, isLoading } = this.data;
+    
+    if (isLoading) {
+      wx.showToast({
+        title: '操作进行中，请稍后',
+        icon: 'none'
+      });
+      return;
+    }
     
     if (!storageManager) {
       wx.showToast({
@@ -214,40 +262,57 @@ Page({
       return;
     }
     
+    this.setData({ isLoading: true });
+    
     try {
-      const allRecords = storageManager.safeGetStorage('records', []);
-      const filteredRecords = allRecords.filter(r => r.date !== date);
-      
-      const success = storageManager.safeSetStorage('records', filteredRecords);
-      
-      if (success) {
-        // 清除缓存，强制重新计算
-        this.setData({ 
-          monthCache: null,
-          lastUpdateTime: 0 
-        });
-        this.loadMonthData();
+      // 使用错误处理器的重试机制
+      await errorHandler.withRetry(async () => {
+        const allRecords = storageManager.safeGetStorage('records', []);
+        const filteredRecords = allRecords.filter(r => r.date !== date);
         
-        wx.showToast({
-          title: '删除成功',
-          icon: 'success'
-        });
-      } else {
-        throw new Error('数据保存失败');
-      }
-    } catch (error) {
-      console.error('删除记录失败:', error);
-      wx.showToast({
-        title: '删除失败，请重试',
-        icon: 'none',
-        duration: 2000
+        const success = storageManager.safeSetStorage('records', filteredRecords);
+        
+        if (!success) {
+          throw new Error('数据保存失败');
+        }
+        
+        return { deletedDate: date, remainingCount: filteredRecords.length };
+      }, {
+        maxRetries: 2,
+        context: '删除统计记录',
+        onRetry: (error, attempt) => {
+          console.log(`删除记录重试第${attempt}次:`, error.message);
+        }
       });
+      
+      // 清除缓存，强制重新计算
+      this.setData({ 
+        monthCache: null,
+        lastUpdateTime: 0 
+      });
+      this.loadMonthData();
+      
+      wx.showToast({
+        title: '删除成功',
+        icon: 'success'
+      });
+      
+    } catch (error) {
+      errorHandler.handleError(error, '删除统计记录', {
+        showToast: true,
+        recovery: () => {
+          // 恢复策略：重新加载数据
+          this.loadMonthData();
+        }
+      });
+    } finally {
+      this.setData({ isLoading: false });
     }
   },
 
   // 加载月度数据
   loadMonthData() {
-    const { storageManager } = this.data;
+    const { storageManager, errorHandler } = this.data;
     
     if (!storageManager) {
       console.error('存储管理器未初始化');
@@ -302,13 +367,144 @@ Page({
       });
       
     } catch (error) {
-      console.error('加载月度数据失败:', error);
-      wx.showToast({
-        title: '数据加载失败，请重试',
-        icon: 'none',
-        duration: 2000
-      });
+      if (errorHandler) {
+        errorHandler.handleError(error, '加载统计数据', {
+          showToast: true,
+          recovery: () => {
+            // 恢复策略：清除缓存后重试
+            this.setData({ 
+              monthCache: null,
+              lastUpdateTime: 0 
+            });
+            setTimeout(() => {
+              this.loadMonthData();
+            }, 1000);
+          }
+        });
+      } else {
+        console.error('加载月度数据失败:', error);
+        wx.showToast({
+          title: '数据加载失败，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+      }
     }
+  },
+
+  // 显示操作指导
+  onShowGuide() {
+    const { errorHandler } = this.data;
+    if (errorHandler) {
+      errorHandler.showOperationGuide('statistics');
+    } else {
+      app.showOperationGuide('statistics');
+    }
+  },
+
+  // 长按显示更多选项
+  onLongPress() {
+    wx.showActionSheet({
+      itemList: ['操作指导', '清理历史数据', '系统诊断'],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            this.onShowGuide();
+            break;
+          case 1:
+            this.showCleanupOptions();
+            break;
+          case 2:
+            this.performDiagnosis();
+            break;
+        }
+      }
+    });
+  },
+
+  // 显示清理选项
+  showCleanupOptions() {
+    wx.showActionSheet({
+      itemList: ['清理30天前数据', '清理90天前数据', '清理一年前数据'],
+      success: (res) => {
+        const daysToKeep = [30, 90, 365][res.tapIndex];
+        this.confirmCleanup(daysToKeep);
+      }
+    });
+  },
+
+  // 确认清理数据
+  confirmCleanup(daysToKeep) {
+    wx.showModal({
+      title: '确认清理',
+      content: `确定要清理${daysToKeep}天前的数据吗？此操作不可恢复。`,
+      success: (res) => {
+        if (res.confirm) {
+          this.cleanupOldData(daysToKeep);
+        }
+      }
+    });
+  },
+
+  // 清理历史数据
+  async cleanupOldData(daysToKeep) {
+    const { storageManager, errorHandler } = this.data;
+    
+    if (!storageManager) {
+      wx.showToast({
+        title: '系统初始化中，请稍后',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    try {
+      wx.showLoading({
+        title: '清理数据中...',
+        mask: true
+      });
+      
+      const cleanedCount = storageManager.cleanupOldData(daysToKeep);
+      
+      wx.hideLoading();
+      
+      if (cleanedCount > 0) {
+        wx.showToast({
+          title: `已清理${cleanedCount}条记录`,
+          icon: 'success'
+        });
+        
+        // 清除缓存并重新加载
+        this.setData({ 
+          monthCache: null,
+          lastUpdateTime: 0 
+        });
+        this.loadMonthData();
+      } else {
+        wx.showToast({
+          title: '没有需要清理的数据',
+          icon: 'none'
+        });
+      }
+      
+    } catch (error) {
+      wx.hideLoading();
+      if (errorHandler) {
+        errorHandler.handleError(error, '清理历史数据', {
+          showModal: true
+        });
+      } else {
+        wx.showToast({
+          title: '清理失败',
+          icon: 'none'
+        });
+      }
+    }
+  },
+
+  // 执行系统诊断
+  async performDiagnosis() {
+    await app.performSystemDiagnosis();
   },
 
   // 计算统计数据
