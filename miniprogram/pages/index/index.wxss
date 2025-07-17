@@ -28,20 +28,21 @@
   margin-bottom: 40rpx;
 }
 
-.date-picker-wrapper {
+.date-time-wrapper {
   background: white;
   border-radius: 8rpx;
   padding: 30rpx;
-  margin-bottom: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .date-picker {
-  width: 100%;
+  flex: 1;
 }
 
 .date-display {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   font-size: 38rpx;
   color: #333;
@@ -49,20 +50,6 @@
 
 .date-text {
   font-weight: 500;
-}
-
-.current-time {
-  background: white;
-  border-radius: 8rpx;
-  padding: 30rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.time-label {
-  font-size: 32rpx;
-  color: #666;
 }
 
 .time-value {

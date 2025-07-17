@@ -7,7 +7,7 @@
 
   <!-- 日期和时间显示 -->
   <view class="datetime-section">
-    <view class="date-picker-wrapper">
+    <view class="date-time-wrapper">
       <picker 
         mode="date" 
         value="{{selectedDate}}"
@@ -19,11 +19,7 @@
           <text class="date-text">{{selectedDate}}</text>
         </view>
       </picker>
-    </view>
-    
-    <view class="current-time" wx:if="{{isToday}}">
-      <text class="time-label">当前时间</text>
-      <text class="time-value">{{currentTime}}</text>
+      <text class="time-value" wx:if="{{isToday}}">{{currentTime}}</text>
     </view>
   </view>
 
