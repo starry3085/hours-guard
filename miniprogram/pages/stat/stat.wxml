@@ -1,7 +1,7 @@
 <view class="page-container">
   <!-- 页面标题 -->
   <view class="header">
-    <text class="title">统计分析</text>
+    <text class="title">工时统计</text>
     <text class="subtitle">{{currentMonth}}</text>
   </view>
 
