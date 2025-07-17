@@ -56,12 +56,12 @@
         
         <view class="cell-time" bindtap="onEditTime" data-type="on" data-date="{{item.date}}">
           <text class="time-text {{item.on ? 'has-time' : 'no-time'}}">{{item.on || '--:--'}}</text>
-          <text class="edit-hint" wx:if="{{item.on}}">点击编辑</text>
+          <text class="edit-hint" wx:if="{{item.on}}"></text>
         </view>
         
         <view class="cell-time" bindtap="onEditTime" data-type="off" data-date="{{item.date}}">
           <text class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off || '--:--'}}</text>
-          <text class="edit-hint" wx:if="{{item.off}}">点击编辑</text>
+          <text class="edit-hint" wx:if="{{item.off}}"></text>
         </view>
         
         <view class="cell-duration">

@@ -34,7 +34,7 @@
         <view class="record-info">
           <text class="record-label">上班时间</text>
           <text class="record-status {{todayRecord.on ? 'completed' : 'pending'}}">
-            {{todayRecord.on ? '已打卡' : '未打卡'}}
+            {{todayRecord.on ? '' : '未打卡'}}
           </text>
         </view>
         <view class="record-time-wrapper">
@@ -43,7 +43,7 @@
                 data-type="on">
             {{todayRecord.on || '--:--'}}
           </text>
-          <text class="edit-hint" wx:if="{{todayRecord.on}}">点击编辑</text>
+          <text class="edit-hint" wx:if="{{todayRecord.on}}"></text>
         </view>
       </view>
       
@@ -51,7 +51,7 @@
         <view class="record-info">
           <text class="record-label">下班时间</text>
           <text class="record-status {{todayRecord.off ? 'completed' : 'pending'}}">
-            {{todayRecord.off ? '已打卡' : '未打卡'}}
+            {{todayRecord.off ? '' : '未打卡'}}
           </text>
         </view>
         <view class="record-time-wrapper">
@@ -60,7 +60,7 @@
                 data-type="off">
             {{todayRecord.off || '--:--'}}
           </text>
-          <text class="edit-hint" wx:if="{{todayRecord.off}}">点击编辑</text>
+          <text class="edit-hint" wx:if="{{todayRecord.off}}"></text>
         </view>
       </view>
     </view>
@@ -73,7 +73,7 @@
             disabled="{{!!todayRecord.on}}"
             hover-class="btn-hover">
       <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
-      <text class="btn-status" wx:if="{{todayRecord.on}}">已完成</text>
+      <text class="btn-status" wx:if="{{todayRecord.on}}"></text>
     </button>
     
     <button class="punch-btn punch-out {{(todayRecord.off || !todayRecord.on) ? 'disabled' : ''}}" 
@@ -81,7 +81,7 @@
             disabled="{{!!todayRecord.off || !todayRecord.on}}"
             hover-class="btn-hover">
       <text class="btn-text">{{isToday ? '下班打卡' : '补录下班'}}</text>
-      <text class="btn-status" wx:if="{{todayRecord.off}}">已完成</text>
+      <text class="btn-status" wx:if="{{todayRecord.off}}"></text>
       <text class="btn-status" wx:elif="{{!todayRecord.on}}">需先上班打卡</text>
     </button>
   </view>
