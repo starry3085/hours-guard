@@ -64,8 +64,6 @@ App({
 
   onError(msg) {
     // 应用发生脚本错误或 API 调用报错时触发
-    console.error('应用错误:', msg);
-    
     // 使用错误处理器统一处理
     errorHandler.handleError(msg, '应用全局错误', {
       showToast: true,
@@ -87,7 +85,6 @@ App({
         },
         default: () => {
           // 默认恢复策略
-          console.log('执行默认错误恢复策略');
         }
       }
     });
@@ -95,8 +92,6 @@ App({
 
   onPageNotFound(res) {
     // 页面不存在时触发
-    console.error('页面不存在:', res);
-    
     wx.showToast({
       title: '页面不存在，返回首页',
       icon: 'none',
@@ -113,8 +108,6 @@ App({
 
   onUnhandledRejection(res) {
     // 未处理的 Promise 拒绝时触发
-    console.error('未处理的Promise拒绝:', res);
-    
     errorHandler.handleError(res.reason, 'Promise拒绝', {
       showToast: false,
       showModal: false
@@ -127,8 +120,6 @@ App({
       const healthReport = storageManager.checkStorageHealth();
       
       if (!healthReport.isHealthy) {
-        console.warn('存储健康检查发现问题:', healthReport.issues);
-        
         // 如果有严重问题，显示提示
         if (healthReport.issues.some(issue => issue.includes('异常') || issue.includes('过高'))) {
           setTimeout(() => {
@@ -143,7 +134,7 @@ App({
         }
       }
     } catch (error) {
-      console.error('存储健康检查失败:', error);
+      errorHandler.handleError(error, '存储健康检查', { showToast: false });
     }
   },
 
@@ -163,12 +154,12 @@ App({
             }
           },
           fail: (error) => {
-            console.error('显示警告弹窗失败:', error);
+            errorHandler.handleError(error, '显示警告弹窗', { showToast: false });
           }
         });
       }
     } catch (error) {
-      console.error('显示首次启动警告失败:', error);
+      errorHandler.handleError(error, '显示首次启动警告', { showToast: false });
     }
   },
 
@@ -177,13 +168,10 @@ App({
     try {
       // 延迟执行，避免影响启动速度
       setTimeout(() => {
-        const optimized = storageManager.optimizeStorage();
-        if (optimized) {
-          console.log('启动时存储优化完成');
-        }
+        storageManager.optimizeStorage();
       }, 3000);
     } catch (error) {
-      console.error('启动时存储优化失败:', error);
+      errorHandler.handleError(error, '启动时存储优化', { showToast: false });
     }
   },
 

@@ -244,7 +244,7 @@ Page({
         maxRetries: 2,
         context: '上班打卡',
         onRetry: (error, attempt) => {
-          console.log(`上班打卡重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -340,7 +340,7 @@ Page({
         maxRetries: 2,
         context: '下班打卡',
         onRetry: (error, attempt) => {
-          console.log(`下班打卡重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -432,7 +432,7 @@ Page({
         maxRetries: 2,
         context: '更新时间记录',
         onRetry: (error, attempt) => {
-          console.log(`更新时间重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       

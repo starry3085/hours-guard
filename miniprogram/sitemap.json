@@ -1,7 +1,7 @@
 {
-  "desc": "小程序的sitemap，用于配置小程序及其页面是否允许被微信索引",
+  "desc": "关于本文件的更多信息，请参考文档 https://developers.weixin.qq.com/miniprogram/dev/framework/sitemap.html",
   "rules": [{
-    "action": "disallow",
+    "action": "allow",
     "page": "*"
   }]
-} 
+}

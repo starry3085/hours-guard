@@ -129,7 +129,7 @@ const PerformanceConfig = {
   // 生产模式配置
   production: {
     // 是否启用性能监控
-    enablePerformanceMonitoring: false,
+    enablePerformanceMonitoring: true,
     // 是否启用代码质量检查
     enableCodeQualityCheck: false,
     // 是否显示性能警告
@@ -247,7 +247,7 @@ const PerformanceUtils = {
     try {
       return JSON.parse(jsonString);
     } catch (error) {
-      console.warn('JSON解析失败:', error);
+      // 静默失败，返回默认值
       return defaultValue;
     }
   },
@@ -262,7 +262,7 @@ const PerformanceUtils = {
     try {
       return JSON.stringify(obj);
     } catch (error) {
-      console.warn('JSON字符串化失败:', error);
+      // 静默失败，返回默认值
       return defaultValue;
     }
   },

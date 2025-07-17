@@ -42,7 +42,7 @@ class PerformanceMonitor {
     const startTime = this.performanceData[`${key}_start`];
     
     if (!startTime) {
-      console.warn(`性能监控：未找到 ${key} 的开始时间`);
+      // 静默失败，返回0
       return 0;
     }
     
@@ -120,8 +120,6 @@ class PerformanceMonitor {
     }
     
     if (duration > threshold) {
-      console.warn(`性能警告：${key} 耗时 ${duration}ms，超过阈值 ${threshold}ms`);
-      
       // 记录性能问题
       this.recordPerformanceIssue(key, duration, category, threshold);
     }
@@ -154,7 +152,7 @@ class PerformanceMonitor {
       
       wx.setStorageSync('performanceIssues', issues);
     } catch (error) {
-      console.error('记录性能问题失败:', error);
+      // 静默失败
     }
   }
 
@@ -184,12 +182,13 @@ class PerformanceMonitor {
       
       // 检查内存使用警告
       if (storageInfo.currentSize > this.warningThresholds.memoryUsage * 1024) {
-        console.warn(`内存使用警告：当前使用 ${storageInfo.currentSize}KB，超过阈值 ${this.warningThresholds.memoryUsage}MB`);
+        // 记录内存使用警告
+        this.recordPerformanceIssue('memory_usage', storageInfo.currentSize, 'memory', this.warningThresholds.memoryUsage * 1024);
       }
       
       return memoryData;
     } catch (error) {
-      console.error('监控内存使用失败:', error);
+      // 静默失败
       return null;
     }
   }
@@ -260,7 +259,7 @@ class PerformanceMonitor {
     try {
       return wx.getStorageSync('performanceIssues') || [];
     } catch (error) {
-      console.error('获取性能问题失败:', error);
+      // 静默失败
       return [];
     }
   }
@@ -318,9 +317,13 @@ class PerformanceMonitor {
     
     try {
       wx.removeStorageSync('performanceIssues');
-      console.log('性能数据已清除');
+      wx.showToast({
+        title: '性能数据已清除',
+        icon: 'success',
+        duration: 2000
+      });
     } catch (error) {
-      console.error('清除性能数据失败:', error);
+      // 静默失败
     }
   }
 

@@ -57,7 +57,10 @@ Page({
     const { storageManager, errorHandler } = this.data;
     
     if (!storageManager) {
-      console.error('存储管理器未初始化');
+      wx.showToast({
+        title: '系统初始化中，请稍后',
+        icon: 'none'
+      });
       return;
     }
     
@@ -92,7 +95,6 @@ Page({
           }
         });
       } else {
-        console.error('加载月份数据失败:', error);
         wx.showToast({
           title: '数据加载失败',
           icon: 'none',
@@ -118,7 +120,6 @@ Page({
       const diffMs = offDateTime - onDateTime;
       return diffMs / (1000 * 60 * 60);
     } catch (error) {
-      console.error('计算工作时长失败:', error);
       return 0;
     }
   },
@@ -187,7 +188,7 @@ Page({
         maxRetries: 2,
         context: '获取导出数据',
         onRetry: (error, attempt) => {
-          console.log(`获取导出数据重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -293,7 +294,7 @@ Page({
         maxRetries: 2,
         context: '生成CSV文件',
         onRetry: (error, attempt) => {
-          console.log(`CSV生成重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -388,7 +389,7 @@ Page({
         maxRetries: 2,
         context: '生成文本文件',
         onRetry: (error, attempt) => {
-          console.log(`文本生成重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -439,7 +440,7 @@ Page({
         maxRetries: 2,
         context: '生成图片报告',
         onRetry: (error, attempt) => {
-          console.log(`图片生成重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -503,10 +504,9 @@ Page({
       filePath: filePath,
       showMenu: true,
       success: () => {
-        console.log('文件预览成功');
+        // 预览成功
       },
       fail: err => {
-        console.error('预览失败:', err);
         wx.showToast({
           title: '预览失败',
           icon: 'none'

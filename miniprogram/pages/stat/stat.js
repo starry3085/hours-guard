@@ -109,7 +109,6 @@ Page({
       
       return hours;
     } catch (error) {
-      console.error('计算工作时长失败:', error);
       return 0;
     }
   },
@@ -219,7 +218,7 @@ Page({
         maxRetries: 2,
         context: '更新统计记录',
         onRetry: (error, attempt) => {
-          console.log(`更新记录重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -301,7 +300,7 @@ Page({
         maxRetries: 2,
         context: '删除统计记录',
         onRetry: (error, attempt) => {
-          console.log(`删除记录重试第${attempt}次:`, error.message);
+          // 静默重试
         }
       });
       
@@ -335,7 +334,10 @@ Page({
     const { storageManager, errorHandler } = this.data;
     
     if (!storageManager) {
-      console.error('存储管理器未初始化');
+      wx.showToast({
+        title: '系统初始化中，请稍后',
+        icon: 'none'
+      });
       return;
     }
     

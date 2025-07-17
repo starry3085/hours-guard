@@ -35,6 +35,30 @@
       {
         "type": "file",
         "value": ".eslintrc.js"
+      },
+      {
+        "type": "folder",
+        "value": "tests"
+      },
+      {
+        "type": "file",
+        "value": "*.md"
+      },
+      {
+        "type": "file",
+        "value": "package-lock.json"
+      },
+      {
+        "type": "file",
+        "value": ".DS_Store"
+      },
+      {
+        "type": "file",
+        "value": "utils/storage-test.js"
+      },
+      {
+        "type": "file",
+        "value": "utils/code-quality.js"
       }
     ],
     "include": []
