@@ -14,7 +14,6 @@
     <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange" class="month-picker">
       <view class="picker-display">
         <text class="selected-month">{{selectedMonth}}</text>
-        <text class="picker-arrow">▼</text>
       </view>
     </picker>
   </view>

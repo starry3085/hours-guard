@@ -12,14 +12,14 @@
 }
 
 .title {
-  font-size: 48rpx;
+  font-size: 56rpx;
   font-weight: 500;
   color: #191919;
   margin-bottom: 10rpx;
 }
 
 .subtitle {
-  font-size: 32rpx;
+  font-size: 36rpx;
   color: #888;
 }
 
@@ -45,14 +45,14 @@
 }
 
 .stat-number {
-  font-size: 48rpx;
+  font-size: 56rpx;
   font-weight: bold;
   color: #07c160;
   font-family: 'Courier New', monospace;
 }
 
 .stat-label {
-  font-size: 24rpx;
+  font-size: 30rpx;
   color: #666;
 }
 
@@ -70,13 +70,13 @@
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 38rpx;
   font-weight: bold;
   color: #333;
 }
 
 .record-count {
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #999;
 }
 
@@ -89,13 +89,13 @@
 }
 
 .empty-text {
-  font-size: 32rpx;
+  font-size: 38rpx;
   color: #333;
   margin-bottom: 10rpx;
 }
 
 .empty-hint {
-  font-size: 26rpx;
+  font-size: 32rpx;
   color: #999;
 }
 
@@ -112,7 +112,7 @@
   background: #f8f9fa;
   padding: 20rpx 0;
   font-weight: bold;
-  font-size: 26rpx;
+  font-size: 32rpx;
   color: #666;
   border-bottom: 2rpx solid #e9ecef;
 }
@@ -162,13 +162,13 @@
 }
 
 .date-text {
-  font-size: 28rpx;
+  font-size: 34rpx;
   color: #333;
   font-weight: 500;
 }
 
 .weekday {
-  font-size: 20rpx;
+  font-size: 26rpx;
   color: #999;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .time-text {
-  font-size: 28rpx;
+  font-size: 34rpx;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   padding: 4rpx 8rpx;
@@ -200,7 +200,7 @@
 }
 
 .edit-hint {
-  font-size: 20rpx;
+  font-size: 24rpx;
   color: #999;
 }
 
@@ -210,7 +210,7 @@
 }
 
 .duration-text {
-  font-size: 26rpx;
+  font-size: 32rpx;
   color: #666;
   font-weight: 500;
 }

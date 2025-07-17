@@ -20,20 +20,14 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "images/tabbar/home.png",
-        "selectedIconPath": "images/tabbar/home-active.png",
         "text": "打卡"
       },
       {
         "pagePath": "pages/stat/stat",
-        "iconPath": "images/tabbar/stat.png",
-        "selectedIconPath": "images/tabbar/stat-active.png",
         "text": "统计"
       },
       {
         "pagePath": "pages/export/export",
-        "iconPath": "images/tabbar/export.png",
-        "selectedIconPath": "images/tabbar/export-active.png",
         "text": "导出"
       }
     ]

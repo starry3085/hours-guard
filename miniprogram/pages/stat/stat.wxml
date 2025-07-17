@@ -35,7 +35,6 @@
     </view>
 
     <view class="empty-state" wx:if="{{list.length === 0}}">
-      <text class="empty-icon">📊</text>
       <text class="empty-text">本月暂无打卡记录</text>
       <text class="empty-hint">去打卡页面记录您的工作时间吧</text>
     </view>

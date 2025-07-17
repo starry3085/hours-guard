@@ -12,14 +12,14 @@
 }
 
 .title {
-  font-size: 48rpx;
+  font-size: 56rpx;
   font-weight: 500;
   color: #191919;
   margin-bottom: 10rpx;
 }
 
 .subtitle {
-  font-size: 32rpx;
+  font-size: 36rpx;
   color: #888;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .card-title {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: 500;
   color: #191919;
 }
@@ -60,7 +60,7 @@
 }
 
 .selected-month {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: 500;
   color: #07c160;
 }
@@ -93,7 +93,7 @@
 }
 
 .stat-number {
-  font-size: 48rpx;
+  font-size: 56rpx;
   font-weight: bold;
   color: #07c160;
   font-family: 'Courier New', monospace;
@@ -101,7 +101,7 @@
 }
 
 .stat-label {
-  font-size: 28rpx;
+  font-size: 32rpx;
   color: #888;
 }
 
@@ -199,7 +199,7 @@
 }
 
 .info-title {
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: bold;
   color: #191919;
 }
@@ -215,7 +215,7 @@
 }
 
 .info-text {
-  font-size: 30rpx;
+  font-size: 34rpx;
   color: #666;
 }
 
@@ -226,7 +226,7 @@
 }
 
 .warning-text {
-  font-size: 30rpx;
+  font-size: 34rpx;
   color: #666;
   font-weight: 500;
 }
