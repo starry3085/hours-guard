@@ -2,7 +2,7 @@
   <!-- 页面标题 -->
   <view class="header">
     <text class="title">{{isToday ? '今日打卡' : '补录打卡'}}</text>
-    <text class="subtitle">{{isToday ? '记录您的工作时间' : '补录历史记录'}}</text>
+    <text class="subtitle">{{isToday ? '' : '补录历史记录'}}</text>
   </view>
 
   <!-- 日期和时间显示 -->
