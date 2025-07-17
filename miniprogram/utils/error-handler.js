@@ -324,52 +324,29 @@ class ErrorHandler {
   }
 
   /**
-   * 检查网络状态
-   * @returns {Promise<Object>} 网络状态信息
+   * 获取离线状态信息
+   * @returns {Promise<Object>} 离线状态信息
    */
-  async checkNetworkStatus() {
-    return new Promise((resolve) => {
-      wx.getNetworkType({
-        success: (res) => {
-          const isConnected = res.networkType !== 'none';
-          resolve({
-            isConnected,
-            networkType: res.networkType,
-            isWifi: res.networkType === 'wifi'
-          });
-        },
-        fail: () => {
-          resolve({
-            isConnected: false,
-            networkType: 'unknown',
-            isWifi: false
-          });
-        }
-      });
-    });
+  async getOfflineStatus() {
+    return {
+      isOffline: true,
+      isConnected: false,
+      networkType: 'none',
+      isWifi: false
+    };
   }
 
   /**
-   * 显示网络状态提示
+   * 显示离线模式提示
    */
-  async showNetworkStatus() {
-    const networkStatus = await this.checkNetworkStatus();
+  async showOfflineStatus() {
+    wx.showToast({
+      title: '应用运行在离线模式',
+      icon: 'none',
+      duration: 2000
+    });
     
-    if (!networkStatus.isConnected) {
-      wx.showToast({
-        title: '当前无网络连接',
-        icon: 'none',
-        duration: 2000
-      });
-    } else {
-      wx.showToast({
-        title: `当前网络：${networkStatus.networkType}`,
-        icon: 'none',
-        duration: 1500
-      });
-    }
-    
-    return networkStatus;
+    return await this.getOfflineStatus();
   }
 
   /**
@@ -466,8 +443,8 @@ class ErrorHandler {
       // 获取存储信息
       diagnosis.storageInfo = wx.getStorageInfoSync();
       
-      // 获取网络信息
-      diagnosis.networkInfo = await this.checkNetworkStatus();
+      // 获取离线状态信息
+      diagnosis.networkInfo = await this.getOfflineStatus();
       
       // 检查存储使用率
       const storageUsage = (diagnosis.storageInfo.currentSize / diagnosis.storageInfo.limitSize) * 100;

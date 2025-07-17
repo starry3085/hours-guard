@@ -11,6 +11,9 @@ App({
       // 初始化全局数据
       this.initGlobalData();
       
+      // 初始化离线模式
+      this.initOfflineMode();
+      
       // 应用崩溃恢复检查
       errorHandler.crashRecovery();
       
@@ -22,9 +25,6 @@ App({
       
       // 执行存储优化
       this.optimizeStorageOnLaunch();
-      
-      // 检查网络状态（用于离线模式提示）
-      this.checkNetworkStatusOnLaunch();
       
       // 结束应用启动性能监控
       performanceMonitor.endTiming('app_launch', 'page');
@@ -52,8 +52,7 @@ App({
 
   onShow() {
     // 应用从后台进入前台时触发
-    // 检查是否需要备份
-    this.checkBackupNeeded();
+    // 备份检测功能已移除
   },
 
   onHide() {
@@ -175,60 +174,13 @@ App({
     }
   },
 
-  // 检查是否需要备份
-  checkBackupNeeded() {
-    try {
-      const lastBackupTime = storageManager.safeGetStorage('lastBackupTime', 0);
-      const daysSinceBackup = (Date.now() - lastBackupTime) / (24 * 60 * 60 * 1000);
-      
-      // 如果超过7天未备份，提醒用户
-      if (daysSinceBackup > 7) {
-        const records = storageManager.safeGetStorage('records', []);
-        if (records.length > 0) {
-          setTimeout(() => {
-            wx.showModal({
-              title: '备份提醒',
-              content: `您已有${Math.floor(daysSinceBackup)}天未备份数据，建议及时导出备份文件。`,
-              showCancel: true,
-              confirmText: '去备份',
-              cancelText: '稍后',
-              success: (res) => {
-                if (res.confirm) {
-                  wx.switchTab({
-                    url: '/pages/export/export'
-                  });
-                }
-              }
-            });
-          }, 5000);
-        }
-      }
-    } catch (error) {
-      errorHandler.handleError(error, '检查备份需求', { showToast: false });
-    }
-  },
+  // 备份检测功能已移除
+  // 此处原有自动检测备份时间并提醒用户的功能已被移除
 
-  // 启动时检查网络状态
-  async checkNetworkStatusOnLaunch() {
-    try {
-      const networkStatus = await errorHandler.checkNetworkStatus();
-      
-      // 记录网络状态（用于离线模式提示）
-      this.globalData.networkStatus = networkStatus;
-      
-      // 如果无网络连接，显示离线模式提示
-      if (!networkStatus.isConnected) {
-        setTimeout(() => {
-          wx.showToast({
-            title: '当前离线模式，数据仅本地保存',
-            icon: 'none',
-            duration: 3000
-          });
-        }, 1000);
-      }
-    } catch (error) {
-      errorHandler.handleError(error, '网络状态检查', { showToast: false });
-    }
+  // 初始化离线模式
+  initOfflineMode() {
+    // 设置应用为完全离线模式
+    this.globalData.isOfflineMode = true;
   },
 
   // 获取错误处理器实例
@@ -303,6 +255,7 @@ App({
       version: '1.0.0',
       storageManager: storageManager,
       performanceMonitor: performanceMonitor,
+      isOfflineMode: true, // 应用始终处于离线模式
       storageKeys: {
         records: 'records',
         hasShownWarning: 'hasShownWarning',
