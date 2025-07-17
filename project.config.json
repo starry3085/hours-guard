@@ -36,7 +36,7 @@
   "compileType": "miniprogram",
   "libVersion": "2.19.4",
   "appid": "wx000000000000000",
-  "projectname": "打卡黑匣子Lite",
+  "projectname": "秒打打卡工具",
   "debugOptions": {
     "hidedInDevtools": []
   },

@@ -1,5 +1,5 @@
 {
-  "description": "上下班打卡工具",
+  "description": "秒打打卡工具",
   "setting": {
     "es6": true,
     "postcss": true,
