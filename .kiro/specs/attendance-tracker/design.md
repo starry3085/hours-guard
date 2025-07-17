@@ -133,6 +133,56 @@ Page({
 // 存储键：'hasShownWarning'
 // 数据类型：Boolean
 // 用途：标记是否已显示首次启动提示
+
+// 存储键：'backupData'
+// 数据类型：Object
+// 用途：存储记录数据的备份
+{
+  records: [...],          // 记录数据备份
+  timestamp: 1689580800000, // 备份时间戳
+  version: "1.0.0"         // 数据版本
+}
+
+// 存储键：'lastBackupTime'
+// 数据类型：Number
+// 用途：记录最后一次备份的时间戳
+
+// 存储键：'storageVersion'
+// 数据类型：String
+// 用途：记录当前存储数据的版本
+
+// 存储键：'errorLogs'
+// 数据类型：Array<ErrorLog>
+// 用途：存储应用错误日志
+[
+  {
+    id: 1689580800000,     // 错误ID（时间戳）
+    timestamp: "2025-07-17T10:00:00.000Z", // 错误发生时间
+    type: "storage_error", // 错误类型
+    context: "saveRecord", // 错误上下文
+    message: "存储失败",    // 错误信息
+    userMessage: "数据保存失败，请重试", // 用户提示
+    severity: "high"       // 严重程度
+  }
+]
+
+// 存储键：'performanceIssues'
+// 数据类型：Array<PerformanceIssue>
+// 用途：存储性能问题记录
+[
+  {
+    key: "page_load",      // 性能指标键名
+    duration: 5000,        // 耗时（毫秒）
+    category: "page",      // 分类
+    threshold: 3000,       // 阈值
+    timestamp: 1689580800000, // 记录时间戳
+    severity: "medium"     // 严重程度
+  }
+]
+
+// 存储键：'app_crash_flag'
+// 数据类型：Number
+// 用途：应用崩溃检测标记（时间戳）
 ```
 
 #### 数据操作接口
