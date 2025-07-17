@@ -12,7 +12,7 @@
       "disablePlugins": [],
       "outputPath": ""
     },
-    "useCompilerPlugins": true,
+    "useCompilerPlugins": false,
     "minifyWXML": true,
     "minifyWXSS": true,
     "minifyJS": true,
@@ -20,45 +20,48 @@
     "lazyCodeLoading": "requiredComponents",
     "useStaticServer": true,
     "checkSiteMap": false,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    }
+    "compileWorklet": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.19.4",
+  "libVersion": "3.8.11",
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [
       {
-        "type": "file",
-        "value": ".eslintrc.js"
+        "value": ".eslintrc.js",
+        "type": "file"
       },
       {
-        "type": "folder",
-        "value": "tests"
+        "value": "tests",
+        "type": "folder"
       },
       {
-        "type": "file",
-        "value": "*.md"
+        "value": "*.md",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "package-lock.json"
+        "value": "package-lock.json",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": ".DS_Store"
+        "value": ".DS_Store",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "utils/storage-test.js"
+        "value": "utils/storage-test.js",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "utils/code-quality.js"
+        "value": "utils/code-quality.js",
+        "type": "file"
       }
     ],
     "include": []
@@ -70,9 +73,5 @@
   },
   "appid": "wx47af5ec4c9ef603c",
   "projectname": "attendance-tracker",
-  "cloudfunctionTemplateRoot": "",
-  "watchOptions": {
-    "ignore": []
-  },
-  "scripts": {}
+  "cloudfunctionTemplateRoot": ""
 }
