@@ -2,8 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/stat/stat",
-    "pages/export/export",
-    "pages/storage/storage"
+    "pages/export/export"
   ],
   "window": {
     "backgroundTextStyle": "light",
