@@ -31,36 +31,24 @@
     
     <view class="record-list">
       <view class="record-item">
-        <view class="record-info">
+        <view class="record-row">
           <text class="record-label">上班时间</text>
-          <text class="record-status {{todayRecord.on ? 'completed' : 'pending'}}">
-            {{todayRecord.on ? '' : '未打卡'}}
-          </text>
-        </view>
-        <view class="record-time-wrapper">
-          <text class="record-time {{todayRecord.on ? 'has-time' : 'no-time'}}" 
+          <text class="record-time" 
                 bindtap="onEditTime" 
                 data-type="on">
             {{todayRecord.on || '--:--'}}
           </text>
-          <text class="edit-hint" wx:if="{{todayRecord.on}}"></text>
         </view>
       </view>
       
       <view class="record-item">
-        <view class="record-info">
+        <view class="record-row">
           <text class="record-label">下班时间</text>
-          <text class="record-status {{todayRecord.off ? 'completed' : 'pending'}}">
-            {{todayRecord.off ? '' : '未打卡'}}
-          </text>
-        </view>
-        <view class="record-time-wrapper">
-          <text class="record-time {{todayRecord.off ? 'has-time' : 'no-time'}}" 
+          <text class="record-time" 
                 bindtap="onEditTime" 
                 data-type="off">
             {{todayRecord.off || '--:--'}}
           </text>
-          <text class="edit-hint" wx:if="{{todayRecord.off}}"></text>
         </view>
       </view>
     </view>

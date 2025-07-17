@@ -94,18 +94,17 @@
 }
 
 .record-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 20rpx;
   background: #f7f7f7;
   border-radius: 8rpx;
+  height: 80rpx; /* Set fixed height for better vertical alignment */
 }
 
-.record-info {
+.record-row {
   display: flex;
-  flex-direction: column;
-  gap: 8rpx;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
 }
 
 .record-label {
@@ -114,48 +113,11 @@
   font-weight: 500;
 }
 
-.record-status {
-  font-size: 28rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 4rpx;
-  text-align: center;
-}
-
-.record-status.completed {
-  background: #e8f5e8;
-  color: #07c160;
-}
-
-.record-status.pending {
-  background: #f7f7f7;
-  color: #888;
-}
-
-.record-time-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8rpx;
-}
-
 .record-time {
   font-size: 38rpx;
   font-weight: bold;
   font-family: 'Courier New', monospace;
-  padding: 8rpx 16rpx;
-  border-radius: 4rpx;
-  min-width: 120rpx;
-  text-align: center;
-}
-
-.record-time.has-time {
-  color: #07c160;
-  background: #e8f5e8;
-}
-
-.record-time.no-time {
-  color: #888;
-  background: #f7f7f7;
+  color: #07c160; /* Keep the green text color */
 }
 
 .edit-hint {
