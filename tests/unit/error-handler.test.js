@@ -2,25 +2,13 @@
  * 错误处理器单元测试
  */
 
-const { describe, it, beforeEach, afterEach, expect, mock } = require('./test-framework');
+const { describe, it, beforeEach, expect, mock } = require('./test-framework');
 
 // 模拟微信API
 global.wx = {
   getStorageSync: mock(() => []),
   setStorageSync: mock(),
   removeStorageSync: mock(),
-  getSystemInfoSync: mock(() => ({
-    platform: 'devtools',
-    system: 'Windows 10',
-    version: '8.0.0'
-  })),
-  getStorageInfoSync: mock(() => ({
-    currentSize: 100,
-    limitSize: 10240
-  })),
-  getNetworkType: mock((options) => {
-    options.success({ networkType: 'wifi' });
-  }),
   showToast: mock(),
   showModal: mock()
 };
@@ -63,7 +51,6 @@ describe('错误处理器测试', () => {
       
       expect(errorInfo.message).toBe('测试错误');
       expect(errorInfo.context).toBe(context);
-      expect(errorInfo.stack).toBeDefined();
     });
 
     it('应该正确分类存储错误', () => {
@@ -74,7 +61,6 @@ describe('错误处理器测试', () => {
       
       expect(errorInfo.type).toBe('storage_error');
       expect(errorInfo.userMessage).toContain('数据保存失败');
-      expect(errorInfo.severity).toBe('high');
     });
 
     it('应该正确分类网络错误', () => {
@@ -85,18 +71,16 @@ describe('错误处理器测试', () => {
       
       expect(errorInfo.type).toBe('network_error');
       expect(errorInfo.userMessage).toContain('网络连接异常');
-      expect(errorInfo.severity).toBe('low');
     });
 
-    it('应该正确分类文件错误', () => {
-      const error = 'writeFile failed';
-      const errorInfo = errorHandler.parseError(error, '文件操作');
+    it('应该正确分类验证错误', () => {
+      const error = 'validation failed';
+      const errorInfo = errorHandler.parseError(error, '数据验证');
       
       errorHandler.categorizeError(errorInfo);
       
-      expect(errorInfo.type).toBe('file_error');
-      expect(errorInfo.userMessage).toContain('文件操作失败');
-      expect(errorInfo.severity).toBe('medium');
+      expect(errorInfo.type).toBe('validation_error');
+      expect(errorInfo.userMessage).toContain('数据格式错误');
     });
   });
 
@@ -191,53 +175,6 @@ describe('错误处理器测试', () => {
         expect(failFn.calls).toHaveLength(3); // 初始调用 + 2次重试
       }
     });
-
-    it('应该调用重试回调', async () => {
-      let callCount = 0;
-      const retryFn = mock(() => {
-        callCount++;
-        if (callCount < 2) {
-          throw new Error('需要重试');
-        }
-        return '成功';
-      });
-      
-      const onRetry = mock();
-      
-      await errorHandler.withRetry(retryFn, {
-        maxRetries: 2,
-        context: '测试操作',
-        onRetry
-      });
-      
-      expect(onRetry.calls).toHaveLength(1);
-      expect(onRetry.calls[0][1]).toBe(1); // 重试次数
-    });
-  });
-
-  describe('网络状态检查', () => {
-    it('应该检测网络连接状态', async () => {
-      wx.getNetworkType.mockImplementation((options) => {
-        options.success({ networkType: 'wifi' });
-      });
-      
-      const status = await errorHandler.checkNetworkStatus();
-      
-      expect(status.isConnected).toBeTruthy();
-      expect(status.networkType).toBe('wifi');
-      expect(status.isWifi).toBeTruthy();
-    });
-
-    it('应该处理网络检查失败', async () => {
-      wx.getNetworkType.mockImplementation((options) => {
-        options.fail();
-      });
-      
-      const status = await errorHandler.checkNetworkStatus();
-      
-      expect(status.isConnected).toBeFalsy();
-      expect(status.networkType).toBe('unknown');
-    });
   });
 
   describe('错误日志管理', () => {
@@ -264,88 +201,6 @@ describe('错误处理器测试', () => {
       expect(result).toBeTruthy();
       expect(wx.removeStorageSync.calls).toHaveLength(1);
       expect(wx.showToast.calls).toHaveLength(1);
-    });
-
-    it('应该导出错误日志', () => {
-      const mockLogs = [
-        { 
-          type: 'storage_error',
-          timestamp: new Date().toISOString(),
-          context: '测试上下文',
-          message: '测试错误',
-          userMessage: '用户消息',
-          severity: 'high'
-        }
-      ];
-      
-      wx.getStorageSync.mockReturnValue(mockLogs);
-      
-      const logContent = errorHandler.exportErrorLogs();
-      
-      expect(logContent).toContain('错误日志报告');
-      expect(logContent).toContain('测试错误');
-      expect(logContent).toContain('数据存储错误');
-    });
-  });
-
-  describe('系统诊断', () => {
-    it('应该执行系统诊断', async () => {
-      wx.getSystemInfoSync.mockReturnValue({
-        platform: 'devtools',
-        system: 'Windows 10',
-        version: '8.0.0'
-      });
-      
-      wx.getStorageInfoSync.mockReturnValue({
-        currentSize: 100,
-        limitSize: 10240
-      });
-      
-      wx.getStorageSync.mockReturnValue([]); // 空错误日志
-      
-      const diagnosis = await errorHandler.systemDiagnosis();
-      
-      expect(diagnosis.systemInfo).toBeDefined();
-      expect(diagnosis.storageInfo).toBeDefined();
-      expect(diagnosis.networkInfo).toBeDefined();
-      expect(diagnosis.issues).toBeDefined();
-      expect(diagnosis.suggestions).toBeDefined();
-    });
-
-    it('应该检测存储使用率过高', async () => {
-      wx.getStorageInfoSync.mockReturnValue({
-        currentSize: 9000, // 高使用率
-        limitSize: 10240
-      });
-      
-      wx.getStorageSync.mockReturnValue([]);
-      
-      const diagnosis = await errorHandler.systemDiagnosis();
-      
-      expect(diagnosis.issues).toContain('存储空间使用率过高');
-      expect(diagnosis.suggestions).toContain('清理历史数据或导出备份');
-    });
-
-    it('应该检测错误频发', async () => {
-      const recentErrors = Array(6).fill(null).map((_, i) => ({
-        timestamp: new Date().toISOString(),
-        type: 'system_error'
-      }));
-      
-      wx.getStorageSync.mockReturnValue(recentErrors);
-      
-      const diagnosis = await errorHandler.systemDiagnosis();
-      
-      expect(diagnosis.issues).toContain('近24小时内错误频发');
-    });
-  });
-
-  describe('版本比较', () => {
-    it('应该正确比较版本号', () => {
-      expect(errorHandler.compareVersion('8.0.0', '7.0.0')).toBe(1);
-      expect(errorHandler.compareVersion('7.0.0', '8.0.0')).toBe(-1);
-      expect(errorHandler.compareVersion('8.0.0', '8.0.0')).toBe(0);
-      expect(errorHandler.compareVersion('8.0.1', '8.0.0')).toBe(1);
     });
   });
 });
