@@ -30,7 +30,7 @@
   <!-- 记录列表 -->
   <view class="records-section">
     <view class="section-header">
-      <text class="section-title">打卡记录</text>
+      <!-- Removed redundant title -->
       <text class="record-count" wx:if="{{list.length > 0}}">共{{list.length}}条</text>
     </view>
 

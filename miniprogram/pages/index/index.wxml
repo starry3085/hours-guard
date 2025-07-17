@@ -26,8 +26,7 @@
   <!-- 打卡记录卡片 -->
   <view class="record-card">
     <view class="card-header">
-      <text class="card-title">打卡记录</text>
-      <text class="card-date">{{selectedDate}}</text>
+      <!-- Removed redundant title and date display -->
     </view>
     
     <view class="record-list">
