@@ -2,7 +2,7 @@
   <!-- 页面标题 -->
   <view class="header">
     <text class="title">记录导出</text>
-    <text class="subtitle">支持Excel表格、图片报告、文本记录</text>
+    <text class="subtitle">支持文本记录导出</text>
   </view>
   
   <!-- 月份选择卡片 -->
@@ -51,9 +51,9 @@
       <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
     </button>
     
-    <button class="share-btn {{!pdfPath ? 'disabled' : ''}}" 
-            bindtap="sharePdf" 
-            disabled="{{!pdfPath}}"
+    <button class="share-btn {{!filePath ? 'disabled' : ''}}" 
+            bindtap="shareFile" 
+            disabled="{{!filePath}}"
             hover-class="btn-hover">
       <text class="btn-text">分享文件</text>
     </button>
@@ -73,13 +73,13 @@
       </view>
       <view class="info-list">
         <view class="info-item">
-          <text class="info-text">完整的打卡记录表格</text>
+          <text class="info-text">完整的打卡记录明细</text>
         </view>
         <view class="info-item">
           <text class="info-text">工作时长统计分析</text>
         </view>
         <view class="info-item">
-          <text class="info-text">专业的报告格式</text>
+          <text class="info-text">易于阅读的文本格式</text>
         </view>
       </view>
     </view>
@@ -89,6 +89,5 @@
     </view>
   </view>
 
-  <!-- 隐藏的Canvas用于图片生成 -->
-  <canvas type="2d" id="canvas" class="hidden-canvas"></canvas>
+  <!-- 不再需要Canvas，已移除 -->
 </view> 

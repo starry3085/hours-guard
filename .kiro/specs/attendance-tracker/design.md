@@ -100,17 +100,17 @@ Page({
 
 #### 4. 导出页面组件 (pages/export/)
 ```javascript
-// 职责：多格式文件生成，文件分享，月份选择
+// 职责：文本文件生成，文件分享，月份选择
 Page({
   data: {
     selectedDate: '',    // 选中月份
     selectedMonth: '',   // 月份显示文本
-    pdfPath: '',         // 文件路径
+    filePath: '',        // 文件路径
     isGenerating: false, // 生成状态
     recordCount: 0,      // 记录数量
     totalWorkHours: 0    // 总工作时长
   },
-  // 方法：makeReport, generateCSV, generateImage, generateText, shareFile
+  // 方法：makeReport, generateText, shareFile
 })
 ```
 
@@ -175,10 +175,10 @@ try {
 
 #### 2. 文件生成错误
 ```javascript
-// CSV文件生成错误
+// 文本文件生成错误
 fs.writeFile({
   filePath: filePath,
-  data: csvContent,
+  data: textContent,
   encoding: 'utf8',
   success: () => { /* 成功处理 */ },
   fail: (err) => {
@@ -187,19 +187,6 @@ fs.writeFile({
       icon: 'none'
     });
     console.error('文件生成失败:', err);
-  }
-});
-
-// Canvas图片生成错误
-wx.canvasToTempFilePath({
-  canvas,
-  success: res => { /* 成功处理 */ },
-  fail: err => {
-    wx.showToast({
-      title: '图片生成失败',
-      icon: 'none'
-    });
-    console.error('图片生成错误:', err);
   }
 });
 ```
@@ -240,10 +227,9 @@ wx.shareFileMessage({
    - 数据读取和筛选
    - 存储异常处理
 
-3. **多格式导出功能**
-   - CSV文件生成和编码处理
-   - Canvas图片绘制逻辑
+3. **文本导出功能**
    - 文本文件格式化
+   - 统计信息生成
    - 不同数据量的处理
 
 ### 集成测试场景
@@ -251,7 +237,7 @@ wx.shareFileMessage({
 1. **完整打卡流程**：上班打卡 → 下班打卡 → 查看统计 → 导出文件
 2. **数据修改流程**：历史记录编辑 → 统计更新 → 文件重新生成
 3. **边界情况测试**：空数据、大量数据、异常时间
-4. **多格式导出测试**：CSV、图片、文本三种格式的完整流程
+4. **文本导出测试**：文本格式的完整导出流程
 
 ### 真机测试重点
 

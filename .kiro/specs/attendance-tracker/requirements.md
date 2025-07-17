@@ -46,13 +46,11 @@
 
 #### 验收标准
 
-1. WHEN 用户选择月份并点击"导出记录" THEN 系统 SHALL 提供Excel表格、图片报告、文本记录三种导出格式选择
+1. WHEN 用户选择月份并点击"导出记录" THEN 系统 SHALL 生成文本(TXT)格式文件
 2. WHEN 选定月份无打卡数据 THEN 系统 SHALL 显示"无打卡数据"提示
-3. WHEN 用户选择Excel表格导出 THEN 系统 SHALL 生成CSV格式文件，包含完整的打卡记录和统计信息
-4. WHEN 用户选择图片报告导出 THEN 系统 SHALL 生成专业格式的图片报告
-5. WHEN 用户选择文本记录导出 THEN 系统 SHALL 生成包含详细记录的文本文件
-6. WHEN 文件生成成功 THEN 系统 SHALL 提供分享和预览选项
-7. WHEN 用户点击分享 THEN 系统 SHALL 调用微信分享功能
+3. WHEN 生成文本文件 THEN 系统 SHALL 包含完整的打卡记录和统计信息
+4. WHEN 文件生成成功 THEN 系统 SHALL 提供分享和预览选项
+5. WHEN 用户点击分享 THEN 系统 SHALL 调用微信分享功能
 
 ### 需求 5 - 数据本地存储
 
