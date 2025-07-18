@@ -172,10 +172,63 @@
   font-size: 38rpx;
 }
 
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.btn-text {
+  font-size: 38rpx;
+  display: block;
+}
+
 .btn-status {
   position: absolute;
   right: 20rpx;
   font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.btn-status-text {
+  font-size: 24rpx;
+  margin-top: 8rpx;
+  opacity: 0.8;
+  color: inherit;
+}
+
+/* 自定义按钮样式 */
+.custom-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx;
+  border-radius: 8rpx;
+  font-size: 38rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.custom-btn-out {
+  background: white;
+  color: #07c160;
+  border: 2rpx solid #07c160;
+}
+
+.custom-btn-disabled {
+  background: #f7f7f7;
+  color: #ccc;
+  border: 2rpx solid #f7f7f7;
+}
+
+.custom-btn-hint {
+  font-size: 24rpx;
+  margin-top: 8rpx;
   opacity: 0.8;
 }
 

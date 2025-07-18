@@ -235,6 +235,12 @@ Page({
       // 更新页面数据
       this.loadTodayData();
       
+      // 直接更新当前页面数据状态，确保UI立即反映变化
+      const updatedRecord = {...this.data.todayRecord, on: timeStr};
+      this.setData({
+        todayRecord: updatedRecord
+      });
+      
     } catch (error) {
       console.error('上班打卡操作失败:', error);
       
@@ -329,6 +335,12 @@ Page({
       
       // 更新页面数据
       this.loadTodayData();
+      
+      // 直接更新当前页面数据状态，确保UI立即反映变化
+      const updatedRecord = {...this.data.todayRecord, off: timeStr};
+      this.setData({
+        todayRecord: updatedRecord
+      });
       
     } catch (error) {
       console.error('下班打卡操作失败:', error);

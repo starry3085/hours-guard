@@ -60,18 +60,25 @@
             bindtap="checkIn" 
             disabled="{{!!todayRecord.on}}"
             hover-class="btn-hover">
-      <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
-      <text class="btn-status" wx:if="{{todayRecord.on}}"></text>
+      <view class="btn-content">
+        <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
+        <text class="btn-status-text" wx:if="{{todayRecord.on}}">已打卡</text>
+      </view>
     </button>
     
-    <button class="punch-btn punch-out {{(todayRecord.off || !todayRecord.on) ? 'disabled' : ''}}" 
-            bindtap="checkOut" 
-            disabled="{{!!todayRecord.off || !todayRecord.on}}"
-            hover-class="btn-hover">
-      <text class="btn-text">{{isToday ? '下班打卡' : '补录下班'}}</text>
-      <text class="btn-status" wx:if="{{todayRecord.off}}"></text>
-      <text class="btn-status" wx:elif="{{!todayRecord.on}}">需先上班打卡</text>
-    </button>
+    <!-- 下班打卡按钮 - 使用view而不是button -->
+    <block wx:if="{{!todayRecord.off && todayRecord.on}}">
+      <view class="custom-btn custom-btn-out" bindtap="checkOut">
+        <text>{{isToday ? '下班打卡' : '补录下班'}}</text>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="custom-btn custom-btn-disabled">
+        <text>{{isToday ? '下班打卡' : '补录下班'}}</text>
+        <text class="custom-btn-hint" wx:if="{{todayRecord.off}}">已打卡</text>
+        <text class="custom-btn-hint" wx:elif="{{!todayRecord.on}}">需先上班打卡</text>
+      </view>
+    </block>
   </view>
 
   <!-- 提示信息 -->
