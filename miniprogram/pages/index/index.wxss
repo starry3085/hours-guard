@@ -103,7 +103,7 @@
 .record-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* 恢复为居中对齐 */
   height: 100%;
 }
 
@@ -118,6 +118,7 @@
   font-weight: bold;
   font-family: 'Courier New', monospace;
   color: #07c160; /* Keep the green text color */
+  transform: translateY(-16rpx); /* 进一步微调向上移动的距离 */
 }
 
 .edit-hint {

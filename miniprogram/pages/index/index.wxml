@@ -25,10 +25,6 @@
 
   <!-- 打卡记录卡片 -->
   <view class="record-card">
-    <view class="card-header">
-      <!-- Removed redundant title and date display -->
-    </view>
-    
     <view class="record-list">
       <view class="record-item">
         <view class="record-row">
