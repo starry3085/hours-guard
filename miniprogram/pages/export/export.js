@@ -7,7 +7,6 @@ Page({
     filePath: '',
     isGenerating: false,
     recordCount: 0,
-    totalWorkHours: 0,
     storageManager: null,
     errorHandler: null
   },
@@ -71,18 +70,8 @@ Page({
       const allRecords = storageManager.safeGetStorage('records', []);
       const monthRecords = allRecords.filter(record => record.date.startsWith(monthPrefix));
       
-      // 计算总工作时长
-      let totalHours = 0;
-      monthRecords.forEach(record => {
-        if (record.on && record.off) {
-          const workHours = this.calculateWorkHours(record.on, record.off, record.date);
-          totalHours += workHours;
-        }
-      });
-      
       this.setData({
-        recordCount: monthRecords.length,
-        totalWorkHours: totalHours.toFixed(1)
+        recordCount: monthRecords.length
       });
     } catch (error) {
       if (errorHandler) {
@@ -101,26 +90,6 @@ Page({
           duration: 2000
         });
       }
-    }
-  },
-  
-  // 计算工作时长
-  calculateWorkHours(onTime, offTime, date) {
-    if (!onTime || !offTime) return 0;
-    
-    try {
-      const onDateTime = new Date(`${date} ${onTime}`);
-      let offDateTime = new Date(`${date} ${offTime}`);
-      
-      // 处理跨日情况
-      if (offDateTime < onDateTime) {
-        offDateTime = new Date(offDateTime.getTime() + 24 * 60 * 60 * 1000);
-      }
-      
-      const diffMs = offDateTime - onDateTime;
-      return diffMs / (1000 * 60 * 60);
-    } catch (error) {
-      return 0;
     }
   },
   
@@ -233,12 +202,6 @@ Page({
         textContent += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
         textContent += `${'='.repeat(50)}\n\n`;
         
-        // 统计信息
-        textContent += `统计信息:\n`;
-        textContent += `打卡天数: ${monthRecords.length} 天\n`;
-        textContent += `总工作时长: ${this.data.totalWorkHours} 小时\n`;
-        textContent += `平均每日工作时长: ${monthRecords.length > 0 ? (parseFloat(this.data.totalWorkHours) / monthRecords.length).toFixed(2) : 0} 小时\n\n`;
-        
         // 详细记录
         textContent += `详细记录:\n`;
         textContent += `${'='.repeat(50)}\n`;
@@ -247,12 +210,10 @@ Page({
           const date = new Date(record.date);
           const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
           const weekday = `周${weekdays[date.getDay()]}`;
-          const workHours = this.calculateWorkHours(record.on, record.off, record.date);
           
           textContent += `${record.date} (${weekday})\n`;
           textContent += `  上班时间: ${record.on || '未打卡'}\n`;
           textContent += `  下班时间: ${record.off || '未打卡'}\n`;
-          textContent += `  工作时长: ${workHours > 0 ? workHours.toFixed(2) + '小时' : '-'}\n`;
           textContent += `${'-'.repeat(30)}\n`;
         });
         

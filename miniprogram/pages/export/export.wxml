@@ -17,23 +17,7 @@
     </picker>
   </view>
 
-  <!-- 数据统计卡片 -->
-  <view class="stats-card" wx:if="{{recordCount > 0}}">
-    <view class="card-header">
-      <text class="card-title">数据概览</text>
-    </view>
-    
-    <view class="stats-grid">
-      <view class="stat-item">
-        <text class="stat-number">{{recordCount}}</text>
-        <text class="stat-label">打卡天数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{totalWorkHours}}</text>
-        <text class="stat-label">总工作时长(h)</text>
-      </view>
-    </view>
-  </view>
+  <!-- 数据统计卡片已移除 -->
 
   <!-- 空数据提示 -->
   <view class="empty-card" wx:if="{{recordCount === 0}}">
