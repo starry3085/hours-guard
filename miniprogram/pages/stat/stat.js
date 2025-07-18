@@ -118,7 +118,7 @@ Page({
     if (hours === 0) return '-';
     const h = Math.floor(hours);
     const m = Math.round((hours - h) * 60);
-    return m > 0 ? `${h}h${m}m` : `${h}h`;
+    return m > 0 ? `${h}时${m}分` : `${h}时`;
   },
 
   // 编辑时间
