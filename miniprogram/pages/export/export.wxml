@@ -2,7 +2,6 @@
   <!-- 页面标题 -->
   <view class="header">
     <text class="title">记录导出</text>
-    <text class="subtitle">支持文本记录导出</text>
   </view>
   
   <!-- 月份选择卡片 -->
@@ -63,18 +62,7 @@
   <view class="info-section">
     <view class="info-card">
       <view class="info-header">
-        <text class="info-title">导出内容包含</text>
-      </view>
-      <view class="info-list">
-        <view class="info-item">
-          <text class="info-text">完整的打卡记录明细</text>
-        </view>
-        <view class="info-item">
-          <text class="info-text">工作时长统计分析</text>
-        </view>
-        <view class="info-item">
-          <text class="info-text">易于阅读的文本格式</text>
-        </view>
+        <text class="info-title">导出记录为文本格式</text>
       </view>
     </view>
     
