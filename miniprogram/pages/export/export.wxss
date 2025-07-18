@@ -204,6 +204,10 @@
   color: #191919;
 }
 
+.normal-text {
+  font-weight: normal;
+}
+
 .info-list {
   display: flex;
   flex-direction: column;
@@ -229,6 +233,10 @@
   font-size: 34rpx;
   color: #666;
   font-weight: 500;
+}
+
+.bold-text {
+  font-weight: bold;
 }
 
 /* 隐藏Canvas */

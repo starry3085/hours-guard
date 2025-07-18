@@ -46,12 +46,12 @@
   <view class="info-section">
     <view class="info-card">
       <view class="info-header">
-        <text class="info-title">导出记录为文本格式</text>
+        <text class="info-title normal-text">导出记录为文本格式</text>
       </view>
     </view>
     
     <view class="warning-card">
-      <text class="warning-text">数据仅保存在本机，请定期导出备份！</text>
+      <text class="warning-text bold-text">所有数据仅保存在本机，请定期导出备份</text>
     </view>
   </view>
 
