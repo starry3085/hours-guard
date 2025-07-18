@@ -250,4 +250,8 @@
   font-size: 32rpx;
   color: #666;
   line-height: 1.4;
+}
+
+.bold-tip {
+  font-weight: bold;
 } 

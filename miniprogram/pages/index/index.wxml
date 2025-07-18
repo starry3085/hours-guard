@@ -2,7 +2,6 @@
   <!-- 页面标题 -->
   <view class="header">
     <text class="title">{{isToday ? '今日打卡' : '补录打卡'}}</text>
-    <text class="subtitle">{{isToday ? '' : '补录历史记录'}}</text>
   </view>
 
   <!-- 日期和时间显示 -->
@@ -76,10 +75,7 @@
   <!-- 提示信息 -->
   <view class="tips-section">
     <view class="tip-item">
-      <text class="tip-text">所有数据仅保存在本机，请定期导出备份</text>
-    </view>
-    <view class="tip-item" wx:if="{{!isToday}}">
-      <text class="tip-text">补录模式：可以修改历史日期的打卡记录</text>
+      <text class="tip-text bold-tip">所有数据仅保存在本机，请定期导出备份</text>
     </view>
   </view>
 </view>
