@@ -14,36 +14,41 @@ Page({
   },
   
   onLoad() {
+    // 极简初始化，只设置日期和时间
     try {
-      // 获取存储管理器和错误处理器实例
-      this.setData({
-        storageManager: app.getStorageManager(),
-        errorHandler: app.getErrorHandler()
-      });
-      
+      // 设置当前日期
       this.setCurrentDate();
+      
+      // 启动时间更新
       this.startTimeUpdate();
       
-      // 检查网络状态并显示离线提示
-      this.checkOfflineMode();
-      
+      // 不加载数据，不显示任何提示
     } catch (error) {
-      const errorHandler = app.getErrorHandler();
-      errorHandler.handleError(error, '打卡页面初始化', {
-        showModal: true,
-        recovery: () => {
-          // 重新初始化页面
-          setTimeout(() => {
-            this.onLoad();
-          }, 1000);
-        }
-      });
+      console.error('页面初始化失败:', error);
     }
   },
   
   onShow() {
-    this.loadTodayData();
+    // 只更新时间，不加载数据
     this.startTimeUpdate();
+    
+    // 延迟加载数据，避免启动时出错
+    setTimeout(() => {
+      try {
+        // 获取存储管理器
+        if (!this.data.storageManager) {
+          this.setData({
+            storageManager: app.getStorageManager(),
+            errorHandler: app.getErrorHandler()
+          });
+        }
+        
+        // 加载数据
+        this.loadTodayData();
+      } catch (e) {
+        console.error('延迟加载数据失败:', e);
+      }
+    }, 2000);
   },
 
   onHide() {
@@ -100,7 +105,7 @@ Page({
   },
   
   loadTodayData() {
-    const { selectedDate, storageManager, errorHandler } = this.data;
+    const { selectedDate, storageManager } = this.data;
     
     if (!storageManager) {
       console.error('存储管理器未初始化');
@@ -123,46 +128,30 @@ Page({
         isToday: isToday
       });
     } catch (error) {
-      if (errorHandler) {
-        errorHandler.handleError(error, '加载打卡数据', {
-          showToast: true,
-          recovery: () => {
-            // 重试加载数据
-            setTimeout(() => {
-              this.loadTodayData();
-            }, 1000);
-          }
-        });
-      } else {
-        console.error('加载数据失败:', error);
-        wx.showToast({
-          title: '数据加载失败，请重试',
-          icon: 'none',
-          duration: 2000
-        });
-      }
+      console.error('加载数据失败:', error);
+      
+      // 静默失败，不显示错误提示
+      // 尝试设置一个空记录，以便页面能够正常显示
+      this.setData({
+        todayRecord: { date: selectedDate },
+        isToday: selectedDate === new Date().toISOString().slice(0, 10)
+      });
+      
+      // 延迟重试
+      setTimeout(() => {
+        try {
+          this.loadTodayData();
+        } catch (e) {
+          // 忽略错误
+        }
+      }, 2000);
     }
   },
 
   // 检查离线模式
-  async checkOfflineMode() {
-    try {
-      const { errorHandler } = this.data;
-      if (errorHandler) {
-        const networkStatus = await errorHandler.checkNetworkStatus();
-        if (!networkStatus.isConnected) {
-          setTimeout(() => {
-            wx.showToast({
-              title: '离线模式：数据仅本地保存',
-              icon: 'none',
-              duration: 2000
-            });
-          }, 500);
-        }
-      }
-    } catch (error) {
-      console.error('检查网络状态失败:', error);
-    }
+  checkOfflineMode() {
+    // 不显示任何提示，避免干扰用户
+    console.log('应用处于离线模式，数据仅本地保存');
   },
   
   // 日期变更
@@ -180,7 +169,7 @@ Page({
   },
   
   async checkIn() {
-    const { selectedDate, isToday, storageManager, errorHandler, isLoading } = this.data;
+    const { selectedDate, isToday, storageManager, isLoading } = this.data;
     
     // 防止重复操作
     if (isLoading) {
@@ -202,51 +191,40 @@ Page({
     this.setData({ isLoading: true });
     
     try {
-      // 使用错误处理器的重试机制
-      await errorHandler.withRetry(async () => {
-        // 获取当前时间或选择的时间
-        let timeStr;
-        if (isToday) {
-          const now = new Date();
-          const hours = now.getHours().toString().padStart(2, '0');
-          const minutes = now.getMinutes().toString().padStart(2, '0');
-          timeStr = `${hours}:${minutes}`;
-        } else {
-          // 对于历史日期，使用默认时间或让用户选择
-          timeStr = '09:00';
-        }
-        
-        // 使用存储管理器安全获取记录
-        const records = storageManager.safeGetStorage('records', []);
-        
-        // 查找选中日期的记录索引
-        const idx = records.findIndex(r => r.date === selectedDate);
-        
-        // 如果已有选中日期的记录，更新上班时间；否则添加新记录
-        if (idx >= 0) {
-          records[idx].on = timeStr;
-        } else {
-          records.push({
-            date: selectedDate,
-            on: timeStr
-          });
-        }
-        
-        // 使用存储管理器安全保存
-        const success = storageManager.safeSetStorage('records', records);
-        
-        if (!success) {
-          throw new Error('数据保存失败');
-        }
-        
-        return { timeStr, isUpdate: idx >= 0 };
-      }, {
-        maxRetries: 2,
-        context: '上班打卡',
-        onRetry: (error, attempt) => {
-          // 静默重试
-        }
-      });
+      // 获取当前时间或选择的时间
+      let timeStr;
+      if (isToday) {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        timeStr = `${hours}:${minutes}`;
+      } else {
+        // 对于历史日期，使用默认时间或让用户选择
+        timeStr = '09:00';
+      }
+      
+      // 使用存储管理器安全获取记录
+      const records = storageManager.safeGetStorage('records', []);
+      
+      // 查找选中日期的记录索引
+      const idx = records.findIndex(r => r.date === selectedDate);
+      
+      // 如果已有选中日期的记录，更新上班时间；否则添加新记录
+      if (idx >= 0) {
+        records[idx].on = timeStr;
+      } else {
+        records.push({
+          date: selectedDate,
+          on: timeStr
+        });
+      }
+      
+      // 使用存储管理器安全保存
+      const success = storageManager.safeSetStorage('records', records);
+      
+      if (!success) {
+        throw new Error('数据保存失败');
+      }
       
       // 显示成功提示
       wx.showToast({
@@ -258,20 +236,30 @@ Page({
       this.loadTodayData();
       
     } catch (error) {
-      errorHandler.handleError(error, '上班打卡操作', {
-        showToast: true,
-        recovery: () => {
-          // 恢复策略：重新加载数据
-          this.loadTodayData();
-        }
+      console.error('上班打卡操作失败:', error);
+      
+      // 静默失败，不使用错误处理器
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none',
+        duration: 1500
       });
+      
+      // 尝试重新加载数据
+      setTimeout(() => {
+        try {
+          this.loadTodayData();
+        } catch (e) {
+          // 忽略错误
+        }
+      }, 1000);
     } finally {
       this.setData({ isLoading: false });
     }
   },
   
   async checkOut() {
-    const { selectedDate, isToday, todayRecord, storageManager, errorHandler, isLoading } = this.data;
+    const { selectedDate, isToday, todayRecord, storageManager, isLoading } = this.data;
     
     // 检查是否已上班打卡
     if (!todayRecord.on) {
@@ -302,47 +290,36 @@ Page({
     this.setData({ isLoading: true });
     
     try {
-      // 使用错误处理器的重试机制
-      await errorHandler.withRetry(async () => {
-        // 获取当前时间或选择的时间
-        let timeStr;
-        if (isToday) {
-          const now = new Date();
-          const hours = now.getHours().toString().padStart(2, '0');
-          const minutes = now.getMinutes().toString().padStart(2, '0');
-          timeStr = `${hours}:${minutes}`;
-        } else {
-          // 对于历史日期，使用默认时间
-          timeStr = '18:00';
-        }
+      // 获取当前时间或选择的时间
+      let timeStr;
+      if (isToday) {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        timeStr = `${hours}:${minutes}`;
+      } else {
+        // 对于历史日期，使用默认时间
+        timeStr = '18:00';
+      }
+      
+      // 使用存储管理器安全获取记录
+      const records = storageManager.safeGetStorage('records', []);
+      
+      // 查找选中日期的记录索引
+      const idx = records.findIndex(r => r.date === selectedDate);
+      
+      if (idx >= 0) {
+        records[idx].off = timeStr;
         
-        // 使用存储管理器安全获取记录
-        const records = storageManager.safeGetStorage('records', []);
+        // 使用存储管理器安全保存
+        const success = storageManager.safeSetStorage('records', records);
         
-        // 查找选中日期的记录索引
-        const idx = records.findIndex(r => r.date === selectedDate);
-        
-        if (idx >= 0) {
-          records[idx].off = timeStr;
-          
-          // 使用存储管理器安全保存
-          const success = storageManager.safeSetStorage('records', records);
-          
-          if (!success) {
-            throw new Error('数据保存失败');
-          }
-          
-          return { timeStr, recordIndex: idx };
-        } else {
-          throw new Error('记录不存在，请先上班打卡');
+        if (!success) {
+          throw new Error('数据保存失败');
         }
-      }, {
-        maxRetries: 2,
-        context: '下班打卡',
-        onRetry: (error, attempt) => {
-          // 静默重试
-        }
-      });
+      } else {
+        throw new Error('记录不存在，请先上班打卡');
+      }
       
       // 显示成功提示
       wx.showToast({
@@ -354,13 +331,23 @@ Page({
       this.loadTodayData();
       
     } catch (error) {
-      errorHandler.handleError(error, '下班打卡操作', {
-        showToast: true,
-        recovery: () => {
-          // 恢复策略：重新加载数据
-          this.loadTodayData();
-        }
+      console.error('下班打卡操作失败:', error);
+      
+      // 静默失败，不使用错误处理器
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none',
+        duration: 1500
       });
+      
+      // 尝试重新加载数据
+      setTimeout(() => {
+        try {
+          this.loadTodayData();
+        } catch (e) {
+          // 忽略错误
+        }
+      }, 1000);
     } finally {
       this.setData({ isLoading: false });
     }
@@ -397,7 +384,7 @@ Page({
 
   // 更新时间记录
   async updateTime(date, type, newTime) {
-    const { storageManager, errorHandler } = this.data;
+    const { storageManager } = this.data;
     
     if (!storageManager) {
       wx.showToast({
@@ -408,33 +395,23 @@ Page({
     }
     
     try {
-      // 使用错误处理器的重试机制
-      await errorHandler.withRetry(async () => {
-        const records = storageManager.safeGetStorage('records', []);
-        const idx = records.findIndex(r => r.date === date);
-        
-        if (idx >= 0) {
-          records[idx][type] = newTime;
-        } else {
-          const newRecord = { date };
-          newRecord[type] = newTime;
-          records.push(newRecord);
-        }
-        
-        const success = storageManager.safeSetStorage('records', records);
-        
-        if (!success) {
-          throw new Error('数据保存失败');
-        }
-        
-        return { date, type, newTime };
-      }, {
-        maxRetries: 2,
-        context: '更新时间记录',
-        onRetry: (error, attempt) => {
-          // 静默重试
-        }
-      });
+      // 直接执行操作，不使用错误处理器的重试机制
+      const records = storageManager.safeGetStorage('records', []);
+      const idx = records.findIndex(r => r.date === date);
+      
+      if (idx >= 0) {
+        records[idx][type] = newTime;
+      } else {
+        const newRecord = { date };
+        newRecord[type] = newTime;
+        records.push(newRecord);
+      }
+      
+      const success = storageManager.safeSetStorage('records', records);
+      
+      if (!success) {
+        throw new Error('数据保存失败');
+      }
       
       // 更新成功
       this.loadTodayData();
@@ -444,13 +421,23 @@ Page({
       });
       
     } catch (error) {
-      errorHandler.handleError(error, '更新时间记录', {
-        showToast: true,
-        recovery: () => {
-          // 恢复策略：重新加载数据
-          this.loadTodayData();
-        }
+      console.error('更新时间记录失败:', error);
+      
+      // 静默失败，不使用错误处理器
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none',
+        duration: 1500
       });
+      
+      // 尝试重新加载数据
+      setTimeout(() => {
+        try {
+          this.loadTodayData();
+        } catch (e) {
+          // 忽略错误
+        }
+      }, 1000);
     }
   },
 

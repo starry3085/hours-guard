@@ -119,6 +119,43 @@ class PerformanceMonitor {
       }
     });
   }
+  
+  /**
+   * 监控内存使用情况
+   * 在支持的平台上获取内存使用信息
+   * @returns {Object|null} 内存使用信息或null
+   */
+  monitorMemoryUsage() {
+    try {
+      // 检查是否支持获取性能信息
+      if (wx.getPerformance) {
+        const performance = wx.getPerformance();
+        const memory = performance.memory;
+        
+        if (memory) {
+          const memoryInfo = {
+            jsHeapSizeLimit: memory.jsHeapSizeLimit,
+            totalJSHeapSize: memory.totalJSHeapSize,
+            usedJSHeapSize: memory.usedJSHeapSize,
+            timestamp: Date.now()
+          };
+          
+          // 记录内存使用超过阈值的情况
+          const usageRatio = memoryInfo.usedJSHeapSize / memoryInfo.jsHeapSizeLimit;
+          if (usageRatio > 0.7) {
+            console.warn('内存使用率过高:', (usageRatio * 100).toFixed(2) + '%');
+          }
+          
+          return memoryInfo;
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('监控内存使用失败:', error);
+      return null;
+    }
+  }
 }
 
 // 创建单例实例
