@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/stat/stat",
-    "pages/export/export"
+    "pages/export/export",
+    "pages/debug/debug"
   ],
   "window": {
     "backgroundTextStyle": "light",
