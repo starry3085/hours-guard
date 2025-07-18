@@ -4,11 +4,6 @@ Page({
   data: {
     list: [],
     currentMonth: '',
-    monthDays: 0,
-    weekHours: 0,
-    avgDailyHours: 0,
-    totalMonthHours: 0,
-    avgMonthDailyHours: 0,
     showPicker: false,
     pickerType: '',
     pickerDate: '',
@@ -56,70 +51,7 @@ Page({
     wx.stopPullDownRefresh();
   },
   
-  // 获取本周日期范围
-  getCurrentWeek() {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-    const weekDates = [];
-    
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth(), diff + i);
-      const month = date.getMonth() + 1;
-      const dayOfMonth = date.getDate();
-      weekDates.push(`${date.getFullYear()}-${month.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}`);
-    }
-    
-    return weekDates;
-  },
-
-  // 计算工作时长（小时）- 优化版本，添加缓存
-  calculateWorkHours(onTime, offTime, date) {
-    if (!onTime || !offTime) return 0;
-    
-    // 使用缓存键避免重复计算
-    const cacheKey = `${date}_${onTime}_${offTime}`;
-    if (this.workHoursCache && this.workHoursCache.has(cacheKey)) {
-      return this.workHoursCache.get(cacheKey);
-    }
-    
-    try {
-      const onDateTime = new Date(`${date} ${onTime}`);
-      let offDateTime = new Date(`${date} ${offTime}`);
-      
-      // 处理跨日情况
-      if (offDateTime < onDateTime) {
-        offDateTime = new Date(offDateTime.getTime() + 24 * 60 * 60 * 1000);
-      }
-      
-      const diffMs = offDateTime - onDateTime;
-      const hours = diffMs / (1000 * 60 * 60); // 转换为小时
-      
-      // 缓存计算结果
-      if (!this.workHoursCache) {
-        this.workHoursCache = new Map();
-      }
-      this.workHoursCache.set(cacheKey, hours);
-      
-      // 限制缓存大小，避免内存泄漏
-      if (this.workHoursCache.size > 100) {
-        const firstKey = this.workHoursCache.keys().next().value;
-        this.workHoursCache.delete(firstKey);
-      }
-      
-      return hours;
-    } catch (error) {
-      return 0;
-    }
-  },
-
-  // 格式化工作时长显示
-  formatWorkHours(hours) {
-    if (hours === 0) return '-';
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
-    return m > 0 ? `${h}时${m}分` : `${h}时`;
-  },
+  // 工作时长相关函数已移除
 
   // 编辑时间
   onEditTime(e) {
@@ -364,26 +296,21 @@ Page({
       // 按日期倒序排序（最新日期在前）
       monthRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
       
-      // 为每条记录添加工作时长
-      const recordsWithHours = monthRecords.map(record => ({
-        ...record,
-        workHours: this.calculateWorkHours(record.on, record.off, record.date),
-        workHoursText: this.formatWorkHours(this.calculateWorkHours(record.on, record.off, record.date))
-      }));
-      
-      // 计算统计数据
-      const stats = this.calculateStatistics(recordsWithHours);
+      // 不再添加周几信息
+      const recordsWithWeekday = monthRecords.map(record => {
+        return {
+          ...record,
+          weekday: '' // 设置为空字符串，不显示周几
+        };
+      });
       
       // 更新数据和缓存
       this.setData({
-        list: recordsWithHours,
+        list: recordsWithWeekday,
         currentMonth: currentMonth,
-        monthDays: recordsWithHours.length,
-        ...stats,
         monthCache: {
           month: monthPrefix,
-          data: recordsWithHours,
-          stats: stats
+          data: recordsWithWeekday
         },
         lastUpdateTime: currentTime
       });
@@ -529,34 +456,5 @@ Page({
     await app.performSystemDiagnosis();
   },
 
-  // 计算统计数据
-  calculateStatistics(records) {
-    const currentWeek = this.getCurrentWeek();
-    let weekHours = 0;
-    let weekWorkDays = 0;
-    let totalMonthHours = 0;
-    let monthWorkDays = 0;
-    
-    records.forEach(record => {
-      const workHours = record.workHours;
-      
-      if (workHours > 0) {
-        totalMonthHours += workHours;
-        monthWorkDays++;
-        
-        // 如果是本周的记录
-        if (currentWeek.includes(record.date)) {
-          weekHours += workHours;
-          weekWorkDays++;
-        }
-      }
-    });
-    
-    return {
-      weekHours: weekHours.toFixed(1),
-      avgDailyHours: weekWorkDays > 0 ? (weekHours / weekWorkDays).toFixed(1) : '0',
-      totalMonthHours: totalMonthHours.toFixed(1),
-      avgMonthDailyHours: monthWorkDays > 0 ? (totalMonthHours / monthWorkDays).toFixed(1) : '0'
-    };
-  }
+  // 统计数据计算功能已移除
 })

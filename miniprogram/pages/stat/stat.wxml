@@ -7,33 +7,12 @@
     <text class="month-text">{{currentMonth}}</text>
   </view>
 
-  <!-- 统计卡片 -->
-  <view class="stats-section" wx:if="{{list.length > 0}}">
-    <view class="stats-grid">
-      <view class="stat-card">
-        <text class="stat-number">{{monthDays}}</text>
-        <text class="stat-label">打卡天数</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-number">{{totalMonthHours}}</text>
-        <text class="stat-label">本月总时长(时)</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-number">{{weekHours}}</text>
-        <text class="stat-label">本周时长(时)</text>
-      </view>
-      <view class="stat-card">
-        <text class="stat-number">{{avgMonthDailyHours}}</text>
-        <text class="stat-label">日均时长(时)</text>
-      </view>
-    </view>
-  </view>
+  <!-- 统计卡片已移除 -->
 
   <!-- 记录列表 -->
   <view class="records-section">
     <view class="section-header">
-      <!-- Removed redundant title -->
-      <text class="record-count" wx:if="{{list.length > 0}}">共{{list.length}}条</text>
+      <!-- Removed record count display -->
     </view>
 
     <view class="empty-state" wx:if="{{list.length === 0}}">
@@ -46,7 +25,6 @@
         <text class="header-date">日期</text>
         <text class="header-time">上班</text>
         <text class="header-time">下班</text>
-        <text class="header-duration">时长</text>
       </view>
       
       <view wx:for="{{list}}" wx:key="date" class="record-row">
@@ -63,10 +41,6 @@
         <view class="cell-time" bindtap="onEditTime" data-type="off" data-date="{{item.date}}">
           <text class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off || '--:--'}}</text>
           <text class="edit-hint" wx:if="{{item.off}}"></text>
-        </view>
-        
-        <view class="cell-duration">
-          <text class="duration-text">{{item.workHoursText}}</text>
         </view>
       </view>
     </scroll-view>
