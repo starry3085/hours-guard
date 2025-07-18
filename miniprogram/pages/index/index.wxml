@@ -33,9 +33,7 @@
       <view class="record-item">
         <view class="record-row">
           <text class="record-label">上班时间</text>
-          <text class="record-time" 
-                bindtap="onEditTime" 
-                data-type="on">
+          <text class="record-time">
             {{todayRecord.on || '--:--'}}
           </text>
         </view>
@@ -44,9 +42,7 @@
       <view class="record-item">
         <view class="record-row">
           <text class="record-label">下班时间</text>
-          <text class="record-time" 
-                bindtap="onEditTime" 
-                data-type="off">
+          <text class="record-time">
             {{todayRecord.off || '--:--'}}
           </text>
         </view>
