@@ -52,16 +52,10 @@
     </button>
     
     <button class="share-btn {{!filePath ? 'disabled' : ''}}" 
-            bindtap="shareFile" 
+            bindtap="previewFile" 
             disabled="{{!filePath}}"
             hover-class="btn-hover">
-      <text class="btn-text">分享文件</text>
-    </button>
-    
-    <button class="storage-btn" 
-            bindtap="onGoToStorage"
-            hover-class="btn-hover">
-      <text class="btn-text">存储管理</text>
+      <text class="btn-text">导出预览</text>
     </button>
   </view>
 
