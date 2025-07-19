@@ -11,12 +11,7 @@
 
   <!-- 记录列表 -->
   <view class="records-section">
-    <view class="empty-state" wx:if="{{list.length === 0}}">
-      <text class="empty-text">本月暂无打卡记录</text>
-      <text class="empty-hint">去打卡页面进行打卡吧</text>
-    </view>
-
-    <view class="record-card" wx:else>
+    <view class="record-card" wx:if="{{list.length > 0}}">
       <view class="list-header">
         <text class="header-date">日期</text>
         <text class="header-time">上班</text>
