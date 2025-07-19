@@ -85,12 +85,11 @@
   </view>
 
   <!-- 提示信息 -->
-  <view class="tips-section">
+  <view class="tips-section data-backup-notice">
     <view class="tip-item">
       <view class="tip-icon"></view>
       <text class="tip-text bold-tip">所有数据仅保存在本机，请定期导出备份</text>
     </view>
   </view>
-  
 
 </view>
