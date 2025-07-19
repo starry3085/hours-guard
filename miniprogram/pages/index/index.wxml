@@ -59,14 +59,17 @@
 
   <!-- 打卡按钮组 -->
   <view class="action-section">
-    <button class="punch-btn punch-in {{todayRecord.on ? 'disabled' : ''}}" 
-            bindtap="checkIn" 
-            disabled="{{!!todayRecord.on}}"
-            hover-class="btn-hover">
-      <view class="btn-content">
-        <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
+    <!-- 上班打卡按钮 - 使用view而不是button -->
+    <block wx:if="{{!todayRecord.on}}">
+      <view class="custom-btn custom-btn-out" bindtap="checkIn">
+        <text>{{isToday ? '上班打卡' : '补录上班'}}</text>
       </view>
-    </button>
+    </block>
+    <block wx:else>
+      <view class="custom-btn custom-btn-disabled">
+        <text>{{isToday ? '上班打卡' : '补录上班'}}</text>
+      </view>
+    </block>
     
     <!-- 下班打卡按钮 - 使用view而不是button -->
     <block wx:if="{{!todayRecord.off && todayRecord.on}}">
