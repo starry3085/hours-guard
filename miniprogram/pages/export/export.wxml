@@ -30,7 +30,6 @@
     <view class="custom-btn {{!filePath ? 'custom-btn-disabled' : 'custom-btn-out'}}" 
           bindtap="previewFile">
       <text>导出预览</text>
-      <text class="custom-btn-hint" wx:if="{{!filePath}}">请先导出记录</text>
     </view>
     
     <view class="custom-btn {{isGenerating ? 'custom-btn-disabled' : (recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out')}}" 
