@@ -92,19 +92,5 @@
     </view>
   </view>
   
-  <!-- 底部导航栏 -->
-  <view class="tab-bar">
-    <view class="tab-item tab-active">
-      <view class="tab-icon tab-icon-clock"></view>
-      <text class="tab-text">打卡</text>
-    </view>
-    <view class="tab-item">
-      <view class="tab-icon tab-icon-stat"></view>
-      <text class="tab-text">统计</text>
-    </view>
-    <view class="tab-item">
-      <view class="tab-icon tab-icon-export"></view>
-      <text class="tab-text">导出</text>
-    </view>
-  </view>
+
 </view>
