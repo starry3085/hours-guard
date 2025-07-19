@@ -10,12 +10,17 @@ Page({
     timeInterval: null,
     storageManager: null,
     errorHandler: null,
-    isLoading: false
+    isLoading: false,
+    systemInfo: {},
+    adaptedStyles: {}
   },
   
   onLoad() {
     // 极简初始化，只设置日期和时间
     try {
+      // 获取系统信息进行适配
+      this.initSystemAdaptation();
+      
       // 设置当前日期
       this.setCurrentDate();
       
@@ -408,5 +413,83 @@ Page({
   // 执行系统诊断
   async performDiagnosis() {
     await app.performSystemDiagnosis();
+  },
+
+  // 初始化系统适配
+  initSystemAdaptation() {
+    try {
+      // 获取应用全局的系统信息
+      const systemInfo = app.getSystemInfo();
+      
+      // 计算适配样式
+      const adaptedStyles = this.calculateAdaptedStyles(systemInfo);
+      
+      this.setData({
+        systemInfo: systemInfo,
+        adaptedStyles: adaptedStyles
+      });
+      
+      console.log('首页系统适配完成:', { systemInfo, adaptedStyles });
+    } catch (error) {
+      console.error('系统适配初始化失败:', error);
+      // 设置默认适配样式
+      this.setData({
+        systemInfo: {},
+        adaptedStyles: this.getDefaultAdaptedStyles()
+      });
+    }
+  },
+
+  // 计算适配样式
+  calculateAdaptedStyles(systemInfo) {
+    if (!systemInfo || !systemInfo.windowWidth) {
+      return this.getDefaultAdaptedStyles();
+    }
+
+    const { windowWidth, windowHeight, isIPhoneX, screenType, safeAreaBottom } = systemInfo;
+    
+    return {
+      // 页面容器底部间距（考虑安全区域和tabBar）
+      pageBottomPadding: `calc(110rpx + ${safeAreaBottom || 0}px)`,
+      
+      // 按钮尺寸适配
+      buttonHeight: screenType === 'long' ? '88rpx' : '80rpx',
+      buttonFontSize: windowWidth < 350 ? '30rpx' : '32rpx',
+      
+      // 标题字体大小适配
+      titleFontSize: windowWidth < 350 ? '48rpx' : windowWidth > 400 ? '60rpx' : '56rpx',
+      
+      // 时间显示字体大小适配
+      timeFontSize: windowWidth < 350 ? '36rpx' : '42rpx',
+      
+      // 卡片间距适配
+      cardMargin: windowWidth < 350 ? '16rpx' : '20rpx',
+      cardPadding: windowWidth < 350 ? '24rpx' : '30rpx',
+      
+      // 是否为长屏幕
+      isLongScreen: screenType === 'long',
+      
+      // 是否为小屏幕
+      isSmallScreen: windowWidth < 350,
+      
+      // 是否为大屏幕
+      isLargeScreen: windowWidth > 400
+    };
+  },
+
+  // 获取默认适配样式
+  getDefaultAdaptedStyles() {
+    return {
+      pageBottomPadding: '110rpx',
+      buttonHeight: '80rpx',
+      buttonFontSize: '32rpx',
+      titleFontSize: '56rpx',
+      timeFontSize: '42rpx',
+      cardMargin: '20rpx',
+      cardPadding: '30rpx',
+      isLongScreen: false,
+      isSmallScreen: false,
+      isLargeScreen: false
+    };
   }
 }) 

@@ -14,11 +14,16 @@ Page({
     lastUpdateTime: 0,
     storageManager: null,
     errorHandler: null,
-    isLoading: false
+    isLoading: false,
+    systemInfo: {},
+    adaptedStyles: {}
   },
   
   onLoad() {
     try {
+      // 获取系统信息进行适配
+      this.initSystemAdaptation();
+      
       // 获取存储管理器和错误处理器实例
       this.setData({
         storageManager: app.getStorageManager(),
@@ -454,6 +459,88 @@ Page({
   // 执行系统诊断
   async performDiagnosis() {
     await app.performSystemDiagnosis();
+  },
+
+  // 初始化系统适配
+  initSystemAdaptation() {
+    try {
+      // 获取应用全局的系统信息
+      const systemInfo = app.getSystemInfo();
+      
+      // 计算适配样式
+      const adaptedStyles = this.calculateAdaptedStyles(systemInfo);
+      
+      this.setData({
+        systemInfo: systemInfo,
+        adaptedStyles: adaptedStyles
+      });
+      
+      console.log('统计页面系统适配完成:', { systemInfo, adaptedStyles });
+    } catch (error) {
+      console.error('统计页面系统适配初始化失败:', error);
+      // 设置默认适配样式
+      this.setData({
+        systemInfo: {},
+        adaptedStyles: this.getDefaultAdaptedStyles()
+      });
+    }
+  },
+
+  // 计算适配样式
+  calculateAdaptedStyles(systemInfo) {
+    if (!systemInfo || !systemInfo.windowWidth) {
+      return this.getDefaultAdaptedStyles();
+    }
+
+    const { windowWidth, windowHeight, isIPhoneX, screenType, safeAreaBottom } = systemInfo;
+    
+    return {
+      // 页面容器底部间距（考虑安全区域和tabBar）
+      pageBottomPadding: `calc(110rpx + ${safeAreaBottom || 0}px)`,
+      
+      // 列表项高度适配
+      listItemHeight: screenType === 'long' ? '120rpx' : '100rpx',
+      
+      // 字体大小适配
+      titleFontSize: windowWidth < 350 ? '48rpx' : windowWidth > 400 ? '60rpx' : '56rpx',
+      dateFontSize: windowWidth < 350 ? '30rpx' : '34rpx',
+      timeFontSize: windowWidth < 350 ? '30rpx' : '34rpx',
+      
+      // 时间选择器适配
+      pickerHeight: windowWidth < 350 ? '350rpx' : '400rpx',
+      pickerItemHeight: windowWidth < 350 ? '70rpx' : '80rpx',
+      
+      // 卡片间距适配
+      cardMargin: windowWidth < 350 ? '16rpx' : '20rpx',
+      cardPadding: windowWidth < 350 ? '24rpx' : '30rpx',
+      
+      // 是否为长屏幕
+      isLongScreen: screenType === 'long',
+      
+      // 是否为小屏幕
+      isSmallScreen: windowWidth < 350,
+      
+      // 是否为大屏幕
+      isLargeScreen: windowWidth > 400
+    };
+  },
+
+  // 获取默认适配样式
+  getDefaultAdaptedStyles() {
+    return {
+      pageBottomPadding: '110rpx',
+      listItemHeight: '100rpx',
+      titleFontSize: '56rpx',
+      dateFontSize: '34rpx',
+      timeFontSize: '34rpx',
+      pickerHeight: '400rpx',
+      pickerItemHeight: '80rpx',
+      cardMargin: '20rpx',
+      cardPadding: '30rpx',
+      isLongScreen: false,
+      isSmallScreen: false,
+      isLargeScreen: false
+    };
   },
 
   // 统计数据计算功能已移除
