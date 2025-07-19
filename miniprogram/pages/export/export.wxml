@@ -12,15 +12,30 @@
     
     <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange" class="month-picker">
       <view class="picker-display">
+        <view class="picker-icon">
+          <view class="calendar-icon"></view>
+        </view>
         <text class="selected-month">{{selectedMonth}}</text>
+        <view class="picker-arrow">›</view>
       </view>
     </picker>
   </view>
 
-  <!-- 数据统计卡片已移除 -->
+  <!-- 数据统计卡片 -->
+  <view class="stats-card" wx:if="{{recordCount > 0}}">
+    <view class="stats-header">
+      <text class="stats-title">本月数据概览</text>
+    </view>
+    <view class="stats-content">
+      <view class="stat-item">
+        <text class="stat-number">{{recordCount}}</text>
+        <text class="stat-label">打卡天数</text>
+      </view>
+    </view>
+  </view>
 
   <!-- 空数据提示 -->
-  <view class="empty-card" wx:if="{{recordCount === 0}}">
+  <view class="empty-state" wx:if="{{recordCount === 0}}">
     <text class="empty-text">该月份暂无打卡数据</text>
     <text class="empty-hint">请选择其他月份或先去打卡页面记录</text>
   </view>
@@ -31,29 +46,30 @@
             bindtap="makeReport" 
             disabled="{{isGenerating ? true : (recordCount === 0 ? true : false)}}"
             hover-class="btn-hover">
-      <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
+      <view class="btn-content">
+        <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
+      </view>
     </button>
     
-    <button class="share-btn {{!filePath ? 'disabled' : ''}}" 
-            bindtap="previewFile" 
-            disabled="{{!filePath}}"
-            hover-class="btn-hover">
-      <text class="btn-text">导出预览</text>
-    </button>
+    <view class="custom-btn {{!filePath ? 'custom-btn-disabled' : 'custom-btn-preview'}}" 
+          bindtap="previewFile">
+      <text>导出预览</text>
+      <text class="custom-btn-hint" wx:if="{{!filePath}}">请先导出记录</text>
+    </view>
   </view>
 
   <!-- 功能说明 -->
   <view class="info-section">
     <view class="info-card">
-      <view class="info-header">
-        <text class="info-title normal-text">导出记录为文本格式</text>
-      </view>
-    </view>
-    
-    <view class="warning-card">
-      <text class="warning-text bold-text">所有数据仅保存在本机，请定期导出备份</text>
+      <text class="info-text">导出记录为文本格式</text>
     </view>
   </view>
 
-  <!-- 不再需要Canvas，已移除 -->
+  <!-- 提示信息 -->
+  <view class="tips-section data-backup-notice">
+    <view class="tip-item">
+      <view class="tip-icon"></view>
+      <text class="tip-text bold-tip">所有数据仅保存在本机，请定期导出备份</text>
+    </view>
+  </view>
 </view> 
