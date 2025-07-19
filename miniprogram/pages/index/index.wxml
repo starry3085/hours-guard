@@ -80,7 +80,6 @@
     <block wx:else>
       <view class="custom-btn custom-btn-disabled">
         <text>{{isToday ? '下班打卡' : '补录下班'}}</text>
-        <text class="custom-btn-hint" wx:if="{{!todayRecord.on}}">需先上班打卡</text>
       </view>
     </block>
   </view>
