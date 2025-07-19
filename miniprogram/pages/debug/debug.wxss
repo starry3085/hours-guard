@@ -1,22 +1,29 @@
 /* debug.wxss */
 .container {
   padding: 20rpx;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  /* 使用安全区域适配，确保在所有机型上都不被底部导航栏遮挡 */
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 }
 
 .header {
   margin-bottom: 30rpx;
+  text-align: center;
 }
 
 .title {
   font-size: 36rpx;
   font-weight: bold;
+  color: #191919;
 }
 
 .section {
   margin-bottom: 30rpx;
-  background-color: #f8f8f8;
-  border-radius: 10rpx;
+  background-color: white;
+  border-radius: 16rpx;
   padding: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
@@ -24,21 +31,50 @@
   font-weight: bold;
   margin-bottom: 20rpx;
   color: #333;
+  border-bottom: 2rpx solid #f0f0f0;
+  padding-bottom: 10rpx;
 }
 
 .info-item {
   margin-bottom: 10rpx;
   font-size: 28rpx;
+  padding: 8rpx 0;
+  color: #666;
+}
+
+.adaptation-info {
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.adaptation-info .info-item {
+  margin-bottom: 8rpx;
+  font-size: 26rpx;
+  color: #555;
 }
 
 .button-group {
   display: flex;
   justify-content: space-around;
   margin: 20rpx 0;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.button-group button {
+  flex: 1;
+  min-width: 120rpx;
+  margin: 0 5rpx;
+  border-radius: 8rpx;
 }
 
 .records-container {
   max-height: 600rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 10rpx;
 }
 
 .record-item {
@@ -47,11 +83,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: white;
+  margin-bottom: 8rpx;
+  border-radius: 8rpx;
+  transition: all 0.3s ease;
+}
+
+.record-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.record-item:active {
+  background-color: #f0f0f0;
+  transform: scale(0.98);
 }
 
 .record-date {
   font-weight: bold;
   color: #333;
+  font-size: 28rpx;
 }
 
 .record-times {
@@ -60,10 +111,65 @@
   align-items: flex-end;
   font-size: 26rpx;
   color: #666;
+  gap: 4rpx;
 }
 
 .empty-tip {
   text-align: center;
   padding: 40rpx;
   color: #999;
+  font-size: 28rpx;
+}
+
+/* 响应式适配 */
+@media (max-width: 350px) {
+  .container {
+    padding: 16rpx;
+  }
+  
+  .section {
+    padding: 16rpx;
+    margin-bottom: 24rpx;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    gap: 16rpx;
+  }
+  
+  .button-group button {
+    margin: 0;
+    width: 100%;
+  }
+}
+
+@media (min-width: 414px) {
+  .container {
+    padding: 24rpx;
+  }
+  
+  .section {
+    padding: 24rpx;
+  }
+  
+  .records-container {
+    max-height: 700rpx;
+  }
+}
+
+/* 长屏幕适配 */
+@media (min-aspect-ratio: 2/1) {
+  .records-container {
+    max-height: 800rpx;
+  }
+  
+  .section {
+    margin-bottom: 40rpx;
+  }
+}
+
+/* 安全区域适配类 */
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
 }

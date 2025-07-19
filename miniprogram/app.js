@@ -1,15 +1,24 @@
 const storageManager = require('./utils/storage');
 const errorHandler = require('./utils/error-handler');
 const performanceMonitor = require('./utils/performance-monitor');
+const adaptationManager = require('./utils/adaptation');
 
 App({
-  onLaunch() {
+  async onLaunch() {
+    // 初始化适配管理器
+    await this.initAdaptationManager();
+    
+    // 获取系统信息进行适配（保留原有逻辑作为备用）
+    this.getSystemInfoForAdaptation();
+    
     // 直接初始化全局数据，不执行任何其他操作
     this.globalData = {
       version: '1.0.0',
       storageManager: storageManager,
       performanceMonitor: performanceMonitor,
+      adaptationManager: adaptationManager,
       isOfflineMode: true,
+      systemInfo: {},
       storageKeys: {
         records: 'records',
         hasShownWarning: 'hasShownWarning',
@@ -321,6 +330,183 @@ App({
       clearInterval(this.performanceInterval);
       this.performanceInterval = null;
     }
+  },
+
+  // 获取系统信息进行适配
+  getSystemInfoForAdaptation() {
+    try {
+      wx.getSystemInfo({
+        success: (res) => {
+          this.globalData.systemInfo = {
+            // 基础设备信息
+            brand: res.brand,
+            model: res.model,
+            system: res.system,
+            platform: res.platform,
+            version: res.version,
+            
+            // 屏幕尺寸信息
+            screenWidth: res.screenWidth,
+            screenHeight: res.screenHeight,
+            windowWidth: res.windowWidth,
+            windowHeight: res.windowHeight,
+            pixelRatio: res.pixelRatio,
+            
+            // 安全区域信息
+            safeArea: res.safeArea,
+            statusBarHeight: res.statusBarHeight,
+            
+            // 适配计算
+            rpxRatio: 750 / res.windowWidth, // rpx转换比例
+            isIPhoneX: this.isIPhoneXSeries(res),
+            isAndroid: res.platform === 'android',
+            isIOS: res.platform === 'ios',
+            
+            // 屏幕分类
+            screenType: this.getScreenType(res),
+            
+            // 导航栏高度（考虑不同机型）
+            navBarHeight: this.getNavBarHeight(res),
+            
+            // 底部安全区域高度
+            safeAreaBottom: res.safeArea ? res.screenHeight - res.safeArea.bottom : 0
+          };
+          
+          console.log('系统适配信息:', this.globalData.systemInfo);
+        },
+        fail: (err) => {
+          console.error('获取系统信息失败:', err);
+          // 设置默认值
+          this.globalData.systemInfo = {
+            screenWidth: 375,
+            screenHeight: 667,
+            windowWidth: 375,
+            windowHeight: 667,
+            pixelRatio: 2,
+            rpxRatio: 2,
+            isIPhoneX: false,
+            isAndroid: false,
+            isIOS: false,
+            screenType: 'normal',
+            navBarHeight: 44,
+            safeAreaBottom: 0
+          };
+        }
+      });
+    } catch (error) {
+      console.error('系统信息获取异常:', error);
+    }
+  },
+
+  // 判断是否为iPhone X系列（刘海屏）
+  isIPhoneXSeries(systemInfo) {
+    if (systemInfo.platform !== 'ios') return false;
+    
+    // iPhone X系列特征：有安全区域且底部安全区域大于0
+    if (systemInfo.safeArea && systemInfo.safeArea.bottom < systemInfo.screenHeight) {
+      return systemInfo.screenHeight - systemInfo.safeArea.bottom > 0;
+    }
+    
+    // 通过屏幕尺寸判断（备用方案）
+    const { screenWidth, screenHeight } = systemInfo;
+    const ratio = screenHeight / screenWidth;
+    
+    // iPhone X系列屏幕比例通常大于2.1
+    return ratio > 2.1;
+  },
+
+  // 获取屏幕类型
+  getScreenType(systemInfo) {
+    const { windowWidth, windowHeight } = systemInfo;
+    const ratio = windowHeight / windowWidth;
+    
+    if (ratio > 2.1) {
+      return 'long'; // 长屏幕（如iPhone X系列）
+    } else if (ratio < 1.6) {
+      return 'wide'; // 宽屏幕（如iPad）
+    } else {
+      return 'normal'; // 普通屏幕
+    }
+  },
+
+  // 获取导航栏高度
+  getNavBarHeight(systemInfo) {
+    // iOS设备
+    if (systemInfo.platform === 'ios') {
+      return this.isIPhoneXSeries(systemInfo) ? 88 : 64;
+    }
+    
+    // Android设备，根据状态栏高度计算
+    const statusBarHeight = systemInfo.statusBarHeight || 24;
+    return statusBarHeight + 44; // 状态栏高度 + 导航栏高度
+  },
+
+  // 获取系统信息（供其他页面使用）
+  getSystemInfo() {
+    return this.globalData.systemInfo || {};
+  },
+
+  // 获取适配后的尺寸
+  getAdaptedSize(size, type = 'rpx') {
+    const systemInfo = this.globalData.systemInfo;
+    if (!systemInfo) return size;
+    
+    switch (type) {
+      case 'px':
+        // rpx转px
+        return Math.round(size / systemInfo.rpxRatio);
+      case 'rpx':
+        // px转rpx
+        return Math.round(size * systemInfo.rpxRatio);
+      default:
+        return size;
+    }
+  },
+
+  // 获取安全区域样式
+  getSafeAreaStyle() {
+    const systemInfo = this.globalData.systemInfo;
+    if (!systemInfo) return {};
+    
+    return {
+      paddingTop: systemInfo.statusBarHeight || 0,
+      paddingBottom: systemInfo.safeAreaBottom || 0
+    };
+  },
+
+  // 初始化适配管理器
+  async initAdaptationManager() {
+    try {
+      const success = await adaptationManager.init();
+      if (success) {
+        console.log('适配管理器初始化成功');
+        // 将适配信息同步到全局数据
+        const systemInfo = adaptationManager.getSystemInfo();
+        const config = adaptationManager.getConfig();
+        
+        this.globalData.adaptationConfig = config;
+        this.globalData.adaptationSystemInfo = systemInfo;
+      } else {
+        console.warn('适配管理器初始化失败，使用默认配置');
+      }
+    } catch (error) {
+      console.error('适配管理器初始化异常:', error);
+    }
+  },
+
+  // 获取适配管理器实例
+  getAdaptationManager() {
+    return adaptationManager;
+  },
+
+  // 获取适配配置
+  getAdaptationConfig() {
+    return this.globalData.adaptationConfig || adaptationManager.getConfig();
+  },
+
+  // 获取页面适配样式
+  getPageStyles() {
+    return adaptationManager.getPageStyles();
   },
 
   // globalData 已在 initGlobalData 方法中初始化

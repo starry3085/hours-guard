@@ -10,7 +10,10 @@
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "秒打打卡工具",
     "navigationBarTextStyle": "black",
-    "enablePullDownRefresh": false
+    "enablePullDownRefresh": false,
+    "onReachBottomDistance": 50,
+    "pageOrientation": "portrait",
+    "restartStrategy": "homePage"
   },
   "tabBar": {
     "color": "#7A7E83",
