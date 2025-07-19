@@ -10,8 +10,8 @@
   </view>
 
   <!-- 记录列表 -->
-  <view class="records-section">
-    <view class="record-card" wx:if="{{list.length > 0}}">
+  <view class="records-section" wx:if="{{list.length > 0}}">
+    <view class="record-card">
       <view class="list-header">
         <text class="header-date">日期</text>
         <text class="header-time">上班</text>
@@ -40,12 +40,6 @@
           </view>
         </view>
       </scroll-view>
-    </view>
-    
-    <!-- 空状态提示 -->
-    <view class="empty-state" wx:else>
-      <text class="empty-text">本月暂无打卡记录</text>
-      <text class="empty-hint">请先在首页进行打卡</text>
     </view>
   </view>
 
