@@ -37,9 +37,9 @@
             <view class="record-icon record-icon-in"></view>
             <text class="record-label">上班时间</text>
           </view>
-          <text class="record-time">
-            {{todayRecord.on ? todayRecord.on : '未打卡'}}
-          </text>
+          <view class="record-time-container">
+            <text class="record-time">{{todayRecord.on ? todayRecord.on : '未打卡'}}</text>
+          </view>
         </view>
       </view>
       
@@ -49,9 +49,9 @@
             <view class="record-icon record-icon-out"></view>
             <text class="record-label">下班时间</text>
           </view>
-          <text class="record-time">
-            {{todayRecord.off ? todayRecord.off : '未打卡'}}
-          </text>
+          <view class="record-time-container">
+            <text class="record-time">{{todayRecord.off ? todayRecord.off : '未打卡'}}</text>
+          </view>
         </view>
       </view>
     </view>

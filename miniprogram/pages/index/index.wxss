@@ -123,6 +123,7 @@
   font-weight: 500;
   position: relative;
   padding-left: 10rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
 }
 
 .time-container {
@@ -135,7 +136,7 @@
   font-size: 42rpx;
   font-weight: bold;
   color: #07c160;
-  font-family: 'Courier New', monospace;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
   position: relative;
 }
 
@@ -201,13 +202,14 @@
 }
 
 .record-item {
-  padding: 24rpx;
+  padding: 32rpx 24rpx;
   background: #f8f8f8;
   border-radius: 12rpx;
-  height: 80rpx;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 80rpx;
+  box-sizing: border-box;
 }
 
 .record-item::after {
@@ -226,13 +228,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
+  width: 100%;
 }
 
 .record-label-container {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  flex: 1;
 }
 
 .record-icon {
@@ -240,6 +242,7 @@
   height: 24rpx;
   border-radius: 50%;
   position: relative;
+  flex-shrink: 0;
 }
 
 .record-icon-in {
@@ -292,19 +295,25 @@
 }
 
 .record-label {
-  font-size: 34rpx;
+  font-size: 42rpx;
   color: #191919;
   font-weight: 500;
+  margin-left: 12rpx;
+  display: flex;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+.record-time-container {
   display: flex;
   align-items: center;
 }
 
 .record-time {
-  font-size: 40rpx;
+  font-size: 42rpx;
   font-weight: bold;
-  font-family: 'Courier New', monospace;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
   color: #07c160;
-  letter-spacing: 1rpx;
 }
 
 .edit-hint {
