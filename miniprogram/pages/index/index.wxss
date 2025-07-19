@@ -5,6 +5,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* 使用安全区域适配，确保在所有机型上都不被底部导航栏遮挡 */
+  padding-bottom: calc(110rpx + env(safe-area-inset-bottom));
 }
 
 /* 页面标题区域 */
@@ -448,7 +450,7 @@
   flex-direction: column;
   gap: 20rpx;
   margin-top: auto;
-  margin-bottom: 60rpx; /* 增加底部边距，避免被导航栏遮挡 */
+  margin-bottom: 20rpx;
 }
 
 /* 数据备份提示特殊样式 */
@@ -645,7 +647,3 @@
   color: currentColor;
 }
 
-/* 调整页面容器底部边距，为底部导航栏留出空间 */
-.page-container {
-  padding-bottom: 130rpx;
-}

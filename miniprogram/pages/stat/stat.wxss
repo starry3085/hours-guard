@@ -5,6 +5,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* 使用安全区域适配，确保在所有机型上都不被底部导航栏遮挡 */
+  padding-bottom: calc(110rpx + env(safe-area-inset-bottom));
 }
 
 /* 页面标题区域 */
@@ -260,8 +262,6 @@
   flex-direction: column;
   gap: 20rpx;
   margin-top: auto;
-  /* 使用安全区域适配，确保在所有机型上都不被底部导航栏遮挡 */
-  padding-bottom: calc(110rpx + env(safe-area-inset-bottom));
   margin-bottom: 20rpx;
 }
 
@@ -424,4 +424,3 @@
   font-family: 'Courier New', monospace;
 }
 
-/* 页面容器底部适配 - 移除硬编码，使用安全区域适配 */
