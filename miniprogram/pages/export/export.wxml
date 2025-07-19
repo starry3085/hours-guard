@@ -21,18 +21,7 @@
     </picker>
   </view>
 
-  <!-- 数据统计卡片 -->
-  <view class="stats-card" wx:if="{{recordCount > 0}}">
-    <view class="stats-header">
-      <text class="stats-title">本月数据概览</text>
-    </view>
-    <view class="stats-content">
-      <view class="stat-item">
-        <text class="stat-number">{{recordCount}}</text>
-        <text class="stat-label">打卡天数</text>
-      </view>
-    </view>
-  </view>
+
 
   <!-- 空数据提示 -->
   <view class="empty-state" wx:if="{{recordCount === 0}}">
