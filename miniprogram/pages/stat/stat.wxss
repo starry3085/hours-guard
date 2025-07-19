@@ -260,7 +260,9 @@
   flex-direction: column;
   gap: 20rpx;
   margin-top: auto;
-  margin-bottom: 60rpx; /* 增加底部边距，避免被导航栏遮挡 */
+  /* 使用安全区域适配，确保在所有机型上都不被底部导航栏遮挡 */
+  padding-bottom: calc(110rpx + env(safe-area-inset-bottom));
+  margin-bottom: 20rpx;
 }
 
 /* 数据备份提示特殊样式 */
@@ -422,7 +424,4 @@
   font-family: 'Courier New', monospace;
 }
 
-/* 调整页面容器底部边距，为底部导航栏留出空间 */
-.page-container {
-  padding-bottom: 130rpx;
-}
+/* 页面容器底部适配 - 移除硬编码，使用安全区域适配 */
