@@ -27,21 +27,9 @@
 
   <!-- 操作按钮 -->
   <view class="action-section">
-    <view class="custom-btn {{recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out'}}" 
-          bindtap="previewFile">
-      <text>导出预览</text>
-    </view>
-    
     <view class="custom-btn {{isGenerating ? 'custom-btn-disabled' : (recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out')}}" 
           bindtap="makeReport">
       <text>{{isGenerating ? '生成中...' : '导出记录'}}</text>
-    </view>
-  </view>
-
-  <!-- 功能说明 -->
-  <view class="info-section">
-    <view class="info-card">
-      <text class="info-text">导出记录为文本格式</text>
     </view>
   </view>
 
