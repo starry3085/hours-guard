@@ -43,6 +43,11 @@ Page({
   },
   
   onShow() {
+    // 清除缓存，确保显示最新数据
+    this.setData({ 
+      monthCache: null,
+      lastUpdateTime: 0 
+    });
     this.loadMonthData();
   },
 
@@ -271,10 +276,19 @@ Page({
     const { storageManager, errorHandler } = this.data;
     
     if (!storageManager) {
-      wx.showToast({
-        title: '系统初始化中，请稍后',
-        icon: 'none'
-      });
+      // 延迟重试，等待存储管理器初始化
+      setTimeout(() => {
+        const newStorageManager = app.getStorageManager();
+        if (newStorageManager) {
+          this.setData({ storageManager: newStorageManager });
+          this.loadMonthData();
+        } else {
+          wx.showToast({
+            title: '系统初始化中，请稍后',
+            icon: 'none'
+          });
+        }
+      }, 1000);
       return;
     }
     
@@ -284,43 +298,60 @@ Page({
       const month = now.getMonth() + 1;
       const currentTime = Date.now();
       
-      // 检查缓存是否有效（5分钟内）
-      if (this.data.monthCache && 
-          this.data.monthCache.month === `${year}-${month.toString().padStart(2, '0')}` &&
-          currentTime - this.data.lastUpdateTime < 5 * 60 * 1000) {
-        return;
-      }
-      
+      // 强制跳过缓存检查，确保获取最新数据
       const currentMonth = `${year}年${month}月`;
       const allRecords = storageManager.safeGetStorage('records', []);
       
+      console.log('统计页面加载数据:', { 
+        totalRecords: allRecords.length, 
+        currentMonth,
+        allRecords: allRecords.slice(0, 5) // 只打印前5条用于调试
+      });
+      
       // 筛选当月记录
       const monthPrefix = `${year}-${month.toString().padStart(2, '0')}`;
-      const monthRecords = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
+      const monthRecords = allRecords.filter(record => {
+        return record && record.date && record.date.startsWith(monthPrefix);
+      });
+      
+      console.log('当月记录筛选结果:', { 
+        monthPrefix, 
+        monthRecordsCount: monthRecords.length,
+        monthRecords: monthRecords
+      });
       
       // 按日期倒序排序（最新日期在前）
       monthRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
       
-      // 不再添加周几信息
-      const recordsWithWeekday = monthRecords.map(record => {
+      // 处理记录数据
+      const processedRecords = monthRecords.map(record => {
         return {
-          ...record,
-          weekday: '' // 设置为空字符串，不显示周几
+          date: record.date,
+          on: record.on || null,
+          off: record.off || null,
+          weekday: '' // 不显示周几
         };
       });
       
       // 更新数据和缓存
       this.setData({
-        list: recordsWithWeekday,
+        list: processedRecords,
         currentMonth: currentMonth,
         monthCache: {
           month: monthPrefix,
-          data: recordsWithWeekday
+          data: processedRecords
         },
         lastUpdateTime: currentTime
       });
       
+      console.log('统计页面数据更新完成:', { 
+        listLength: processedRecords.length,
+        currentMonth
+      });
+      
     } catch (error) {
+      console.error('加载月度数据失败:', error);
+      
       if (errorHandler) {
         errorHandler.handleError(error, '加载统计数据', {
           showToast: true,
@@ -336,11 +367,16 @@ Page({
           }
         });
       } else {
-        console.error('加载月度数据失败:', error);
         wx.showToast({
           title: '数据加载失败，请重试',
           icon: 'none',
           duration: 2000
+        });
+        
+        // 设置空数据，避免页面显示异常
+        this.setData({
+          list: [],
+          currentMonth: `${new Date().getFullYear()}年${new Date().getMonth() + 1}月`
         });
       }
     }
@@ -359,21 +395,132 @@ Page({
   // 长按显示更多选项
   onLongPress() {
     wx.showActionSheet({
-      itemList: ['操作指导', '清理历史数据', '系统诊断'],
+      itemList: ['操作指导', '查看存储数据', '强制刷新', '清理历史数据', '系统诊断'],
       success: (res) => {
         switch (res.tapIndex) {
           case 0:
             this.onShowGuide();
             break;
           case 1:
-            this.showCleanupOptions();
+            this.showStorageData();
             break;
           case 2:
+            this.forceRefresh();
+            break;
+          case 3:
+            this.showCleanupOptions();
+            break;
+          case 4:
             this.performDiagnosis();
             break;
         }
       }
     });
+  },
+
+  // 查看存储数据（调试用）
+  showStorageData() {
+    const { storageManager } = this.data;
+    
+    if (!storageManager) {
+      wx.showToast({
+        title: '存储管理器未初始化',
+        icon: 'none'
+      });
+      return;
+    }
+
+    try {
+      const allRecords = storageManager.safeGetStorage('records', []);
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+      
+      let debugInfo = `存储调试信息:\n\n`;
+      debugInfo += `总记录数: ${allRecords.length}\n`;
+      debugInfo += `当前月份: ${currentMonth}\n\n`;
+      
+      if (allRecords.length > 0) {
+        debugInfo += `最近5条记录:\n`;
+        allRecords.slice(-5).forEach((record, index) => {
+          debugInfo += `${index + 1}. ${record.date} - 上班:${record.on || '无'} 下班:${record.off || '无'}\n`;
+        });
+        
+        const currentMonthRecords = allRecords.filter(r => r.date && r.date.startsWith(currentMonth));
+        debugInfo += `\n当月记录数: ${currentMonthRecords.length}\n`;
+        
+        if (currentMonthRecords.length > 0) {
+          debugInfo += `当月记录:\n`;
+          currentMonthRecords.forEach((record, index) => {
+            debugInfo += `${index + 1}. ${record.date} - 上班:${record.on || '无'} 下班:${record.off || '无'}\n`;
+          });
+        }
+      } else {
+        debugInfo += `暂无任何记录`;
+      }
+
+      wx.showModal({
+        title: '存储数据调试',
+        content: debugInfo,
+        showCancel: false,
+        confirmText: '确定'
+      });
+
+    } catch (error) {
+      console.error('查看存储数据失败:', error);
+      wx.showToast({
+        title: '查看失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 强制刷新
+  forceRefresh() {
+    wx.showLoading({
+      title: '强制刷新中...',
+      mask: true
+    });
+
+    try {
+      // 清除所有缓存
+      const { storageManager } = this.data;
+      if (storageManager && storageManager.cache) {
+        storageManager.cache.clear();
+        storageManager.cacheExpiry.clear();
+      }
+
+      // 重置页面数据
+      this.setData({
+        list: [],
+        monthCache: null,
+        lastUpdateTime: 0
+      });
+
+      // 重新初始化存储管理器
+      this.setData({
+        storageManager: app.getStorageManager(),
+        errorHandler: app.getErrorHandler()
+      });
+
+      // 延迟加载数据
+      setTimeout(() => {
+        this.loadMonthData();
+        wx.hideLoading();
+        
+        wx.showToast({
+          title: '刷新完成',
+          icon: 'success'
+        });
+      }, 1000);
+
+    } catch (error) {
+      wx.hideLoading();
+      console.error('强制刷新失败:', error);
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 显示清理选项
