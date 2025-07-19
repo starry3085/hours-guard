@@ -27,7 +27,7 @@
 
   <!-- 操作按钮 -->
   <view class="action-section">
-    <view class="custom-btn {{!filePath ? 'custom-btn-disabled' : 'custom-btn-out'}}" 
+    <view class="custom-btn {{recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out'}}" 
           bindtap="previewFile">
       <text>导出预览</text>
     </view>

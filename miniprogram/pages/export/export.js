@@ -321,20 +321,40 @@ Page({
   },
 
   // 预览文件
-  previewFile(filePath) {
-    wx.openDocument({
-      filePath: filePath,
-      showMenu: true,
-      success: () => {
-        // 预览成功
-      },
-      fail: err => {
-        wx.showToast({
-          title: '预览失败',
-          icon: 'none'
-        });
-      }
-    });
+  previewFile() {
+    const { recordCount } = this.data;
+    
+    // 检查是否有打卡记录
+    if (recordCount === 0) {
+      wx.showToast({
+        title: '暂无打卡记录',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 如果已有生成的文件，直接预览
+    if (this.data.filePath) {
+      wx.openDocument({
+        filePath: this.data.filePath,
+        showMenu: true,
+        success: () => {
+          // 预览成功
+        },
+        fail: err => {
+          wx.showToast({
+            title: '预览失败',
+            icon: 'none'
+          });
+        }
+      });
+    } else {
+      // 如果没有生成文件，先生成再预览
+      wx.showToast({
+        title: '请先生成记录',
+        icon: 'none'
+      });
+    }
   },
   
   // 已删除所有与图片/PDF相关的代码，统一使用文本导出

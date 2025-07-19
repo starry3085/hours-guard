@@ -300,13 +300,13 @@
   letter-spacing: 2rpx;
 }
 
-.custom-btn-preview {
+.custom-btn-out {
   background: white;
   color: #07c160;
   border: 2rpx solid #07c160;
 }
 
-.custom-btn-preview:active {
+.custom-btn-out:active {
   background: rgba(7, 193, 96, 0.05);
   transform: translateY(2rpx);
 }
