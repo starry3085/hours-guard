@@ -23,27 +23,19 @@
 
 
 
-  <!-- 空数据提示 -->
-  <view class="empty-state" wx:if="{{recordCount === 0}}">
-    <text class="empty-text">该月份暂无打卡数据</text>
-    <text class="empty-hint">请选择其他月份或先去打卡页面记录</text>
-  </view>
+
 
   <!-- 操作按钮 -->
   <view class="action-section">
-    <button class="export-btn {{isGenerating ? 'generating' : ''}}" 
-            bindtap="makeReport" 
-            disabled="{{isGenerating ? true : (recordCount === 0 ? true : false)}}"
-            hover-class="btn-hover">
-      <view class="btn-content">
-        <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
-      </view>
-    </button>
-    
-    <view class="custom-btn {{!filePath ? 'custom-btn-disabled' : 'custom-btn-preview'}}" 
+    <view class="custom-btn {{!filePath ? 'custom-btn-disabled' : 'custom-btn-out'}}" 
           bindtap="previewFile">
       <text>导出预览</text>
       <text class="custom-btn-hint" wx:if="{{!filePath}}">请先导出记录</text>
+    </view>
+    
+    <view class="custom-btn {{isGenerating ? 'custom-btn-disabled' : (recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out')}}" 
+          bindtap="makeReport">
+      <text>{{isGenerating ? '生成中...' : '导出记录'}}</text>
     </view>
   </view>
 
