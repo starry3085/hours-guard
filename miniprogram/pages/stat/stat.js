@@ -291,7 +291,7 @@ Page({
       
       // 筛选当月记录
       const monthPrefix = `${year}-${month.toString().padStart(2, '0')}`;
-      const monthRecords = allRecords.filter(record => record.date.startsWith(monthPrefix));
+      const monthRecords = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
       
       // 按日期倒序排序（最新日期在前）
       monthRecords.sort((a, b) => new Date(b.date) - new Date(a.date));

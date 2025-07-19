@@ -68,7 +68,7 @@ Page({
       const monthPrefix = `${year}-${month}`;
       
       const allRecords = storageManager.safeGetStorage('records', []);
-      const monthRecords = allRecords.filter(record => record.date.startsWith(monthPrefix));
+      const monthRecords = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
       
       this.setData({
         recordCount: monthRecords.length
@@ -143,7 +143,7 @@ Page({
         const allRecords = storageManager.safeGetStorage('records', []);
         
         // 筛选选定月份的记录
-        const records = allRecords.filter(record => record.date.startsWith(monthPrefix));
+        const records = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
         
         if (!records.length) {
           throw new Error('无打卡数据');
@@ -222,7 +222,7 @@ Page({
         // 写入临时文件
         const fs = wx.getFileSystemManager();
         const fileName = `打卡记录-${this.data.selectedMonth}.txt`;
-        const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+        const filePath = `${wx.env.USER_DATA_PATH}\\${fileName}`;
         
         return new Promise((resolve, reject) => {
           fs.writeFile({
@@ -468,7 +468,7 @@ Page({
       // 写入临时文件
       const fs = wx.getFileSystemManager();
       const fileName = `错误日志-${new Date().toISOString().slice(0, 10)}.txt`;
-      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+      const filePath = `${wx.env.USER_DATA_PATH}\\${fileName}`;
       
       fs.writeFile({
         filePath: filePath,

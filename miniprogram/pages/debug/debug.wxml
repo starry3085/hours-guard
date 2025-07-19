@@ -7,10 +7,10 @@
   <view class="section">
     <view class="section-title">存储信息</view>
     <view class="info-item">
-      <text>记录总数: {{storageInfo.recordCount || 0}}</text>
+      <text>记录总数: {{storageInfo.recordCount ? storageInfo.recordCount : 0}}</text>
     </view>
     <view class="info-item">
-      <text>存储使用: {{storageInfo.usagePercent || 0}}%</text>
+      <text>存储使用: {{storageInfo.usagePercent ? storageInfo.usagePercent : 0}}%</text>
     </view>
     <view class="info-item">
       <text>调试信息: {{debugInfo}}</text>

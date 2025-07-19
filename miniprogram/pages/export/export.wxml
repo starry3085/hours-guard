@@ -29,7 +29,7 @@
   <view class="action-section">
     <button class="export-btn {{isGenerating ? 'generating' : ''}}" 
             bindtap="makeReport" 
-            disabled="{{isGenerating || recordCount === 0}}"
+            disabled="{{isGenerating ? true : (recordCount === 0 ? true : false)}}"
             hover-class="btn-hover">
       <text class="btn-text">{{isGenerating ? '生成中...' : '导出记录'}}</text>
     </button>

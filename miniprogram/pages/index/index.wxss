@@ -470,8 +470,9 @@
 .bold-tip {
   font-weight: 600;
   color: #555;
-} /
-* 提示图标 */
+}
+
+/* 提示图标 */
 .tip-icon {
   width: 24rpx;
   height: 24rpx;

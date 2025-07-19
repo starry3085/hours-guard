@@ -3,9 +3,9 @@
   "setting": {
     "es6": true,
     "postcss": true,
-    "minified": true,
+    "minified": false,
     "uglifyFileName": false,
-    "enhance": true,
+    "enhance": false,
     "packNpmRelationList": [],
     "babelSetting": {
       "ignore": [],
@@ -13,9 +13,9 @@
       "outputPath": ""
     },
     "useCompilerPlugins": false,
-    "minifyWXML": true,
-    "minifyWXSS": true,
-    "minifyJS": true,
+    "minifyWXML": false,
+    "minifyWXSS": false,
+    "minifyJS": false,
     "coverView": true,
     "lazyCodeLoading": "requiredComponents",
     "useStaticServer": true,
