@@ -567,10 +567,11 @@
 }
 
 .preview-footer {
-  padding: 20rpx 30rpx;
+  padding: 30rpx 30rpx;
   border-top: 1rpx solid #eee;
   display: flex;
   justify-content: center;
+  margin-top: -50rpx; /* 向上移动按钮 */
 }
 
 .copy-btn {
