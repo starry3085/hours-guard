@@ -4,6 +4,8 @@ Page({
   data: {
     list: [],
     currentMonth: '',
+    currentYear: 0,
+    currentMonthIndex: 0,
     weeklyStats: {
       totalHours: '0小时',
       avgHours: '0小时'
@@ -24,7 +26,13 @@ Page({
     errorHandler: null,
     isLoading: false,
     systemInfo: {},
-    adaptedStyles: {}
+    adaptedStyles: {},
+    // 日期选择器相关数据
+    showDatePicker: false,
+    yearList: [],
+    monthList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    tempYear: 0,
+    tempMonth: 0
   },
   
   onLoad() {
@@ -37,6 +45,27 @@ Page({
         storageManager: app.getStorageManager(),
         errorHandler: app.getErrorHandler()
       });
+      
+      // 初始化年份列表（从2020年到当前年份后2年）
+      const currentYear = new Date().getFullYear();
+      const yearList = [];
+      for (let y = 2020; y <= currentYear + 2; y++) {
+        yearList.push(y);
+      }
+      
+      // 初始化当前年月
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      
+      this.setData({
+        yearList: yearList,
+        currentYear: year,
+        currentMonthIndex: month - 1,
+        tempYear: year,
+        tempMonth: month
+      });
+      
     } catch (error) {
       const errorHandler = app.getErrorHandler();
       errorHandler.handleError(error, '统计页面初始化', {
@@ -57,6 +86,57 @@ Page({
       lastUpdateTime: 0 
     });
     this.loadMonthData();
+  },
+  
+  // 打开日期选择器
+  openDatePicker() {
+    this.setData({
+      showDatePicker: true,
+      tempYear: this.data.currentYear,
+      tempMonth: this.data.currentMonthIndex + 1
+    });
+  },
+  
+  // 关闭日期选择器
+  closeDatePicker() {
+    this.setData({
+      showDatePicker: false
+    });
+  },
+  
+  // 选择年份
+  selectYear(e) {
+    const year = e.currentTarget.dataset.year;
+    this.setData({
+      tempYear: year
+    });
+  },
+  
+  // 选择月份
+  selectMonth(e) {
+    const month = e.currentTarget.dataset.month;
+    this.setData({
+      tempMonth: month
+    });
+  },
+  
+  // 确认日期选择
+  confirmDateSelection() {
+    const { tempYear, tempMonth } = this.data;
+    
+    // 更新当前选择的年月
+    this.setData({
+      currentYear: tempYear,
+      currentMonthIndex: tempMonth - 1,
+      currentMonth: `${tempYear}年${tempMonth}月`,
+      showDatePicker: false,
+      // 清除缓存，强制重新加载
+      monthCache: null,
+      lastUpdateTime: 0
+    }, () => {
+      // 加载选定月份的数据
+      this.loadMonthData(tempYear, tempMonth);
+    });
   },
 
   onPullDownRefresh() {
@@ -326,8 +406,8 @@ Page({
   },
 
   // 加载月度数据
-  loadMonthData() {
-    const { storageManager, errorHandler } = this.data;
+  loadMonthData(targetYear, targetMonth) {
+    const { storageManager, errorHandler, currentYear, currentMonthIndex } = this.data;
     
     if (!storageManager) {
       // 延迟重试，等待存储管理器初始化
@@ -335,7 +415,7 @@ Page({
         const newStorageManager = app.getStorageManager();
         if (newStorageManager) {
           this.setData({ storageManager: newStorageManager });
-          this.loadMonthData();
+          this.loadMonthData(targetYear, targetMonth);
         } else {
           wx.showToast({
             title: '系统初始化中，请稍后',
@@ -347,10 +427,13 @@ Page({
     }
     
     try {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
+      // 使用传入的年月或当前选择的年月
+      const year = targetYear || currentYear || new Date().getFullYear();
+      const month = targetMonth || (currentMonthIndex + 1) || (new Date().getMonth() + 1);
       const currentTime = Date.now();
+      
+      // 构建日期对象用于统计计算
+      const targetDate = new Date(year, month - 1, 15); // 使用月中日期避免月初月末问题
       
       // 强制跳过缓存检查，确保获取最新数据
       const currentMonth = `${year}年${month}月`;
@@ -358,20 +441,20 @@ Page({
       
       console.log('统计页面加载数据:', { 
         totalRecords: allRecords.length, 
-        currentMonth,
-        allRecords: allRecords.slice(0, 5) // 只打印前5条用于调试
+        targetYear: year,
+        targetMonth: month,
+        currentMonth
       });
       
-      // 筛选当月记录
+      // 筛选指定月份记录
       const monthPrefix = `${year}-${month.toString().padStart(2, '0')}`;
       const monthRecords = allRecords.filter(record => {
         return record && record.date && record.date.startsWith(monthPrefix);
       });
       
-      console.log('当月记录筛选结果:', { 
+      console.log('月份记录筛选结果:', { 
         monthPrefix, 
-        monthRecordsCount: monthRecords.length,
-        monthRecords: monthRecords
+        monthRecordsCount: monthRecords.length
       });
       
       // 按日期倒序排序（最新日期在前）
@@ -391,12 +474,14 @@ Page({
       });
       
       // 计算统计数据
-      const stats = this.calculateStats(processedRecords, now);
+      const stats = this.calculateStats(processedRecords, targetDate);
       
       // 更新数据和缓存
       this.setData({
         list: processedRecords,
         currentMonth: currentMonth,
+        currentYear: year,
+        currentMonthIndex: month - 1,
         weeklyStats: stats.weekly,
         monthlyStats: stats.monthly,
         monthCache: {
@@ -425,7 +510,7 @@ Page({
               lastUpdateTime: 0 
             });
             setTimeout(() => {
-              this.loadMonthData();
+              this.loadMonthData(targetYear, targetMonth);
             }, 1000);
           }
         });
@@ -439,7 +524,7 @@ Page({
         // 设置空数据，避免页面显示异常
         this.setData({
           list: [],
-          currentMonth: `${new Date().getFullYear()}年${new Date().getMonth() + 1}月`
+          currentMonth: `${year}年${month}月`
         });
       }
     }

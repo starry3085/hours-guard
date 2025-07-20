@@ -4,9 +4,49 @@
     <text class="title">工时统计</text>
   </view>
 
-  <!-- 月份显示 -->
-  <view class="month-display">
+  <!-- 月份显示和选择 -->
+  <view class="month-display" bindtap="openDatePicker">
     <text class="month-text">{{currentMonth}}</text>
+    <view class="month-arrow">▼</view>
+  </view>
+  
+  <!-- 自定义日期选择器弹窗 -->
+  <view class="date-picker-overlay {{showDatePicker ? 'show' : ''}}" wx:if="{{showDatePicker}}">
+    <view class="date-picker-modal">
+      <view class="date-picker-header">
+        <text class="date-picker-title">选择年月</text>
+        <view class="date-picker-close" bindtap="closeDatePicker">×</view>
+      </view>
+      
+      <view class="date-picker-body">
+        <!-- 年份选择区域 -->
+        <view class="year-month-grid">
+          <block wx:for="{{yearList}}" wx:key="*this">
+            <view class="year-item {{tempYear === item ? 'active' : ''}}" 
+                  bindtap="selectYear" 
+                  data-year="{{item}}">
+              {{item}}
+            </view>
+          </block>
+        </view>
+        
+        <!-- 月份选择区域 -->
+        <view class="year-month-grid" style="margin-top: 30rpx;">
+          <block wx:for="{{monthList}}" wx:key="*this">
+            <view class="month-item {{tempMonth === item ? 'active' : ''}}" 
+                  bindtap="selectMonth" 
+                  data-month="{{item}}">
+              {{item}}月
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <view class="date-picker-footer">
+        <view class="picker-btn picker-btn-cancel" bindtap="closeDatePicker">取消</view>
+        <view class="picker-btn picker-btn-confirm" bindtap="confirmDateSelection">确定</view>
+      </view>
+    </view>
   </view>
 
   <!-- 统计区域 -->

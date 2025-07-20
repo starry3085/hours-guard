@@ -41,15 +41,157 @@
 
 /* 月份显示 */
 .month-display {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 30rpx;
+  background: white;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+  cursor: pointer;
 }
 
 .month-text {
   font-size: 36rpx;
-  color: #888;
+  color: #07c160;
   font-weight: 500;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+.month-arrow {
+  font-size: 24rpx;
+  color: #07c160;
+  margin-left: 10rpx;
+  margin-top: 4rpx;
+}
+
+/* 日期选择器弹窗样式 */
+.date-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.date-picker-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.date-picker-modal {
+  width: 90%;
+  max-width: 650rpx;
+  background-color: white;
+  border-radius: 16rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.15);
+  animation: datePickerIn 0.3s ease;
+}
+
+@keyframes datePickerIn {
+  from {
+    transform: translateY(50rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.date-picker-header {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-picker-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+.date-picker-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  padding: 10rpx;
+  margin: -10rpx;
+}
+
+.date-picker-body {
+  padding: 30rpx;
+}
+
+.year-month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.year-item, .month-item {
+  text-align: center;
+  padding: 16rpx 0;
+  background: #f8f8f8;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  color: #333;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+.year-item:active, .month-item:active {
+  background: #e0e0e0;
+}
+
+.year-item.active, .month-item.active {
+  background: #07c160;
+  color: white;
+  font-weight: 500;
+}
+
+.date-picker-footer {
+  padding: 20rpx 30rpx 30rpx;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1rpx solid #eee;
+}
+
+.picker-btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 32rpx;
+  border-radius: 8rpx;
+  margin: 0 10rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
+.picker-btn-cancel {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.picker-btn-confirm {
+  background: #07c160;
+  color: white;
+  font-weight: 500;
 }
 
 /* 统计区域 */
