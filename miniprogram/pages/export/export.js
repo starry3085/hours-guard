@@ -2,8 +2,10 @@ const app = getApp();
 
 Page({
   data: {
-    selectedDate: '',
-    selectedMonth: '',
+    selectedStartDate: '',
+    selectedStartMonth: '',
+    selectedEndDate: '',
+    selectedEndMonth: '',
     isGenerating: false,
     recordCount: 0,
     exportedText: '', // 存储导出的文本内容
@@ -36,12 +38,18 @@ Page({
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      const selectedDate = `${year}-${month.toString().padStart(2, '0')}`;
-      const selectedMonth = `${year}年${month}月`;
+      const selectedStartDate = `${year}-${month.toString().padStart(2, '0')}`;
+      const selectedStartMonth = `${year}年${month}月`;
+      
+      // 默认结束月份也是当前月份
+      const selectedEndDate = selectedStartDate;
+      const selectedEndMonth = selectedStartMonth;
 
       this.setData({
-        selectedDate: selectedDate,
-        selectedMonth: selectedMonth
+        selectedStartDate,
+        selectedStartMonth,
+        selectedEndDate,
+        selectedEndMonth
       });
 
       this.loadMonthData();
@@ -65,7 +73,7 @@ Page({
 
   // 加载月份数据统计
   loadMonthData() {
-    const { storageManager, errorHandler } = this.data;
+    const { storageManager, errorHandler, selectedStartDate, selectedEndDate } = this.data;
 
     if (!storageManager) {
       wx.showToast({
@@ -76,17 +84,28 @@ Page({
     }
 
     try {
-      const [year, month] = this.data.selectedDate.split('-');
-      const monthPrefix = `${year}-${month}`;
-
+      // 获取所有记录
       const allRecords = storageManager.safeGetStorage('records', []);
-      const monthRecords = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
+      
+      // 计算日期范围
+      const startDate = new Date(selectedStartDate + '-01');
+      const endDateObj = new Date(selectedEndDate + '-01');
+      // 设置为下个月的第0天，即当月最后一天
+      endDateObj.setMonth(endDateObj.getMonth() + 1, 0);
+      const endDate = endDateObj;
+      
+      // 筛选日期范围内的记录
+      const rangeRecords = allRecords.filter(record => {
+        if (!record.date) return false;
+        const recordDate = new Date(record.date);
+        return recordDate >= startDate && recordDate <= endDate;
+      });
 
       // 计算工时统计数据
-      const workStats = this.calculateWorkStats(monthRecords);
+      const workStats = this.calculateWorkStats(rangeRecords);
 
       this.setData({
-        recordCount: monthRecords.length,
+        recordCount: rangeRecords.length,
         workStats: workStats
       });
     } catch (error) {
@@ -221,22 +240,60 @@ Page({
     }
   },
 
-  onDateChange(e) {
+  // 起始日期变更处理
+  onStartDateChange(e) {
     const value = e.detail.value;
     const [year, month] = value.split('-');
 
     this.setData({
-      selectedDate: value,
-      selectedMonth: `${year}年${month}月`,
+      selectedStartDate: value,
+      selectedStartMonth: `${year}年${month}月`,
       exportedText: '',
       showPreview: false
     }, () => {
+      // 确保起始日期不晚于结束日期
+      const startDate = new Date(this.data.selectedStartDate + '-01');
+      const endDate = new Date(this.data.selectedEndDate + '-01');
+      
+      if (startDate > endDate) {
+        this.setData({
+          selectedEndDate: this.data.selectedStartDate,
+          selectedEndMonth: this.data.selectedStartMonth
+        });
+      }
+      
+      this.loadMonthData();
+    });
+  },
+
+  // 结束日期变更处理
+  onEndDateChange(e) {
+    const value = e.detail.value;
+    const [year, month] = value.split('-');
+
+    this.setData({
+      selectedEndDate: value,
+      selectedEndMonth: `${year}年${month}月`,
+      exportedText: '',
+      showPreview: false
+    }, () => {
+      // 确保结束日期不早于起始日期
+      const startDate = new Date(this.data.selectedStartDate + '-01');
+      const endDate = new Date(this.data.selectedEndDate + '-01');
+      
+      if (endDate < startDate) {
+        this.setData({
+          selectedStartDate: this.data.selectedEndDate,
+          selectedStartMonth: this.data.selectedEndMonth
+        });
+      }
+      
       this.loadMonthData();
     });
   },
 
   async makeReport() {
-    const { storageManager, errorHandler, isGenerating } = this.data;
+    const { storageManager, errorHandler, isGenerating, selectedStartDate, selectedEndDate } = this.data;
 
     if (isGenerating) {
       wx.showToast({
@@ -254,9 +311,6 @@ Page({
       return;
     }
 
-    const [year, month] = this.data.selectedDate.split('-');
-    const monthPrefix = `${year}-${month}`;
-
     try {
       // 显示加载提示
       wx.showLoading({
@@ -267,12 +321,23 @@ Page({
       this.setData({ isGenerating: true });
 
       // 使用错误处理器的重试机制
-      const monthRecords = await errorHandler.withRetry(async () => {
+      const rangeRecords = await errorHandler.withRetry(async () => {
         // 使用存储管理器安全获取所有记录
         const allRecords = storageManager.safeGetStorage('records', []);
 
-        // 筛选选定月份的记录
-        const records = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
+        // 计算日期范围
+        const startDate = new Date(selectedStartDate + '-01');
+        const endDateObj = new Date(selectedEndDate + '-01');
+        // 设置为下个月的第0天，即当月最后一天
+        endDateObj.setMonth(endDateObj.getMonth() + 1, 0);
+        const endDate = endDateObj;
+        
+        // 筛选日期范围内的记录
+        const records = allRecords.filter(record => {
+          if (!record.date) return false;
+          const recordDate = new Date(record.date);
+          return recordDate >= startDate && recordDate <= endDate;
+        });
 
         if (!records.length) {
           throw new Error('无打卡数据');
@@ -291,7 +356,7 @@ Page({
       });
 
       // 生成文本内容
-      this.generateText(monthRecords);
+      this.generateText(rangeRecords);
 
     } catch (error) {
       wx.hideLoading();
@@ -316,8 +381,8 @@ Page({
   },
 
   // 生成文本内容
-  async generateText(monthRecords) {
-    const { errorHandler, workStats } = this.data;
+  async generateText(rangeRecords) {
+    const { errorHandler, workStats, selectedStartMonth, selectedEndMonth } = this.data;
 
     try {
       wx.showLoading({ title: '生成文本记录中...', mask: true });
@@ -325,7 +390,12 @@ Page({
 
       // 使用错误处理器的重试机制
       const textContent = await errorHandler.withRetry(async () => {
-        let content = `打卡记录报告 - ${this.data.selectedMonth}\n`;
+        // 生成报告标题，如果起始月份和结束月份相同，只显示一个月份
+        const reportTitle = selectedStartMonth === selectedEndMonth ? 
+          `打卡记录报告 - ${selectedStartMonth}` : 
+          `打卡记录报告 - ${selectedStartMonth}至${selectedEndMonth}`;
+        
+        let content = `${reportTitle}\n`;
         content += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
         content += `${'='.repeat(50)}\n\n`;
 
@@ -334,15 +404,15 @@ Page({
         content += `${'='.repeat(50)}\n`;
         content += `本周总工时: ${workStats.weeklyTotal}\n`;
         content += `本周平均工时: ${workStats.weeklyAverage}\n`;
-        content += `本月平均工时: ${workStats.monthlyAverage}\n`;
-        content += `本月打卡天数: ${workStats.monthlyDays}\n`;
+        content += `选定期间平均工时: ${workStats.monthlyAverage}\n`;
+        content += `选定期间打卡天数: ${workStats.monthlyDays}\n`;
         content += `${'='.repeat(50)}\n\n`;
 
         // 详细记录
         content += `详细记录:\n`;
         content += `${'='.repeat(50)}\n`;
 
-        monthRecords.forEach(record => {
+        rangeRecords.forEach(record => {
           const date = new Date(record.date);
           const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
           const weekday = `周${weekdays[date.getDay()]}`;
@@ -397,7 +467,7 @@ Page({
         recovery: () => {
           // 恢复策略：重新尝试生成
           setTimeout(() => {
-            this.generateText(monthRecords);
+            this.generateText(rangeRecords);
           }, 1000);
         }
       });

@@ -75,8 +75,22 @@
   color: #191919;
 }
 
+.date-range-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.date-picker-label {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
 .month-picker {
   width: 100%;
+  margin-bottom: 16rpx;
 }
 
 .picker-display {

@@ -7,18 +7,34 @@
   <!-- 月份选择卡片 -->
   <view class="month-card">
     <view class="card-header">
-      <text class="card-title">选择导出月份</text>
+      <text class="card-title">选择导出月份范围</text>
     </view>
     
-    <picker mode="date" fields="month" value="{{selectedDate}}" bindchange="onDateChange" class="month-picker">
-      <view class="picker-display">
-        <view class="picker-icon">
-          <view class="calendar-icon"></view>
+    <view class="date-range-container">
+      <!-- 起始月份选择器 -->
+      <view class="date-picker-label">起始月份</view>
+      <picker mode="date" fields="month" value="{{selectedStartDate}}" bindchange="onStartDateChange" class="month-picker">
+        <view class="picker-display">
+          <view class="picker-icon">
+            <view class="calendar-icon"></view>
+          </view>
+          <text class="selected-month">{{selectedStartMonth}}</text>
+          <view class="picker-arrow">›</view>
         </view>
-        <text class="selected-month">{{selectedMonth}}</text>
-        <view class="picker-arrow">›</view>
-      </view>
-    </picker>
+      </picker>
+      
+      <!-- 结束月份选择器 -->
+      <view class="date-picker-label">结束月份</view>
+      <picker mode="date" fields="month" value="{{selectedEndDate}}" bindchange="onEndDateChange" class="month-picker">
+        <view class="picker-display">
+          <view class="picker-icon">
+            <view class="calendar-icon"></view>
+          </view>
+          <text class="selected-month">{{selectedEndMonth}}</text>
+          <view class="picker-arrow">›</view>
+        </view>
+      </picker>
+    </view>
   </view>
 
   <!-- 操作按钮 -->

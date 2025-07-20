@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Documentation Sync",
+  "description": "Updates related documentation when code changes are detected in the miniprogram files",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "miniprogram/**/*.js",
+      "miniprogram/**/*.wxml",
+      "miniprogram/**/*.wxss",
+      "miniprogram/**/*.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "I noticed changes in the miniprogram code files. Please help me:\n\n1. Identify what functionality has changed in these files\n2. Find related documentation files that need updates (README.md, ADAPTATION_GUIDE.md, ADAPTATION_SUMMARY.md, icon-design-spec.md, and other markdown files)\n3. Update the documentation to reflect these code changes\n4. Ensure consistency between the implementation and documentation\n5. Add version notes if the change is significant\n\nPlease maintain the existing documentation style and format while making these updates."
+  }
+}
