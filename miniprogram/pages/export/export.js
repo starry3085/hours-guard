@@ -11,35 +11,41 @@ Page({
     errorHandler: null,
     systemInfo: {},
     adaptedStyles: {},
-    showPreview: false // 控制预览弹窗的显示
+    showPreview: false, // 控制预览弹窗的显示
+    workStats: {
+      weeklyTotal: '0小时',
+      weeklyAverage: '0小时',
+      monthlyAverage: '0小时',
+      monthlyDays: '0天'
+    }
   },
-  
+
   onLoad() {
     try {
       // 获取系统信息进行适配
       this.initSystemAdaptation();
-      
+
       // 获取存储管理器和错误处理器实例
       this.setData({
         storageManager: app.getStorageManager(),
         errorHandler: app.getErrorHandler()
       });
-      
+
       // 初始化为当前月份
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
-      
+
       const selectedDate = `${year}-${month.toString().padStart(2, '0')}`;
       const selectedMonth = `${year}年${month}月`;
-      
+
       this.setData({
         selectedDate: selectedDate,
         selectedMonth: selectedMonth
       });
-      
+
       this.loadMonthData();
-      
+
     } catch (error) {
       const errorHandler = app.getErrorHandler();
       errorHandler.handleError(error, '导出页面初始化', {
@@ -52,15 +58,15 @@ Page({
       });
     }
   },
-  
+
   onShow() {
     this.loadMonthData();
   },
-  
+
   // 加载月份数据统计
   loadMonthData() {
     const { storageManager, errorHandler } = this.data;
-    
+
     if (!storageManager) {
       wx.showToast({
         title: '系统初始化中，请稍后',
@@ -68,16 +74,20 @@ Page({
       });
       return;
     }
-    
+
     try {
       const [year, month] = this.data.selectedDate.split('-');
       const monthPrefix = `${year}-${month}`;
-      
+
       const allRecords = storageManager.safeGetStorage('records', []);
       const monthRecords = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
-      
+
+      // 计算工时统计数据
+      const workStats = this.calculateWorkStats(monthRecords);
+
       this.setData({
-        recordCount: monthRecords.length
+        recordCount: monthRecords.length,
+        workStats: workStats
       });
     } catch (error) {
       if (errorHandler) {
@@ -98,11 +108,109 @@ Page({
       }
     }
   },
-  
+
+  // 计算工时统计数据
+  calculateWorkStats(records) {
+    // 默认值
+    let stats = {
+      weeklyTotal: '0小时',
+      weeklyAverage: '0小时',
+      monthlyAverage: '0小时',
+      monthlyDays: '0天'
+    };
+
+    if (!records || records.length === 0) {
+      return stats;
+    }
+
+    try {
+      // 计算每天的工作时长
+      const dailyHours = records.map(record => {
+        if (!record.on || !record.off) return 0;
+
+        const onTime = this.parseTimeToMinutes(record.on);
+        const offTime = this.parseTimeToMinutes(record.off);
+
+        if (onTime === null || offTime === null) return 0;
+
+        // 计算工作时长（小时）
+        return Math.max(0, (offTime - onTime) / 60);
+      });
+
+      // 计算本月总工时和打卡天数
+      const monthlyTotalHours = dailyHours.reduce((sum, hours) => sum + hours, 0);
+      const monthlyWorkDays = dailyHours.filter(hours => hours > 0).length;
+
+      // 计算本月平均工时
+      const monthlyAverage = monthlyWorkDays > 0 ? monthlyTotalHours / monthlyWorkDays : 0;
+
+      // 获取当前日期
+      const now = new Date();
+      const currentDate = now.getDate();
+      const currentDay = now.getDay(); // 0是周日，1-6是周一到周六
+
+      // 计算本周的开始日期（周一）
+      const weekStartDate = new Date(now);
+      const daysSinceMonday = currentDay === 0 ? 6 : currentDay - 1;
+      weekStartDate.setDate(currentDate - daysSinceMonday);
+
+      // 筛选本周的记录
+      const weeklyRecords = records.filter(record => {
+        const recordDate = new Date(record.date);
+        return recordDate >= weekStartDate;
+      });
+
+      // 计算本周的工作时长
+      const weeklyHours = weeklyRecords.map(record => {
+        if (!record.on || !record.off) return 0;
+
+        const onTime = this.parseTimeToMinutes(record.on);
+        const offTime = this.parseTimeToMinutes(record.off);
+
+        if (onTime === null || offTime === null) return 0;
+
+        return Math.max(0, (offTime - onTime) / 60);
+      });
+
+      // 计算本周总工时和工作天数
+      const weeklyTotalHours = weeklyHours.reduce((sum, hours) => sum + hours, 0);
+      const weeklyWorkDays = weeklyHours.filter(hours => hours > 0).length;
+
+      // 计算本周平均工时
+      const weeklyAverage = weeklyWorkDays > 0 ? weeklyTotalHours / weeklyWorkDays : 0;
+
+      // 格式化结果
+      stats = {
+        weeklyTotal: `${weeklyTotalHours.toFixed(0)}小时`,
+        weeklyAverage: `${weeklyAverage.toFixed(0)}小时`,
+        monthlyAverage: `${monthlyAverage.toFixed(0)}小时`,
+        monthlyDays: `${monthlyWorkDays}天`
+      };
+
+      return stats;
+    } catch (error) {
+      console.error('计算工时统计出错:', error);
+      return stats;
+    }
+  },
+
+  // 将时间字符串解析为分钟数
+  parseTimeToMinutes(timeStr) {
+    if (!timeStr) return null;
+
+    try {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    } catch (error) {
+      console.error('时间解析错误:', error);
+      return null;
+    }
+  },
+
   onDateChange(e) {
     const value = e.detail.value;
     const [year, month] = value.split('-');
-    
+
     this.setData({
       selectedDate: value,
       selectedMonth: `${year}年${month}月`,
@@ -112,10 +220,10 @@ Page({
       this.loadMonthData();
     });
   },
-  
+
   async makeReport() {
     const { storageManager, errorHandler, isGenerating } = this.data;
-    
+
     if (isGenerating) {
       wx.showToast({
         title: '正在生成中...',
@@ -123,7 +231,7 @@ Page({
       });
       return;
     }
-    
+
     if (!storageManager) {
       wx.showToast({
         title: '系统初始化中，请稍后',
@@ -131,34 +239,34 @@ Page({
       });
       return;
     }
-    
+
     const [year, month] = this.data.selectedDate.split('-');
     const monthPrefix = `${year}-${month}`;
-    
+
     try {
       // 显示加载提示
       wx.showLoading({
         title: '生成文本记录中...',
         mask: true
       });
-      
+
       this.setData({ isGenerating: true });
-      
+
       // 使用错误处理器的重试机制
       const monthRecords = await errorHandler.withRetry(async () => {
         // 使用存储管理器安全获取所有记录
         const allRecords = storageManager.safeGetStorage('records', []);
-        
+
         // 筛选选定月份的记录
         const records = allRecords.filter(record => record.date && record.date.indexOf(monthPrefix) === 0);
-        
+
         if (!records.length) {
           throw new Error('无打卡数据');
         }
-        
+
         // 按日期排序（从早到晚）
         records.sort((a, b) => new Date(a.date) - new Date(b.date));
-        
+
         return records;
       }, {
         maxRetries: 2,
@@ -167,14 +275,14 @@ Page({
           // 静默重试
         }
       });
-      
+
       // 生成文本内容
       this.generateText(monthRecords);
-      
+
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
-      
+
       if (error.message === '无打卡数据') {
         wx.showToast({
           title: '无打卡数据',
@@ -195,35 +303,56 @@ Page({
 
   // 生成文本内容
   async generateText(monthRecords) {
-    const { errorHandler } = this.data;
-    
+    const { errorHandler, workStats } = this.data;
+
     try {
       wx.showLoading({ title: '生成文本记录中...', mask: true });
       this.setData({ isGenerating: true });
-      
+
       // 使用错误处理器的重试机制
       const textContent = await errorHandler.withRetry(async () => {
         let content = `打卡记录报告 - ${this.data.selectedMonth}\n`;
         content += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
         content += `${'='.repeat(50)}\n\n`;
-        
+
+        // 工时统计部分
+        content += `工时统计:\n`;
+        content += `${'='.repeat(50)}\n`;
+        content += `本周总工时: ${workStats.weeklyTotal}\n`;
+        content += `本周平均工时: ${workStats.weeklyAverage}\n`;
+        content += `本月平均工时: ${workStats.monthlyAverage}\n`;
+        content += `本月打卡天数: ${workStats.monthlyDays}\n`;
+        content += `${'='.repeat(50)}\n\n`;
+
         // 详细记录
         content += `详细记录:\n`;
         content += `${'='.repeat(50)}\n`;
-        
+
         monthRecords.forEach(record => {
           const date = new Date(record.date);
           const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
           const weekday = `周${weekdays[date.getDay()]}`;
-          
+
           content += `${record.date} (${weekday})\n`;
           content += `  上班时间: ${record.on || '未打卡'}\n`;
           content += `  下班时间: ${record.off || '未打卡'}\n`;
+
+          // 计算日工时
+          let dailyHours = '未知';
+          if (record.on && record.off) {
+            const onTime = this.parseTimeToMinutes(record.on);
+            const offTime = this.parseTimeToMinutes(record.off);
+            if (onTime !== null && offTime !== null) {
+              const hours = Math.max(0, (offTime - onTime) / 60);
+              dailyHours = `${hours.toFixed(0)}小时`;
+            }
+          }
+          content += `  日工时: ${dailyHours}\n`;
           content += `${'-'.repeat(30)}\n`;
         });
-        
+
         content += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份。`;
-        
+
         return content;
       }, {
         maxRetries: 2,
@@ -232,23 +361,23 @@ Page({
           // 静默重试
         }
       });
-      
+
       wx.hideLoading();
-      this.setData({ 
+      this.setData({
         isGenerating: false,
         exportedText: textContent,
         showPreview: true
       });
-      
+
       wx.showToast({
         title: '记录生成成功',
         icon: 'success'
       });
-      
+
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
-      
+
       errorHandler.handleError(error, '生成文本内容', {
         showModal: true,
         recovery: () => {
@@ -264,7 +393,7 @@ Page({
   // 复制文本到剪贴板
   copyTextToClipboard() {
     const { exportedText } = this.data;
-    
+
     if (!exportedText) {
       wx.showToast({
         title: '无内容可复制',
@@ -272,7 +401,7 @@ Page({
       });
       return;
     }
-    
+
     wx.setClipboardData({
       data: exportedText,
       success: () => {
@@ -289,7 +418,7 @@ Page({
       }
     });
   },
-  
+
   // 关闭预览弹窗
   closePreview() {
     this.setData({
@@ -355,7 +484,7 @@ Page({
     const { errorHandler } = this.data;
     if (errorHandler) {
       const logs = errorHandler.getErrorLogs(10);
-      
+
       if (logs.length === 0) {
         wx.showToast({
           title: '暂无错误日志',
@@ -363,14 +492,14 @@ Page({
         });
         return;
       }
-      
+
       let logContent = `最近${logs.length}条错误记录：\n\n`;
       logs.forEach((log, index) => {
         logContent += `${index + 1}. ${log.userMessage}\n`;
         logContent += `   时间: ${new Date(log.timestamp).toLocaleString()}\n`;
         logContent += `   类型: ${errorHandler.getErrorTypeText(log.type)}\n\n`;
       });
-      
+
       wx.showModal({
         title: '错误日志',
         content: logContent,
@@ -412,20 +541,20 @@ Page({
       });
       return;
     }
-    
+
     try {
       wx.showLoading({
         title: '导出日志中...',
         mask: true
       });
-      
+
       const logContent = errorHandler.exportErrorLogs();
-      
+
       if (!logContent) {
         wx.hideLoading();
         return;
       }
-      
+
       // 设置到剪贴板
       wx.setClipboardData({
         data: logContent,
@@ -445,7 +574,7 @@ Page({
           });
         }
       });
-      
+
     } catch (error) {
       wx.hideLoading();
       if (errorHandler) {
@@ -464,15 +593,15 @@ Page({
     try {
       // 获取应用全局的系统信息
       const systemInfo = app.getSystemInfo();
-      
+
       // 计算适配样式
       const adaptedStyles = this.calculateAdaptedStyles(systemInfo);
-      
+
       this.setData({
         systemInfo: systemInfo,
         adaptedStyles: adaptedStyles
       });
-      
+
       console.log('导出页面系统适配完成:', { systemInfo, adaptedStyles });
     } catch (error) {
       console.error('导出页面系统适配初始化失败:', error);
@@ -491,36 +620,36 @@ Page({
     }
 
     const { windowWidth, windowHeight, isIPhoneX, screenType, safeAreaBottom } = systemInfo;
-    
+
     return {
       // 页面容器底部间距（考虑安全区域和tabBar）
       pageBottomPadding: `calc(110rpx + ${safeAreaBottom || 0}px)`,
-      
+
       // 按钮尺寸适配
       buttonHeight: screenType === 'long' ? '88rpx' : '80rpx',
       buttonFontSize: windowWidth < 350 ? '30rpx' : '32rpx',
-      
+
       // 标题字体大小适配
       titleFontSize: windowWidth < 350 ? '48rpx' : windowWidth > 400 ? '60rpx' : '56rpx',
-      
+
       // 月份选择器适配
       pickerHeight: windowWidth < 350 ? '100rpx' : '120rpx',
       pickerFontSize: windowWidth < 350 ? '32rpx' : '38rpx',
-      
+
       // 统计数字适配
       statNumberSize: windowWidth < 350 ? '48rpx' : '56rpx',
       statLabelSize: windowWidth < 350 ? '28rpx' : '32rpx',
-      
+
       // 卡片间距适配
       cardMargin: windowWidth < 350 ? '16rpx' : '20rpx',
       cardPadding: windowWidth < 350 ? '24rpx' : '30rpx',
-      
+
       // 是否为长屏幕
       isLongScreen: screenType === 'long',
-      
+
       // 是否为小屏幕
       isSmallScreen: windowWidth < 350,
-      
+
       // 是否为大屏幕
       isLargeScreen: windowWidth > 400
     };

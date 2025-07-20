@@ -36,6 +36,7 @@
         <text class="preview-title">打卡记录预览</text>
         <view class="preview-close" bindtap="closePreview">×</view>
       </view>
+      
       <scroll-view scroll-y class="preview-text-container">
         <text class="preview-text">{{exportedText}}</text>
       </scroll-view>
