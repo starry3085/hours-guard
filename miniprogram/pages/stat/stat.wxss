@@ -71,7 +71,7 @@
   top: 0;
   height: 100%;
   width: 8rpx;
-  background: linear-gradient(to bottom, #07c160, #ff9800);
+  background: #07c160;
   border-radius: 4rpx 0 0 4rpx;
 }
 
