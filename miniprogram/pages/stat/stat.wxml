@@ -54,7 +54,8 @@
   <!-- 统计区域 -->
   <view class="stats-section" wx:if="{{list.length > 0}}">
     <view class="stats-card">
-      <view class="stats-row">
+      <!-- 只有当选择的是当前月份时才显示本周统计 -->
+      <view class="stats-row" wx:if="{{isCurrentMonth}}">
         <view class="stat-item">
           <text class="stat-label">本周总工时</text>
           <text class="stat-value">{{weeklyStats.totalHours}}</text>

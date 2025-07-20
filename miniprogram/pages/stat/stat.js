@@ -484,6 +484,7 @@ Page({
         currentMonthIndex: month - 1,
         weeklyStats: stats.weekly,
         monthlyStats: stats.monthly,
+        isCurrentMonth: stats.isCurrentMonth,
         monthCache: {
           month: monthPrefix,
           data: processedRecords
@@ -838,6 +839,18 @@ Page({
     };
   },
 
+  // 检查是否为当前月份
+  isCurrentMonth(date) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth() + 1;
+    
+    return currentYear === targetYear && currentMonth === targetMonth;
+  },
+  
   // 计算统计数据
   calculateStats(records, currentDate) {
     if (!records || records.length === 0) {
@@ -849,7 +862,8 @@ Page({
         monthly: {
           avgHours: '0小时',
           workDays: '0天'
-        }
+        },
+        isCurrentMonth: this.isCurrentMonth(currentDate)
       };
     }
 
@@ -933,6 +947,9 @@ Page({
     const weeklyAvgHours = weeklyWorkDays > 0 ? weeklyTotalHours / weeklyWorkDays : 0;
     const monthlyAvgHours = monthlyWorkDays > 0 ? monthlyTotalHours / monthlyWorkDays : 0;
 
+    // 检查是否为当前月份
+    const isCurrentMonth = this.isCurrentMonth(currentDate);
+    
     return {
       weekly: {
         totalHours: formatHours(weeklyTotalHours),
@@ -941,7 +958,8 @@ Page({
       monthly: {
         avgHours: formatHours(monthlyAvgHours),
         workDays: `${monthlyWorkDays}天`
-      }
+      },
+      isCurrentMonth: isCurrentMonth
     };
   }
 })
