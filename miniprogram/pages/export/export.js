@@ -4,13 +4,14 @@ Page({
   data: {
     selectedDate: '',
     selectedMonth: '',
-    filePath: '',
     isGenerating: false,
     recordCount: 0,
+    exportedText: '', // 存储导出的文本内容
     storageManager: null,
     errorHandler: null,
     systemInfo: {},
-    adaptedStyles: {}
+    adaptedStyles: {},
+    showPreview: false // 控制预览弹窗的显示
   },
   
   onLoad() {
@@ -105,7 +106,8 @@ Page({
     this.setData({
       selectedDate: value,
       selectedMonth: `${year}年${month}月`,
-      filePath: ''
+      exportedText: '',
+      showPreview: false
     }, () => {
       this.loadMonthData();
     });
@@ -166,7 +168,7 @@ Page({
         }
       });
       
-      // 直接生成文本文件
+      // 生成文本内容
       this.generateText(monthRecords);
       
     } catch (error) {
@@ -191,9 +193,7 @@ Page({
     }
   },
 
-  // 已删除CSV文件生成功能，统一使用文本导出
-
-  // 生成文本文件
+  // 生成文本内容
   async generateText(monthRecords) {
     const { errorHandler } = this.data;
     
@@ -202,49 +202,32 @@ Page({
       this.setData({ isGenerating: true });
       
       // 使用错误处理器的重试机制
-      const result = await errorHandler.withRetry(async () => {
-        let textContent = `打卡记录报告 - ${this.data.selectedMonth}\n`;
-        textContent += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
-        textContent += `${'='.repeat(50)}\n\n`;
+      const textContent = await errorHandler.withRetry(async () => {
+        let content = `打卡记录报告 - ${this.data.selectedMonth}\n`;
+        content += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
+        content += `${'='.repeat(50)}\n\n`;
         
         // 详细记录
-        textContent += `详细记录:\n`;
-        textContent += `${'='.repeat(50)}\n`;
+        content += `详细记录:\n`;
+        content += `${'='.repeat(50)}\n`;
         
         monthRecords.forEach(record => {
           const date = new Date(record.date);
           const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
           const weekday = `周${weekdays[date.getDay()]}`;
           
-          textContent += `${record.date} (${weekday})\n`;
-          textContent += `  上班时间: ${record.on || '未打卡'}\n`;
-          textContent += `  下班时间: ${record.off || '未打卡'}\n`;
-          textContent += `${'-'.repeat(30)}\n`;
+          content += `${record.date} (${weekday})\n`;
+          content += `  上班时间: ${record.on || '未打卡'}\n`;
+          content += `  下班时间: ${record.off || '未打卡'}\n`;
+          content += `${'-'.repeat(30)}\n`;
         });
         
-        textContent += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份文件。`;
+        content += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份。`;
         
-        // 写入临时文件
-        const fs = wx.getFileSystemManager();
-        const fileName = `打卡记录-${this.data.selectedMonth}.txt`;
-        const filePath = `${wx.env.USER_DATA_PATH}\\${fileName}`;
-        
-        return new Promise((resolve, reject) => {
-          fs.writeFile({
-            filePath: filePath,
-            data: textContent,
-            encoding: 'utf8',
-            success: () => {
-              resolve({ filePath, fileName });
-            },
-            fail: (err) => {
-              reject(new Error(`文本文件写入失败: ${err.errMsg}`));
-            }
-          });
-        });
+        return content;
       }, {
         maxRetries: 2,
-        context: '生成文本文件',
+        context: '生成文本内容',
         onRetry: (error, attempt) => {
           // 静默重试
         }
@@ -253,22 +236,20 @@ Page({
       wx.hideLoading();
       this.setData({ 
         isGenerating: false,
-        filePath: result.filePath 
+        exportedText: textContent,
+        showPreview: true
       });
       
       wx.showToast({
-        title: '文本记录生成成功',
+        title: '记录生成成功',
         icon: 'success'
       });
-      
-      // 提供分享选项
-      this.showShareOptions(result.filePath, result.fileName);
       
     } catch (error) {
       wx.hideLoading();
       this.setData({ isGenerating: false });
       
-      errorHandler.handleError(error, '生成文本文件', {
+      errorHandler.handleError(error, '生成文本内容', {
         showModal: true,
         recovery: () => {
           // 恢复策略：重新尝试生成
@@ -280,86 +261,41 @@ Page({
     }
   },
 
-  // 已删除图片报告生成功能，统一使用文本导出
-
-  // 显示分享选项
-  showShareOptions(filePath, fileName) {
-    wx.showActionSheet({
-      itemList: ['发送给朋友', '预览文件'],
-      success: (res) => {
-        switch (res.tapIndex) {
-          case 0:
-            this.shareFile(filePath, fileName);
-            break;
-          case 1:
-            this.previewFile(filePath);
-            break;
-        }
-      }
-    });
-  },
-
-  // 分享文件
-  shareFile(filePath, fileName) {
-    wx.shareFileMessage({
-      filePath: filePath,
-      fileName: fileName,
-      success: () => {
-        wx.showToast({
-          title: '分享成功',
-          icon: 'success'
-        });
-      },
-      fail: err => {
-        console.error('分享失败:', err);
-        wx.showToast({
-          title: '分享失败',
-          icon: 'none'
-        });
-      }
-    });
-  },
-
-  // 预览文件
-  previewFile() {
-    const { recordCount } = this.data;
+  // 复制文本到剪贴板
+  copyTextToClipboard() {
+    const { exportedText } = this.data;
     
-    // 检查是否有打卡记录
-    if (recordCount === 0) {
+    if (!exportedText) {
       wx.showToast({
-        title: '暂无打卡记录',
+        title: '无内容可复制',
         icon: 'none'
       });
       return;
     }
     
-    // 如果已有生成的文件，直接预览
-    if (this.data.filePath) {
-      wx.openDocument({
-        filePath: this.data.filePath,
-        showMenu: true,
-        success: () => {
-          // 预览成功
-        },
-        fail: err => {
-          wx.showToast({
-            title: '预览失败',
-            icon: 'none'
-          });
-        }
-      });
-    } else {
-      // 如果没有生成文件，先生成再预览
-      wx.showToast({
-        title: '请先生成记录',
-        icon: 'none'
-      });
-    }
+    wx.setClipboardData({
+      data: exportedText,
+      success: () => {
+        wx.showToast({
+          title: '复制成功',
+          icon: 'success'
+        });
+      },
+      fail: () => {
+        wx.showToast({
+          title: '复制失败',
+          icon: 'none'
+        });
+      }
+    });
   },
   
-  // 已删除所有与图片/PDF相关的代码，统一使用文本导出
-  
-  // 删除了PDF相关的方法，统一使用shareFile方法
+  // 关闭预览弹窗
+  closePreview() {
+    this.setData({
+      showPreview: false
+    });
+  },
 
   // 跳转到存储管理页面
   onGoToStorage() {
@@ -490,25 +426,15 @@ Page({
         return;
       }
       
-      // 写入临时文件
-      const fs = wx.getFileSystemManager();
-      const fileName = `错误日志-${new Date().toISOString().slice(0, 10)}.txt`;
-      const filePath = `${wx.env.USER_DATA_PATH}\\${fileName}`;
-      
-      fs.writeFile({
-        filePath: filePath,
+      // 设置到剪贴板
+      wx.setClipboardData({
         data: logContent,
-        encoding: 'utf8',
         success: () => {
           wx.hideLoading();
-          
           wx.showToast({
-            title: '日志导出成功',
+            title: '日志已复制到剪贴板',
             icon: 'success'
           });
-          
-          // 提供分享选项
-          this.showShareOptions(filePath, fileName);
         },
         fail: (err) => {
           wx.hideLoading();
@@ -618,4 +544,4 @@ Page({
       isLargeScreen: false
     };
   }
-}) 
+})

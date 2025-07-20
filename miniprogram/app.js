@@ -5,13 +5,7 @@ const adaptationManager = require('./utils/adaptation');
 
 App({
   async onLaunch() {
-    // 初始化适配管理器
-    await this.initAdaptationManager();
-    
-    // 获取系统信息进行适配（保留原有逻辑作为备用）
-    this.getSystemInfoForAdaptation();
-    
-    // 直接初始化全局数据，不执行任何其他操作
+    // 先初始化全局数据，确保其他函数可以使用
     this.globalData = {
       version: '1.0.0',
       storageManager: storageManager,
@@ -19,6 +13,8 @@ App({
       adaptationManager: adaptationManager,
       isOfflineMode: true,
       systemInfo: {},
+      adaptationConfig: {},
+      adaptationSystemInfo: {},
       storageKeys: {
         records: 'records',
         hasShownWarning: 'hasShownWarning',
@@ -26,6 +22,12 @@ App({
         lastBackupTime: 'lastBackupTime'
       }
     };
+    
+    // 初始化适配管理器
+    await this.initAdaptationManager();
+    
+    // 获取系统信息进行适配（保留原有逻辑作为备用）
+    this.getSystemInfoForAdaptation();
     
     // 设置已显示警告标记，避免显示首次启动警告
     try {
@@ -335,29 +337,43 @@ App({
   // 获取系统信息进行适配
   getSystemInfoForAdaptation() {
     try {
+      // 确保globalData已初始化
+      if (!this.globalData) {
+        this.globalData = {
+          systemInfo: {},
+          adaptationConfig: {},
+          adaptationSystemInfo: {}
+        };
+      }
+      
       wx.getSystemInfo({
         success: (res) => {
+          // 确保systemInfo对象已初始化
+          if (!this.globalData.systemInfo) {
+            this.globalData.systemInfo = {};
+          }
+          
           this.globalData.systemInfo = {
             // 基础设备信息
-            brand: res.brand,
-            model: res.model,
-            system: res.system,
-            platform: res.platform,
-            version: res.version,
+            brand: res.brand || '未知',
+            model: res.model || '未知',
+            system: res.system || '未知',
+            platform: res.platform || 'unknown',
+            version: res.version || '未知',
             
             // 屏幕尺寸信息
-            screenWidth: res.screenWidth,
-            screenHeight: res.screenHeight,
-            windowWidth: res.windowWidth,
-            windowHeight: res.windowHeight,
-            pixelRatio: res.pixelRatio,
+            screenWidth: res.screenWidth || 375,
+            screenHeight: res.screenHeight || 667,
+            windowWidth: res.windowWidth || 375,
+            windowHeight: res.windowHeight || 667,
+            pixelRatio: res.pixelRatio || 2,
             
             // 安全区域信息
-            safeArea: res.safeArea,
-            statusBarHeight: res.statusBarHeight,
+            safeArea: res.safeArea || null,
+            statusBarHeight: res.statusBarHeight || 20,
             
             // 适配计算
-            rpxRatio: 750 / res.windowWidth, // rpx转换比例
+            rpxRatio: 750 / (res.windowWidth || 375), // rpx转换比例
             isIPhoneX: this.isIPhoneXSeries(res),
             isAndroid: res.platform === 'android',
             isIOS: res.platform === 'ios',
@@ -395,6 +411,23 @@ App({
       });
     } catch (error) {
       console.error('系统信息获取异常:', error);
+      // 确保即使出错也有默认值
+      if (this.globalData) {
+        this.globalData.systemInfo = this.globalData.systemInfo || {
+          screenWidth: 375,
+          screenHeight: 667,
+          windowWidth: 375,
+          windowHeight: 667,
+          pixelRatio: 2,
+          rpxRatio: 2,
+          isIPhoneX: false,
+          isAndroid: false,
+          isIOS: false,
+          screenType: 'normal',
+          navBarHeight: 44,
+          safeAreaBottom: 0
+        };
+      }
     }
   },
 
@@ -477,6 +510,15 @@ App({
   // 初始化适配管理器
   async initAdaptationManager() {
     try {
+      // 确保globalData已初始化
+      if (!this.globalData) {
+        this.globalData = {
+          systemInfo: {},
+          adaptationConfig: {},
+          adaptationSystemInfo: {}
+        };
+      }
+      
       const success = await adaptationManager.init();
       if (success) {
         console.log('适配管理器初始化成功');
@@ -484,13 +526,30 @@ App({
         const systemInfo = adaptationManager.getSystemInfo();
         const config = adaptationManager.getConfig();
         
-        this.globalData.adaptationConfig = config;
-        this.globalData.adaptationSystemInfo = systemInfo;
+        // 确保adaptationConfig和adaptationSystemInfo已初始化
+        if (!this.globalData.adaptationConfig) {
+          this.globalData.adaptationConfig = {};
+        }
+        if (!this.globalData.adaptationSystemInfo) {
+          this.globalData.adaptationSystemInfo = {};
+        }
+        
+        // 复制属性而不是直接赋值引用
+        Object.assign(this.globalData.adaptationConfig, config);
+        Object.assign(this.globalData.adaptationSystemInfo, systemInfo);
       } else {
         console.warn('适配管理器初始化失败，使用默认配置');
+        // 设置默认配置
+        this.globalData.adaptationConfig = adaptationManager.getConfig();
+        this.globalData.adaptationSystemInfo = adaptationManager.getSystemInfo();
       }
     } catch (error) {
       console.error('适配管理器初始化异常:', error);
+      // 确保即使出错也有默认值
+      if (this.globalData) {
+        this.globalData.adaptationConfig = this.globalData.adaptationConfig || {};
+        this.globalData.adaptationSystemInfo = this.globalData.adaptationSystemInfo || {};
+      }
     }
   },
 

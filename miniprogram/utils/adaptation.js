@@ -15,6 +15,10 @@ class AdaptationManager {
    */
   async init() {
     try {
+      // 确保系统信息和适配配置已初始化
+      this.systemInfo = this.systemInfo || {};
+      this.adaptationConfig = this.adaptationConfig || {};
+      
       await this.getSystemInfo();
       this.calculateAdaptationConfig();
       this.initialized = true;
@@ -32,49 +36,111 @@ class AdaptationManager {
    */
   async getSystemInfo() {
     return new Promise((resolve, reject) => {
-      wx.getSystemInfo({
-        success: (res) => {
-          this.systemInfo = {
-            // 基础设备信息
-            brand: res.brand || '未知',
-            model: res.model || '未知',
-            system: res.system || '未知',
-            platform: res.platform || 'unknown',
-            version: res.version || '未知',
-            
-            // 屏幕尺寸信息
-            screenWidth: res.screenWidth || 375,
-            screenHeight: res.screenHeight || 667,
-            windowWidth: res.windowWidth || 375,
-            windowHeight: res.windowHeight || 667,
-            pixelRatio: res.pixelRatio || 2,
-            
-            // 安全区域信息
-            safeArea: res.safeArea || null,
-            statusBarHeight: res.statusBarHeight || 20,
-            
-            // 其他信息
-            language: res.language || 'zh_CN',
-            fontSizeSetting: res.fontSizeSetting || 16,
-            
-            // 计算属性
-            rpxRatio: 750 / (res.windowWidth || 375),
-            aspectRatio: (res.windowHeight || 667) / (res.windowWidth || 375)
-          };
-          
-          // 设备类型判断
-          this.systemInfo.deviceType = this.getDeviceType();
-          this.systemInfo.screenType = this.getScreenType();
-          this.systemInfo.isIPhoneX = this.isIPhoneXSeries();
-          this.systemInfo.safeAreaBottom = this.getSafeAreaBottom();
-          
-          resolve(this.systemInfo);
-        },
-        fail: (err) => {
-          console.error('获取系统信息失败:', err);
-          reject(err);
+      try {
+        // 确保systemInfo对象已初始化
+        if (!this.systemInfo) {
+          this.systemInfo = {};
         }
-      });
+        
+        wx.getSystemInfo({
+          success: (res) => {
+            this.systemInfo = {
+              // 基础设备信息
+              brand: res.brand || '未知',
+              model: res.model || '未知',
+              system: res.system || '未知',
+              platform: res.platform || 'unknown',
+              version: res.version || '未知',
+              
+              // 屏幕尺寸信息
+              screenWidth: res.screenWidth || 375,
+              screenHeight: res.screenHeight || 667,
+              windowWidth: res.windowWidth || 375,
+              windowHeight: res.windowHeight || 667,
+              pixelRatio: res.pixelRatio || 2,
+              
+              // 安全区域信息
+              safeArea: res.safeArea || null,
+              statusBarHeight: res.statusBarHeight || 20,
+              
+              // 其他信息
+              language: res.language || 'zh_CN',
+              fontSizeSetting: res.fontSizeSetting || 16,
+              
+              // 计算属性
+              rpxRatio: 750 / (res.windowWidth || 375),
+              aspectRatio: (res.windowHeight || 667) / (res.windowWidth || 375)
+            };
+            
+            // 设备类型判断
+            this.systemInfo.deviceType = this.getDeviceType();
+            this.systemInfo.screenType = this.getScreenType();
+            this.systemInfo.isIPhoneX = this.isIPhoneXSeries();
+            this.systemInfo.safeAreaBottom = this.getSafeAreaBottom();
+            
+            resolve(this.systemInfo);
+          },
+          fail: (err) => {
+            console.error('获取系统信息失败:', err);
+            
+            // 设置默认值，避免后续操作出错
+            this.systemInfo = {
+              brand: '未知',
+              model: '未知',
+              system: '未知',
+              platform: 'unknown',
+              version: '未知',
+              screenWidth: 375,
+              screenHeight: 667,
+              windowWidth: 375,
+              windowHeight: 667,
+              pixelRatio: 2,
+              safeArea: null,
+              statusBarHeight: 20,
+              language: 'zh_CN',
+              fontSizeSetting: 16,
+              rpxRatio: 2,
+              aspectRatio: 667 / 375,
+              deviceType: 'phone',
+              screenType: 'normal',
+              isIPhoneX: false,
+              safeAreaBottom: 0
+            };
+            
+            // 尽管失败，但仍然返回默认值以避免后续操作出错
+            resolve(this.systemInfo);
+          }
+        });
+      } catch (error) {
+        console.error('获取系统信息异常:', error);
+        
+        // 设置默认值，避免后续操作出错
+        this.systemInfo = {
+          brand: '未知',
+          model: '未知',
+          system: '未知',
+          platform: 'unknown',
+          version: '未知',
+          screenWidth: 375,
+          screenHeight: 667,
+          windowWidth: 375,
+          windowHeight: 667,
+          pixelRatio: 2,
+          safeArea: null,
+          statusBarHeight: 20,
+          language: 'zh_CN',
+          fontSizeSetting: 16,
+          rpxRatio: 2,
+          aspectRatio: 667 / 375,
+          deviceType: 'phone',
+          screenType: 'normal',
+          isIPhoneX: false,
+          safeAreaBottom: 0
+        };
+        
+        // 尽管异常，但仍然返回默认值以避免后续操作出错
+        resolve(this.systemInfo);
+      }
     });
   }
 

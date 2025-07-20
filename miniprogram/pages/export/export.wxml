@@ -21,15 +21,27 @@
     </picker>
   </view>
 
-
-
-
-
   <!-- 操作按钮 -->
   <view class="action-section">
     <view class="custom-btn {{isGenerating ? 'custom-btn-disabled' : (recordCount === 0 ? 'custom-btn-disabled' : 'custom-btn-out')}}" 
           bindtap="makeReport">
       <text>{{isGenerating ? '生成中...' : '导出记录'}}</text>
+    </view>
+  </view>
+
+  <!-- 文本预览弹窗 -->
+  <view class="preview-modal {{showPreview ? 'show' : ''}}" wx:if="{{showPreview}}">
+    <view class="preview-content">
+      <view class="preview-header">
+        <text class="preview-title">打卡记录预览</text>
+        <view class="preview-close" bindtap="closePreview">×</view>
+      </view>
+      <scroll-view scroll-y class="preview-text-container">
+        <text class="preview-text">{{exportedText}}</text>
+      </scroll-view>
+      <view class="preview-footer">
+        <view class="copy-btn" bindtap="copyTextToClipboard">一键复制全文</view>
+      </view>
     </view>
   </view>
 
@@ -40,4 +52,4 @@
       <text class="tip-text bold-tip">所有数据仅保存在本机，请定期导出备份</text>
     </view>
   </view>
-</view> 
+</view>
