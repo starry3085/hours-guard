@@ -6,8 +6,10 @@
 
   <!-- 月份显示和选择 -->
   <view class="month-display" bindtap="openDatePicker">
+    <view class="picker-icon">
+      <view class="calendar-icon"></view>
+    </view>
     <text class="month-text">{{currentMonth}}</text>
-    <view class="month-arrow">▼</view>
   </view>
   
   <!-- 自定义日期选择器弹窗 -->

@@ -60,11 +60,42 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
 }
 
-.month-arrow {
-  font-size: 24rpx;
-  color: #07c160;
-  margin-left: 10rpx;
-  margin-top: 4rpx;
+/* 日历图标样式 */
+.picker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12rpx;
+}
+
+.calendar-icon {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #07c160;
+  border-radius: 6rpx;
+  position: relative;
+}
+
+.calendar-icon::before {
+  content: '';
+  position: absolute;
+  top: -8rpx;
+  left: 6rpx;
+  width: 4rpx;
+  height: 8rpx;
+  background: #07c160;
+  border-radius: 2rpx;
+}
+
+.calendar-icon::after {
+  content: '';
+  position: absolute;
+  top: -8rpx;
+  right: 6rpx;
+  width: 4rpx;
+  height: 8rpx;
+  background: #07c160;
+  border-radius: 2rpx;
 }
 
 /* 日期选择器弹窗样式 */
