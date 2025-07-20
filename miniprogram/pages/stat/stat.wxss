@@ -176,43 +176,45 @@
 .list-header {
   display: flex;
   background: transparent;
-  padding: 20rpx 24rpx;
+  padding: 20rpx 16rpx;
   font-weight: bold;
   font-size: 32rpx;
   color: #666;
   border-bottom: 2rpx solid #e9ecef;
   margin-bottom: 20rpx;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  align-items: center;
 }
 
 .header-date {
-  flex: 1;
+  flex: 1.2;
   text-align: center;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .header-time {
   flex: 1;
   text-align: center;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .header-workhours {
-  flex: 1.5;
+  flex: 1.3;
   text-align: center;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .record-row {
   display: flex;
   align-items: center;
-  padding: 24rpx;
+  padding: 20rpx 16rpx;
   margin-bottom: 16rpx;
   background: #f8f8f8;
   border-radius: 12rpx;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 80rpx;
 }
 
 .record-row::after {
@@ -232,12 +234,14 @@
 }
 
 .cell-date {
-  flex: 1;
+  flex: 1.2;
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 4rpx;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .date-text {
@@ -258,24 +262,24 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: 4rpx;
   cursor: pointer;
   position: relative;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .cell-workhours {
-  flex: 1.5;
+  flex: 1.3;
   text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: 4rpx;
   position: relative;
-  padding-left: 10rpx;
+  padding: 0 8rpx;
 }
 
 .time-container {
