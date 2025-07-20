@@ -310,13 +310,34 @@
 
 /* 工作时长样式 */
 .time-text.work-hours {
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: pre-line;
 }
 
 .time-text.work-hours.has-time {
   color: #ff6b35;
   background: transparent;
+}
+
+/* 工作时长分行显示样式 */
+.work-hours-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+}
+
+.work-hours-line {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ff6b35;
+  line-height: 1.1;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
 }
 
 
