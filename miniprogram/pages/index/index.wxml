@@ -1,7 +1,7 @@
 <view class="page-container">
-  <!-- 页面标题 -->
+  <!-- 页面标题 - 添加点击事件 -->
   <view class="header">
-    <text class="title">{{isToday ? '今日打卡' : '补录打卡'}}</text>
+    <text class="title" bindtap="toggleMode">{{isToday ? '今日打卡' : '补录打卡'}}</text>
   </view>
 
   <!-- 日期和时间显示 -->

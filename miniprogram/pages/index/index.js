@@ -414,6 +414,46 @@ Page({
   async performDiagnosis() {
     await app.performSystemDiagnosis();
   },
+  
+  // 切换打卡模式（今日打卡/补录打卡）
+  toggleMode() {
+    const { isToday, today } = this.data;
+    
+    if (isToday) {
+      // 当前是今日打卡模式，切换到补录打卡模式
+      // 选择一个默认的历史日期（前一天）
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().slice(0, 10);
+      
+      this.setData({
+        selectedDate: yesterdayStr,
+        isToday: false
+      }, () => {
+        this.loadTodayData();
+      });
+      
+      wx.showToast({
+        title: '已切换到补录打卡模式',
+        icon: 'none',
+        duration: 1500
+      });
+    } else {
+      // 当前是补录打卡模式，切换到今日打卡模式
+      this.setData({
+        selectedDate: today,
+        isToday: true
+      }, () => {
+        this.loadTodayData();
+      });
+      
+      wx.showToast({
+        title: '已切换到今日打卡模式',
+        icon: 'none',
+        duration: 1500
+      });
+    }
+  },
 
   // 初始化系统适配
   initSystemAdaptation() {
