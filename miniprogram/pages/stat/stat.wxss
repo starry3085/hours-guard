@@ -175,13 +175,15 @@
 }
 
 .header-date {
-  flex: 2;
-  text-align: center;
+  flex: 1.5;
+  text-align: left;
+  padding-left: 10rpx;
 }
 
 .header-time {
-  flex: 1.2;
-  text-align: center;
+  flex: 1;
+  text-align: left;
+  padding-left: 10rpx;
 }
 
 .record-row {
@@ -213,11 +215,12 @@
 }
 
 .cell-date {
-  flex: 2;
-  text-align: center;
+  flex: 1.5;
+  text-align: left;
   display: flex;
   flex-direction: column;
   gap: 4rpx;
+  padding-left: 10rpx;
 }
 
 .date-text {
@@ -232,15 +235,16 @@
 }
 
 .cell-time {
-  flex: 1.2;
-  text-align: center;
+  flex: 1;
+  text-align: left;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 4rpx;
   cursor: pointer;
   position: relative;
+  padding-left: 10rpx;
 }
 
 .time-container {
@@ -280,62 +284,7 @@
   background: #fff4f0;
 }
 
-.record-icon {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  margin-right: 8rpx;
-  position: relative;
-}
 
-.record-icon-in {
-  background-color: #07c160;
-}
-
-.record-icon-in::after {
-  content: '';
-  position: absolute;
-  top: -4rpx;
-  right: -4rpx;
-  width: 8rpx;
-  height: 8rpx;
-  background-color: #07c160;
-  border-radius: 50%;
-  opacity: 0.4;
-  animation: pulse-small 2s infinite;
-}
-
-.record-icon-out {
-  background-color: #ff9800;
-}
-
-.record-icon-out::after {
-  content: '';
-  position: absolute;
-  top: -4rpx;
-  right: -4rpx;
-  width: 8rpx;
-  height: 8rpx;
-  background-color: #ff9800;
-  border-radius: 50%;
-  opacity: 0.4;
-  animation: pulse-small 2s infinite;
-}
-
-@keyframes pulse-small {
-  0% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.2;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-}
 
 /* 提示信息区域 */
 .tips-section {
