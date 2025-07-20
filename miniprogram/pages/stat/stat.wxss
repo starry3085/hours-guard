@@ -50,6 +50,76 @@
   font-weight: 500;
 }
 
+/* 统计区域 */
+.stats-section {
+  margin-bottom: 30rpx;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 8rpx;
+  background: linear-gradient(to bottom, #07c160, #ff9800);
+  border-radius: 4rpx 0 0 4rpx;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.stats-row:last-child {
+  margin-bottom: 0;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 10rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  margin: 0 8rpx;
+  position: relative;
+}
+
+.stat-item:first-child {
+  margin-left: 0;
+}
+
+.stat-item:last-child {
+  margin-right: 0;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #07c160;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+}
+
 /* 记录列表区域 */
 .records-section {
   flex: 1;

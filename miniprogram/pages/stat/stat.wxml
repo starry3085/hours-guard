@@ -9,6 +9,32 @@
     <text class="month-text">{{currentMonth}}</text>
   </view>
 
+  <!-- 统计区域 -->
+  <view class="stats-section" wx:if="{{list.length > 0}}">
+    <view class="stats-card">
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-label">本周总工时</text>
+          <text class="stat-value">{{weeklyStats.totalHours}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">本周平均工时</text>
+          <text class="stat-value">{{weeklyStats.avgHours}}</text>
+        </view>
+      </view>
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-label">本月平均工时</text>
+          <text class="stat-value">{{monthlyStats.avgHours}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">本月打卡天数</text>
+          <text class="stat-value">{{monthlyStats.workDays}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 记录列表 -->
   <view class="records-section" wx:if="{{list.length > 0}}">
     <view class="record-card">

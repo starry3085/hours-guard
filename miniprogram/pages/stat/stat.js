@@ -4,6 +4,14 @@ Page({
   data: {
     list: [],
     currentMonth: '',
+    weeklyStats: {
+      totalHours: '0小时',
+      avgHours: '0小时'
+    },
+    monthlyStats: {
+      avgHours: '0小时',
+      workDays: '0天'
+    },
     showPicker: false,
     pickerType: '',
     pickerDate: '',
@@ -333,10 +341,15 @@ Page({
         };
       });
       
+      // 计算统计数据
+      const stats = this.calculateStats(processedRecords, now);
+      
       // 更新数据和缓存
       this.setData({
         list: processedRecords,
         currentMonth: currentMonth,
+        weeklyStats: stats.weekly,
+        monthlyStats: stats.monthly,
         monthCache: {
           month: monthPrefix,
           data: processedRecords
@@ -346,7 +359,8 @@ Page({
       
       console.log('统计页面数据更新完成:', { 
         listLength: processedRecords.length,
-        currentMonth
+        currentMonth,
+        stats
       });
       
     } catch (error) {
@@ -690,5 +704,110 @@ Page({
     };
   },
 
-  // 统计数据计算功能已移除
+  // 计算统计数据
+  calculateStats(records, currentDate) {
+    if (!records || records.length === 0) {
+      return {
+        weekly: {
+          totalHours: '0小时',
+          avgHours: '0小时'
+        },
+        monthly: {
+          avgHours: '0小时',
+          workDays: '0天'
+        }
+      };
+    }
+
+    // 计算工作时长的辅助函数
+    const calculateWorkHours = (onTime, offTime) => {
+      if (!onTime || !offTime) return 0;
+      
+      try {
+        const [onHour, onMinute] = onTime.split(':').map(Number);
+        const [offHour, offMinute] = offTime.split(':').map(Number);
+        
+        const onTotalMinutes = onHour * 60 + onMinute;
+        const offTotalMinutes = offHour * 60 + offMinute;
+        
+        if (offTotalMinutes <= onTotalMinutes) return 0;
+        
+        return (offTotalMinutes - onTotalMinutes) / 60; // 返回小时数
+      } catch (error) {
+        console.error('计算工作时长失败:', error);
+        return 0;
+      }
+    };
+
+    // 获取本周的日期范围
+    const today = new Date(currentDate);
+    const currentWeekStart = new Date(today);
+    const dayOfWeek = today.getDay();
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 周一为一周开始
+    currentWeekStart.setDate(today.getDate() - daysToMonday);
+    currentWeekStart.setHours(0, 0, 0, 0);
+
+    const currentWeekEnd = new Date(currentWeekStart);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+    currentWeekEnd.setHours(23, 59, 59, 999);
+
+    // 筛选本周记录
+    const weekRecords = records.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate >= currentWeekStart && recordDate <= currentWeekEnd;
+    });
+
+    // 计算本周统计
+    let weeklyTotalHours = 0;
+    let weeklyWorkDays = 0;
+
+    weekRecords.forEach(record => {
+      const hours = calculateWorkHours(record.on, record.off);
+      if (hours > 0) {
+        weeklyTotalHours += hours;
+        weeklyWorkDays++;
+      }
+    });
+
+    // 计算本月统计
+    let monthlyTotalHours = 0;
+    let monthlyWorkDays = 0;
+
+    records.forEach(record => {
+      const hours = calculateWorkHours(record.on, record.off);
+      if (hours > 0) {
+        monthlyTotalHours += hours;
+        monthlyWorkDays++;
+      }
+    });
+
+    // 格式化时间显示
+    const formatHours = (hours) => {
+      if (hours === 0) return '0小时';
+      if (hours < 1) {
+        const minutes = Math.round(hours * 60);
+        return `${minutes}分钟`;
+      }
+      const wholeHours = Math.floor(hours);
+      const minutes = Math.round((hours - wholeHours) * 60);
+      if (minutes === 0) {
+        return `${wholeHours}小时`;
+      }
+      return `${wholeHours}小时${minutes}分钟`;
+    };
+
+    const weeklyAvgHours = weeklyWorkDays > 0 ? weeklyTotalHours / weeklyWorkDays : 0;
+    const monthlyAvgHours = monthlyWorkDays > 0 ? monthlyTotalHours / monthlyWorkDays : 0;
+
+    return {
+      weekly: {
+        totalHours: formatHours(weeklyTotalHours),
+        avgHours: formatHours(weeklyAvgHours)
+      },
+      monthly: {
+        avgHours: formatHours(monthlyAvgHours),
+        workDays: `${monthlyWorkDays}天`
+      }
+    };
+  }
 })
