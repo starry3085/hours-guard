@@ -42,7 +42,7 @@
         <text class="header-date">日期</text>
         <text class="header-time">上班</text>
         <text class="header-time">下班</text>
-        <text class="header-time">日工时</text>
+        <text class="header-workhours">日工时</text>
       </view>
       
       <scroll-view scroll-y class="record-list" enable-back-to-top>
@@ -64,7 +64,7 @@
             </view>
           </view>
           
-          <view class="cell-time">
+          <view class="cell-workhours">
             <text class="time-text work-hours {{item.workHours ? 'has-time' : 'no-time'}}">{{item.workHours ? item.workHours : '-'}}</text>
           </view>
         </view>

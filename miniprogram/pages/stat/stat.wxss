@@ -175,14 +175,20 @@
 }
 
 .header-date {
-  flex: 1.5;
-  text-align: left;
+  flex: 1;
+  text-align: center;
   padding-left: 10rpx;
 }
 
 .header-time {
   flex: 1;
-  text-align: left;
+  text-align: center;
+  padding-left: 10rpx;
+}
+
+.header-workhours {
+  flex: 1.5;
+  text-align: center;
   padding-left: 10rpx;
 }
 
@@ -215,8 +221,8 @@
 }
 
 .cell-date {
-  flex: 1.5;
-  text-align: left;
+  flex: 1;
+  text-align: center;
   display: flex;
   flex-direction: column;
   gap: 4rpx;
@@ -236,13 +242,25 @@
 
 .cell-time {
   flex: 1;
-  text-align: left;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   gap: 4rpx;
   cursor: pointer;
+  position: relative;
+  padding-left: 10rpx;
+}
+
+.cell-workhours {
+  flex: 1.5;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4rpx;
   position: relative;
   padding-left: 10rpx;
 }
