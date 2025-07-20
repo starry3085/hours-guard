@@ -97,13 +97,15 @@
           
           <view class="cell-time" bindtap="onEditTime" data-type="on" data-date="{{item.date}}">
             <view class="time-container">
-              <text class="time-text {{item.on ? 'has-time' : 'no-time'}}">{{item.on ? item.on : '未打卡'}}</text>
+              <text wx:if="{{!(editingDate === item.date && editingType === 'on')}}" class="time-text {{item.on ? 'has-time' : 'no-time'}}">{{item.on ? item.on : '未打卡'}}</text>
+              <input wx:else class="time-input" type="text" value="{{editingValue}}" focus="{{true}}" bindinput="onTimeInput" bindblur="onTimeInputBlur" />
             </view>
           </view>
           
           <view class="cell-time" bindtap="onEditTime" data-type="off" data-date="{{item.date}}">
             <view class="time-container">
-              <text class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off ? item.off : '未打卡'}}</text>
+              <text wx:if="{{!(editingDate === item.date && editingType === 'off')}}" class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off ? item.off : '未打卡'}}</text>
+              <input wx:else class="time-input" type="text" value="{{editingValue}}" focus="{{true}}" bindinput="onTimeInput" bindblur="onTimeInputBlur" />
             </view>
           </view>
           

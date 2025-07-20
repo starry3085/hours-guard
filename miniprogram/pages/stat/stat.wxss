@@ -481,6 +481,20 @@
   background: transparent;
 }
 
+/* 内联时间编辑输入框样式 */
+.time-input {
+  font-size: 34rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+  text-align: center;
+  width: 120rpx;
+  border: 1px solid #07c160;
+}
+
 /* 工作时长样式 */
 .time-text.work-hours {
   font-size: 30rpx;

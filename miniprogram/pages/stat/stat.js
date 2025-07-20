@@ -14,6 +14,11 @@ Page({
       avgHours: '0小时',
       workDays: '0天'
     },
+    // 内联编辑相关数据
+    editingDate: '',
+    editingType: '',
+    editingValue: '',
+    // 旧的选择器数据（保留以兼容）
     showPicker: false,
     pickerType: '',
     pickerDate: '',
@@ -197,31 +202,54 @@ Page({
     }
   },
 
-  // 编辑时间
+  // 编辑时间 - 直接在列表中编辑
   onEditTime(e) {
     const { date, type } = e.currentTarget.dataset;
     const record = this.data.list.find(item => item.date === date);
     const currentValue = record ? record[type] : null;
     
-    let currentHour = 9;
-    let currentMinute = 0;
+    // 设置默认值
+    const defaultValue = currentValue || (type === 'on' ? '09:00' : '18:00');
     
-    if (currentValue) {
-      const [h, m] = currentValue.split(':');
-      currentHour = parseInt(h);
-      currentMinute = parseInt(m);
-    } else {
-      // 默认时间：上班9:00，下班18:00
-      currentHour = type === 'on' ? 9 : 18;
-      currentMinute = 0;
-    }
-    
+    // 激活内联编辑模式
     this.setData({
-      showPicker: true,
-      pickerType: type,
-      pickerDate: date,
-      pickerValue: [currentHour, currentMinute]
+      editingDate: date,
+      editingType: type,
+      editingValue: defaultValue
     });
+  },
+  
+  // 处理时间输入变化
+  onTimeInput(e) {
+    this.setData({
+      editingValue: e.detail.value
+    });
+  },
+  
+  // 处理时间输入完成（失去焦点）
+  onTimeInputBlur(e) {
+    const { editingDate, editingType, editingValue } = this.data;
+    const timeValue = editingValue.trim();
+    
+    // 退出编辑模式
+    this.setData({
+      editingDate: '',
+      editingType: '',
+      editingValue: ''
+    });
+    
+    // 验证时间格式
+    if (/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/.test(timeValue)) {
+      // 格式化为标准格式 (HH:MM)
+      const [hours, minutes] = timeValue.split(':');
+      const formattedTime = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+      this.updateRecord(editingDate, editingType, formattedTime);
+    } else {
+      wx.showToast({
+        title: '时间格式不正确',
+        icon: 'none'
+      });
+    }
   },
 
   // 时间选择器变化
