@@ -179,11 +179,25 @@ Page({
       // 计算本周平均工时
       const weeklyAverage = weeklyWorkDays > 0 ? weeklyTotalHours / weeklyWorkDays : 0;
 
-      // 格式化结果
+      // 格式化结果 - 使用更精确的格式化方式
+      const formatHours = (hours) => {
+        if (hours === 0) return '0小时';
+        if (hours < 1) {
+          const minutes = Math.round(hours * 60);
+          return `${minutes}分钟`;
+        }
+        const wholeHours = Math.floor(hours);
+        const minutes = Math.round((hours - wholeHours) * 60);
+        if (minutes === 0) {
+          return `${wholeHours}小时`;
+        }
+        return `${wholeHours}小时${minutes}分钟`;
+      };
+
       stats = {
-        weeklyTotal: `${weeklyTotalHours.toFixed(0)}小时`,
-        weeklyAverage: `${weeklyAverage.toFixed(0)}小时`,
-        monthlyAverage: `${monthlyAverage.toFixed(0)}小时`,
+        weeklyTotal: formatHours(weeklyTotalHours),
+        weeklyAverage: formatHours(weeklyAverage),
+        monthlyAverage: formatHours(monthlyAverage),
         monthlyDays: `${monthlyWorkDays}天`
       };
 
