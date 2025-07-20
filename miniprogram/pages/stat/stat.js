@@ -243,7 +243,14 @@ Page({
       // 格式化为标准格式 (HH:MM)
       const [hours, minutes] = timeValue.split(':');
       const formattedTime = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-      this.updateRecord(editingDate, editingType, formattedTime);
+      this.updateRecord(editingDate, editingType, formattedTime).then(result => {
+        if (result) {
+          wx.showToast({
+            title: '修改成功',
+            icon: 'success'
+          });
+        }
+      });
     } else {
       wx.showToast({
         title: '时间格式不正确',
@@ -266,7 +273,14 @@ Page({
     const [hourIndex, minuteIndex] = pickerValue;
     const newTime = `${this.data.hours[hourIndex]}:${this.data.minutes[minuteIndex]}`;
     
-    this.updateRecord(pickerDate, pickerType, newTime);
+    this.updateRecord(pickerDate, pickerType, newTime).then(result => {
+      if (result) {
+        wx.showToast({
+          title: '修改成功',
+          icon: 'success'
+        });
+      }
+    });
     this.setData({ showPicker: false });
   },
 
@@ -284,7 +298,7 @@ Page({
         title: '操作进行中，请稍后',
         icon: 'none'
       });
-      return;
+      return false;
     }
     
     if (!storageManager) {
@@ -292,7 +306,7 @@ Page({
         title: '系统初始化中，请稍后',
         icon: 'none'
       });
-      return;
+      return false;
     }
     
     this.setData({ isLoading: true });
@@ -303,6 +317,38 @@ Page({
         const allRecords = storageManager.safeGetStorage('records', []);
         const recordIndex = allRecords.findIndex(r => r.date === date);
         
+        // 获取当前记录或创建新记录
+        let currentRecord;
+        if (recordIndex >= 0) {
+          currentRecord = { ...allRecords[recordIndex] };
+        } else {
+          currentRecord = { date };
+        }
+        
+        // 临时设置新时间用于校验
+        const updatedRecord = { ...currentRecord };
+        updatedRecord[type] = newTime;
+        
+        // 时间校验：同一天内下班时间必须比上班时间晚
+        if (updatedRecord.on && updatedRecord.off) {
+          const [onHour, onMinute] = updatedRecord.on.split(':').map(Number);
+          const [offHour, offMinute] = updatedRecord.off.split(':').map(Number);
+          
+          const onTotalMinutes = onHour * 60 + onMinute;
+          const offTotalMinutes = offHour * 60 + offMinute;
+          
+          if (offTotalMinutes <= onTotalMinutes) {
+            this.setData({ isLoading: false });
+            wx.showToast({
+              title: '下班时间必须晚于上班时间',
+              icon: 'none',
+              duration: 2000
+            });
+            throw new Error('下班时间必须晚于上班时间');
+          }
+        }
+        
+        // 通过校验后更新记录
         if (recordIndex >= 0) {
           allRecords[recordIndex][type] = newTime;
         } else {
@@ -333,10 +379,7 @@ Page({
       });
       this.loadMonthData();
       
-      wx.showToast({
-        title: '修改成功',
-        icon: 'success'
-      });
+      return true;
       
     } catch (error) {
       errorHandler.handleError(error, '更新统计记录', {
