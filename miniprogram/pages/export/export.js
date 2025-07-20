@@ -19,7 +19,16 @@ Page({
       weeklyAverage: '0小时',
       monthlyAverage: '0小时',
       monthlyDays: '0天'
-    }
+    },
+    // 日期选择器相关数据
+    showStartDatePicker: false,
+    showEndDatePicker: false,
+    yearList: [],
+    monthList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    tempStartYear: 0,
+    tempStartMonth: 0,
+    tempEndYear: 0,
+    tempEndMonth: 0
   },
 
   onLoad() {
@@ -32,6 +41,13 @@ Page({
         storageManager: app.getStorageManager(),
         errorHandler: app.getErrorHandler()
       });
+
+      // 初始化年份列表（从2020年到当前年份后2年）
+      const currentYear = new Date().getFullYear();
+      const yearList = [];
+      for (let y = 2020; y <= currentYear + 2; y++) {
+        yearList.push(y);
+      }
 
       // 初始化为当前月份
       const now = new Date();
@@ -46,10 +62,15 @@ Page({
       const selectedEndMonth = selectedStartMonth;
 
       this.setData({
+        yearList,
         selectedStartDate,
         selectedStartMonth,
         selectedEndDate,
-        selectedEndMonth
+        selectedEndMonth,
+        tempStartYear: year,
+        tempStartMonth: month,
+        tempEndYear: year,
+        tempEndMonth: month
       });
 
       this.loadMonthData();
@@ -240,7 +261,139 @@ Page({
     }
   },
 
-  // 起始日期变更处理
+  // 打开起始日期选择器
+  openStartDatePicker() {
+    const { selectedStartDate } = this.data;
+    const [year, month] = selectedStartDate.split('-').map(Number);
+
+    this.setData({
+      showStartDatePicker: true,
+      showEndDatePicker: false,
+      tempStartYear: year,
+      tempStartMonth: month
+    });
+  },
+
+  // 打开结束日期选择器
+  openEndDatePicker() {
+    const { selectedEndDate } = this.data;
+    const [year, month] = selectedEndDate.split('-').map(Number);
+
+    this.setData({
+      showEndDatePicker: true,
+      showStartDatePicker: false,
+      tempEndYear: year,
+      tempEndMonth: month
+    });
+  },
+
+  // 关闭日期选择器
+  closeDatePicker() {
+    this.setData({
+      showStartDatePicker: false,
+      showEndDatePicker: false
+    });
+  },
+
+  // 选择起始年份
+  selectStartYear(e) {
+    const year = e.currentTarget.dataset.year;
+    this.setData({
+      tempStartYear: year
+    });
+  },
+
+  // 选择起始月份
+  selectStartMonth(e) {
+    const month = e.currentTarget.dataset.month;
+    this.setData({
+      tempStartMonth: month
+    });
+  },
+
+  // 选择结束年份
+  selectEndYear(e) {
+    const year = e.currentTarget.dataset.year;
+    this.setData({
+      tempEndYear: year
+    });
+  },
+
+  // 选择结束月份
+  selectEndMonth(e) {
+    const month = e.currentTarget.dataset.month;
+    this.setData({
+      tempEndMonth: month
+    });
+  },
+
+  // 确认起始日期选择
+  confirmStartDateSelection() {
+    const { tempStartYear, tempStartMonth } = this.data;
+
+    // 格式化日期
+    const selectedStartDate = `${tempStartYear}-${tempStartMonth.toString().padStart(2, '0')}`;
+    const selectedStartMonth = `${tempStartYear}年${tempStartMonth}月`;
+
+    this.setData({
+      selectedStartDate,
+      selectedStartMonth,
+      showStartDatePicker: false,
+      exportedText: '',
+      showPreview: false
+    }, () => {
+      // 确保起始日期不晚于结束日期
+      const startDate = new Date(this.data.selectedStartDate + '-01');
+      const endDate = new Date(this.data.selectedEndDate + '-01');
+
+      if (startDate > endDate) {
+        // 如果起始日期晚于结束日期，则将结束日期设置为起始日期
+        this.setData({
+          selectedEndDate: this.data.selectedStartDate,
+          selectedEndMonth: this.data.selectedStartMonth,
+          tempEndYear: tempStartYear,
+          tempEndMonth: tempStartMonth
+        });
+      }
+
+      this.loadMonthData();
+    });
+  },
+
+  // 确认结束日期选择
+  confirmEndDateSelection() {
+    const { tempEndYear, tempEndMonth } = this.data;
+
+    // 格式化日期
+    const selectedEndDate = `${tempEndYear}-${tempEndMonth.toString().padStart(2, '0')}`;
+    const selectedEndMonth = `${tempEndYear}年${tempEndMonth}月`;
+
+    this.setData({
+      selectedEndDate,
+      selectedEndMonth,
+      showEndDatePicker: false,
+      exportedText: '',
+      showPreview: false
+    }, () => {
+      // 确保结束日期不早于起始日期
+      const startDate = new Date(this.data.selectedStartDate + '-01');
+      const endDate = new Date(this.data.selectedEndDate + '-01');
+
+      if (endDate < startDate) {
+        // 如果结束日期早于起始日期，则将起始日期设置为结束日期
+        this.setData({
+          selectedStartDate: this.data.selectedEndDate,
+          selectedStartMonth: this.data.selectedEndMonth,
+          tempStartYear: tempEndYear,
+          tempStartMonth: tempEndMonth
+        });
+      }
+
+      this.loadMonthData();
+    });
+  },
+
+  // 保留这些方法以兼容可能的外部调用
   onStartDateChange(e) {
     const value = e.detail.value;
     const [year, month] = value.split('-');

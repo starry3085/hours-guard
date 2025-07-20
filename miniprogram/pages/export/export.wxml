@@ -13,7 +13,7 @@
     <view class="date-range-container">
       <!-- 起始月份选择器 -->
       <view class="date-picker-label">起始月份</view>
-      <picker mode="date" fields="month" value="{{selectedStartDate}}" bindchange="onStartDateChange" class="month-picker">
+      <view class="month-picker" bindtap="openStartDatePicker">
         <view class="picker-display">
           <view class="picker-icon">
             <view class="calendar-icon"></view>
@@ -21,11 +21,11 @@
           <text class="selected-month">{{selectedStartMonth}}</text>
           <view class="picker-arrow">›</view>
         </view>
-      </picker>
+      </view>
       
       <!-- 结束月份选择器 -->
       <view class="date-picker-label">结束月份</view>
-      <picker mode="date" fields="month" value="{{selectedEndDate}}" bindchange="onEndDateChange" class="month-picker">
+      <view class="month-picker" bindtap="openEndDatePicker">
         <view class="picker-display">
           <view class="picker-icon">
             <view class="calendar-icon"></view>
@@ -33,7 +33,85 @@
           <text class="selected-month">{{selectedEndMonth}}</text>
           <view class="picker-arrow">›</view>
         </view>
-      </picker>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 起始日期选择器弹窗 -->
+  <view class="date-picker-overlay {{showStartDatePicker ? 'show' : ''}}" wx:if="{{showStartDatePicker}}">
+    <view class="date-picker-modal">
+      <view class="date-picker-header">
+        <text class="date-picker-title">选择起始年月</text>
+        <view class="date-picker-close" bindtap="closeDatePicker">×</view>
+      </view>
+      
+      <view class="date-picker-body">
+        <!-- 年份选择区域 -->
+        <view class="year-month-grid">
+          <block wx:for="{{yearList}}" wx:key="*this">
+            <view class="year-item {{tempStartYear === item ? 'active' : ''}}" 
+                  bindtap="selectStartYear" 
+                  data-year="{{item}}">
+              {{item}}
+            </view>
+          </block>
+        </view>
+        
+        <!-- 月份选择区域 -->
+        <view class="year-month-grid" style="margin-top: 30rpx;">
+          <block wx:for="{{monthList}}" wx:key="*this">
+            <view class="month-item {{tempStartMonth === item ? 'active' : ''}}" 
+                  bindtap="selectStartMonth" 
+                  data-month="{{item}}">
+              {{item}}月
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <view class="date-picker-footer">
+        <view class="picker-btn picker-btn-cancel" bindtap="closeDatePicker">取消</view>
+        <view class="picker-btn picker-btn-confirm" bindtap="confirmStartDateSelection">确定</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 结束日期选择器弹窗 -->
+  <view class="date-picker-overlay {{showEndDatePicker ? 'show' : ''}}" wx:if="{{showEndDatePicker}}">
+    <view class="date-picker-modal">
+      <view class="date-picker-header">
+        <text class="date-picker-title">选择结束年月</text>
+        <view class="date-picker-close" bindtap="closeDatePicker">×</view>
+      </view>
+      
+      <view class="date-picker-body">
+        <!-- 年份选择区域 -->
+        <view class="year-month-grid">
+          <block wx:for="{{yearList}}" wx:key="*this">
+            <view class="year-item {{tempEndYear === item ? 'active' : ''}}" 
+                  bindtap="selectEndYear" 
+                  data-year="{{item}}">
+              {{item}}
+            </view>
+          </block>
+        </view>
+        
+        <!-- 月份选择区域 -->
+        <view class="year-month-grid" style="margin-top: 30rpx;">
+          <block wx:for="{{monthList}}" wx:key="*this">
+            <view class="month-item {{tempEndMonth === item ? 'active' : ''}}" 
+                  bindtap="selectEndMonth" 
+                  data-month="{{item}}">
+              {{item}}月
+            </view>
+          </block>
+        </view>
+      </view>
+      
+      <view class="date-picker-footer">
+        <view class="picker-btn picker-btn-cancel" bindtap="closeDatePicker">取消</view>
+        <view class="picker-btn picker-btn-confirm" bindtap="confirmEndDateSelection">确定</view>
+      </view>
     </view>
   </view>
 
