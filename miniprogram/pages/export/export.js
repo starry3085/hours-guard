@@ -40,7 +40,7 @@ Page({
 
       const selectedStartDate = `${year}-${month.toString().padStart(2, '0')}`;
       const selectedStartMonth = `${year}年${month}月`;
-      
+
       // 默认结束月份也是当前月份
       const selectedEndDate = selectedStartDate;
       const selectedEndMonth = selectedStartMonth;
@@ -86,14 +86,14 @@ Page({
     try {
       // 获取所有记录
       const allRecords = storageManager.safeGetStorage('records', []);
-      
+
       // 计算日期范围
       const startDate = new Date(selectedStartDate + '-01');
       const endDateObj = new Date(selectedEndDate + '-01');
       // 设置为下个月的第0天，即当月最后一天
       endDateObj.setMonth(endDateObj.getMonth() + 1, 0);
       const endDate = endDateObj;
-      
+
       // 筛选日期范围内的记录
       const rangeRecords = allRecords.filter(record => {
         if (!record.date) return false;
@@ -254,14 +254,14 @@ Page({
       // 确保起始日期不晚于结束日期
       const startDate = new Date(this.data.selectedStartDate + '-01');
       const endDate = new Date(this.data.selectedEndDate + '-01');
-      
+
       if (startDate > endDate) {
         this.setData({
           selectedEndDate: this.data.selectedStartDate,
           selectedEndMonth: this.data.selectedStartMonth
         });
       }
-      
+
       this.loadMonthData();
     });
   },
@@ -280,14 +280,14 @@ Page({
       // 确保结束日期不早于起始日期
       const startDate = new Date(this.data.selectedStartDate + '-01');
       const endDate = new Date(this.data.selectedEndDate + '-01');
-      
+
       if (endDate < startDate) {
         this.setData({
           selectedStartDate: this.data.selectedEndDate,
           selectedStartMonth: this.data.selectedEndMonth
         });
       }
-      
+
       this.loadMonthData();
     });
   },
@@ -331,7 +331,7 @@ Page({
         // 设置为下个月的第0天，即当月最后一天
         endDateObj.setMonth(endDateObj.getMonth() + 1, 0);
         const endDate = endDateObj;
-        
+
         // 筛选日期范围内的记录
         const records = allRecords.filter(record => {
           if (!record.date) return false;
@@ -382,7 +382,7 @@ Page({
 
   // 生成文本内容
   async generateText(rangeRecords) {
-    const { errorHandler, workStats, selectedStartMonth, selectedEndMonth } = this.data;
+    const { errorHandler, selectedStartMonth, selectedEndMonth } = this.data;
 
     try {
       wx.showLoading({ title: '生成文本记录中...', mask: true });
@@ -391,51 +391,66 @@ Page({
       // 使用错误处理器的重试机制
       const textContent = await errorHandler.withRetry(async () => {
         // 生成报告标题，如果起始月份和结束月份相同，只显示一个月份
-        const reportTitle = selectedStartMonth === selectedEndMonth ? 
-          `打卡记录报告 - ${selectedStartMonth}` : 
+        const reportTitle = selectedStartMonth === selectedEndMonth ?
+          `打卡记录报告 - ${selectedStartMonth}` :
           `打卡记录报告 - ${selectedStartMonth}至${selectedEndMonth}`;
-        
+
         let content = `${reportTitle}\n`;
         content += `生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
         content += `${'='.repeat(50)}\n\n`;
 
-        // 工时统计部分
-        content += `工时统计:\n`;
-        content += `${'='.repeat(50)}\n`;
-        content += `本周总工时: ${workStats.weeklyTotal}\n`;
-        content += `本周平均工时: ${workStats.weeklyAverage}\n`;
-        content += `选定期间平均工时: ${workStats.monthlyAverage}\n`;
-        content += `选定期间打卡天数: ${workStats.monthlyDays}\n`;
-        content += `${'='.repeat(50)}\n\n`;
+        // 按月份分组记录
+        const recordsByMonth = this.groupRecordsByMonth(rangeRecords);
 
-        // 详细记录
-        content += `详细记录:\n`;
-        content += `${'='.repeat(50)}\n`;
+        // 遍历每个月份的记录
+        for (const [monthKey, monthRecords] of Object.entries(recordsByMonth)) {
+          // 计算当前月份的工时统计
+          const monthStats = this.calculateWorkStats(monthRecords);
+          const [year, month] = monthKey.split('-');
+          const monthTitle = `${year}年${month}月`;
 
-        rangeRecords.forEach(record => {
-          const date = new Date(record.date);
-          const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-          const weekday = `周${weekdays[date.getDay()]}`;
+          // 添加月份工时统计
+          content += `${monthTitle}工时统计:\n`;
+          content += `${'='.repeat(50)}\n`;
+          content += `本月平均工时: ${monthStats.monthlyAverage}\n`;
+          content += `本月打卡天数: ${monthStats.monthlyDays}\n`;
+          content += `${'='.repeat(50)}\n\n`;
 
-          content += `${record.date} (${weekday})\n`;
-          content += `  上班时间: ${record.on || '未打卡'}\n`;
-          content += `  下班时间: ${record.off || '未打卡'}\n`;
+          // 添加当月详细记录
+          content += `${monthTitle}详细记录:\n`;
+          content += `${'='.repeat(50)}\n`;
 
-          // 计算日工时
-          let dailyHours = '未知';
-          if (record.on && record.off) {
-            const onTime = this.parseTimeToMinutes(record.on);
-            const offTime = this.parseTimeToMinutes(record.off);
-            if (onTime !== null && offTime !== null) {
-              const hours = Math.max(0, (offTime - onTime) / 60);
-              dailyHours = `${hours.toFixed(0)}小时`;
+          // 按日期排序（从早到晚）
+          monthRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          monthRecords.forEach(record => {
+            const date = new Date(record.date);
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekday = `周${weekdays[date.getDay()]}`;
+
+            content += `${record.date} (${weekday})\n`;
+            content += `  上班时间: ${record.on || '未打卡'}\n`;
+            content += `  下班时间: ${record.off || '未打卡'}\n`;
+
+            // 计算日工时
+            let dailyHours = '未知';
+            if (record.on && record.off) {
+              const onTime = this.parseTimeToMinutes(record.on);
+              const offTime = this.parseTimeToMinutes(record.off);
+              if (onTime !== null && offTime !== null) {
+                const hours = Math.max(0, (offTime - onTime) / 60);
+                dailyHours = this.formatHours(hours);
+              }
             }
-          }
-          content += `  日工时: ${dailyHours}\n`;
-          content += `${'-'.repeat(30)}\n`;
-        });
+            content += `  日工时: ${dailyHours}\n`;
+            content += `${'-'.repeat(30)}\n`;
+          });
 
-        content += `\n数据说明: 所有数据仅保存在本机，请妥善保管备份。`;
+          // 添加月份分隔符
+          content += `\n`;
+        }
+
+        content += `数据说明: 所有数据仅保存在本机，请妥善保管备份。`;
 
         return content;
       }, {
@@ -472,6 +487,46 @@ Page({
         }
       });
     }
+  },
+
+  // 按月份分组记录
+  groupRecordsByMonth(records) {
+    const recordsByMonth = {};
+
+    records.forEach(record => {
+      if (!record.date) return;
+
+      // 提取年月作为分组键
+      const date = new Date(record.date);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+
+      // 初始化月份分组
+      if (!recordsByMonth[monthKey]) {
+        recordsByMonth[monthKey] = [];
+      }
+
+      // 添加记录到对应月份
+      recordsByMonth[monthKey].push(record);
+    });
+
+    return recordsByMonth;
+  },
+
+  // 格式化小时数为小时分钟格式
+  formatHours(hours) {
+    if (hours === 0) return '0小时';
+    if (hours < 1) {
+      const minutes = Math.round(hours * 60);
+      return `${minutes}分钟`;
+    }
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    if (minutes === 0) {
+      return `${wholeHours}小时`;
+    }
+    return `${wholeHours}小时${minutes}分钟`;
   },
 
   // 复制文本到剪贴板
