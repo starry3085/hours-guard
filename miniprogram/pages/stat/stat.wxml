@@ -42,12 +42,13 @@
         <text class="header-date">日期</text>
         <text class="header-time">上班</text>
         <text class="header-time">下班</text>
+        <text class="header-time">日工时</text>
       </view>
       
       <scroll-view scroll-y class="record-list" enable-back-to-top>
         <view wx:for="{{list}}" wx:key="date" class="record-row">
           <view class="cell-date">
-            <text class="date-text">{{item.date}}</text>
+            <text class="date-text">{{item.displayDate}}</text>
             <text class="weekday">{{item.weekday ? item.weekday : ''}}</text>
           </view>
           
@@ -63,6 +64,10 @@
               <view class="record-icon record-icon-out" wx:if="{{item.off}}"></view>
               <text class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off ? item.off : '未打卡'}}</text>
             </view>
+          </view>
+          
+          <view class="cell-time">
+            <text class="time-text work-hours {{item.workHours ? 'has-time' : 'no-time'}}">{{item.workHours ? item.workHours : '-'}}</text>
           </view>
         </view>
       </scroll-view>

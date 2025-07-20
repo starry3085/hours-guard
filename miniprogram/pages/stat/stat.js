@@ -69,7 +69,53 @@ Page({
     wx.stopPullDownRefresh();
   },
   
-  // 工作时长相关函数已移除
+  // 计算工作时长
+  calculateWorkHours(onTime, offTime) {
+    if (!onTime || !offTime) return null;
+    
+    try {
+      const [onHour, onMinute] = onTime.split(':').map(Number);
+      const [offHour, offMinute] = offTime.split(':').map(Number);
+      
+      const onTotalMinutes = onHour * 60 + onMinute;
+      const offTotalMinutes = offHour * 60 + offMinute;
+      
+      if (offTotalMinutes <= onTotalMinutes) return null;
+      
+      const totalMinutes = offTotalMinutes - onTotalMinutes;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      
+      if (hours === 0) {
+        return `${minutes}分钟`;
+      } else if (minutes === 0) {
+        return `${hours}小时`;
+      } else {
+        return `${hours}小时${minutes}分钟`;
+      }
+    } catch (error) {
+      console.error('计算工作时长失败:', error);
+      return null;
+    }
+  },
+
+  // 格式化显示日期（去掉年份）
+  formatDisplayDate(dateStr) {
+    if (!dateStr) return '';
+    
+    try {
+      // 输入格式：2025-07-20
+      // 输出格式：07-20
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[1]}-${parts[2]}`;
+      }
+      return dateStr;
+    } catch (error) {
+      console.error('格式化日期失败:', error);
+      return dateStr;
+    }
+  },
 
   // 编辑时间
   onEditTime(e) {
@@ -333,10 +379,13 @@ Page({
       
       // 处理记录数据
       const processedRecords = monthRecords.map(record => {
+        const workHours = this.calculateWorkHours(record.on, record.off);
         return {
           date: record.date,
+          displayDate: this.formatDisplayDate(record.date), // 格式化显示日期（去掉年份）
           on: record.on || null,
           off: record.off || null,
+          workHours: workHours, // 计算的工作时长
           weekday: '' // 不显示周几
         };
       });

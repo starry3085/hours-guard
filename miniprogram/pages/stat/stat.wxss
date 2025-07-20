@@ -180,7 +180,7 @@
 }
 
 .header-time {
-  flex: 1.5;
+  flex: 1.2;
   text-align: center;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .cell-time {
-  flex: 1.5;
+  flex: 1.2;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -267,6 +267,17 @@
 .time-text.no-time {
   color: #999;
   background: #f5f5f5;
+}
+
+/* 工作时长样式 */
+.time-text.work-hours {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.time-text.work-hours.has-time {
+  color: #ff6b35;
+  background: #fff4f0;
 }
 
 .record-icon {
