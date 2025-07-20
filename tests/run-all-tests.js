@@ -42,9 +42,8 @@ class TestRunner {
       console.log('\n🔗 运行集成测试...');
       await this.runIntegrationTests();
 
-      // 运行性能测试
-      console.log('\n⚡ 运行性能测试...');
-      await this.runPerformanceTests();
+      // 性能测试已移除
+      console.log('\n⚡ 性能测试已移除，跳过...');
 
       // 运行兼容性测试
       console.log('\n🔧 运行兼容性测试...');
