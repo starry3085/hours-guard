@@ -25,26 +25,8 @@ class HoursGuardApp {
     }
 
     startClock() {
-        const updateTime = () => {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('zh-CN', { 
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            const dateString = now.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).replace(/\//g, '/');
-            
-            document.getElementById('currentTime').textContent = timeString;
-            document.getElementById('currentDate').textContent = dateString;
-        };
-        
-        updateTime();
-        setInterval(updateTime, 1000);
+        // 移除时间显示功能，保持方法以避免错误
+        // 时间显示已从UI中移除
     }
 
     handleMainButtonClick() {
@@ -311,21 +293,26 @@ class HoursGuardApp {
     updateUI() {
         const clockInBtn = document.getElementById('clockInBtn');
 
+        // 清除所有状态类
+        clockInBtn.classList.remove('working', 'finished');
+
         switch (this.currentState) {
             case 'ready':
                 clockInBtn.disabled = false;
                 clockInBtn.textContent = '开始工作';
-                clockInBtn.style.background = 'var(--primary)';
+                clockInBtn.style.background = '';
                 break;
             case 'working':
                 clockInBtn.disabled = false;
                 clockInBtn.textContent = '结束工作';
-                clockInBtn.style.background = 'var(--warning)';
+                clockInBtn.classList.add('working');
+                clockInBtn.style.background = '';
                 break;
             case 'finished':
                 clockInBtn.disabled = false;
                 clockInBtn.textContent = '查看详情';
-                clockInBtn.style.background = 'var(--success)';
+                clockInBtn.classList.add('finished');
+                clockInBtn.style.background = '';
                 break;
         }
     }

@@ -1,94 +1,156 @@
-/* 极简移动端 */
+/* HYDRATE MOVE 移动端适配 */
 @media (max-width: 768px) {
     #app {
-        padding: 16px;
+        padding: 20px 16px;
     }
     
-    .current-time {
-        font-size: 32px;
-    }
-    
-    .card {
-        padding: 16px;
-        margin-bottom: 16px;
+    .header {
+        margin-bottom: 40px;
+        padding: 20px 0;
     }
     
     .title {
-        font-size: 20px;
+        font-size: 28px;
+    }
+    
+    .card {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-primary {
+        padding: 18px 32px;
+        font-size: 16px;
+    }
+    
+    .stat-item {
+        padding: 14px 10px;
+    }
+    
+    .stat-label {
+        font-size: 15px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
     }
     
     .history-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+        padding: 14px 10px;
+    }
+    
+    .history-date {
+        font-size: 15px;
     }
     
     .history-times {
-        flex-direction: row;
-        gap: 16px;
+        font-size: 13px;
+    }
+    
+    .summary-item {
+        padding: 16px 12px;
+    }
+    
+    .summary-item span:first-child {
+        font-size: 15px;
+    }
+    
+    .summary-item span:last-child {
+        font-size: 16px;
     }
 }
 
 /* 小屏幕手机优化 */
 @media (max-width: 480px) {
-    .app-header {
-        padding: 0.5rem;
+    #app {
+        padding: 16px 12px;
     }
 
-    .clock-section {
-        padding: 1rem;
+    .title {
+        font-size: 24px;
     }
 
-    .current-time {
-        font-size: 2rem;
+    .card {
+        padding: 16px;
+        margin-bottom: 16px;
     }
 
-    .today-stats h2, .history-section h2, .monthly-stats h2 {
-        font-size: 1.1rem;
+    .btn-primary {
+        padding: 16px 24px;
+        font-size: 15px;
+    }
+
+    .stat-item {
+        padding: 12px 8px;
+    }
+
+    .stat-label {
+        font-size: 14px;
     }
 
     .stat-value {
-        font-size: 1.1rem;
+        font-size: 15px;
+    }
+
+    .history-item {
+        padding: 12px 8px;
+    }
+
+    .summary-item {
+        padding: 14px 10px;
     }
 }
 
 /* 横屏模式优化 */
 @media (max-width: 768px) and (orientation: landscape) {
-    .clock-section {
-        padding: 1rem;
+    .header {
+        margin-bottom: 30px;
+        padding: 15px 0;
     }
 
-    .current-time {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
+    .title {
+        font-size: 26px;
     }
 
-    .clock-actions {
-        flex-direction: row;
-        justify-content: center;
-    }
-
-    .btn-primary, .btn-secondary {
-        max-width: 200px;
+    .card {
+        padding: 18px;
+        margin-bottom: 18px;
     }
 }
 
 /* 超小屏幕优化 */
 @media (max-width: 320px) {
-    .main-content {
-        padding: 0.5rem;
+    #app {
+        padding: 12px 8px;
     }
 
-    .clock-section {
-        padding: 1rem;
+    .title {
+        font-size: 22px;
     }
 
-    .current-time {
-        font-size: 2rem;
+    .card {
+        padding: 14px;
+        margin-bottom: 14px;
     }
 
-    .btn-primary, .btn-secondary {
-        font-size: 1rem;
-        padding: 0.75rem;
+    .btn-primary {
+        padding: 14px 20px;
+        font-size: 14px;
+    }
+
+    .stat-item, .history-item, .summary-item {
+        padding: 10px 6px;
+    }
+
+    .stat-label, .history-date {
+        font-size: 13px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+    }
+
+    .history-times {
+        font-size: 12px;
     }
 }
