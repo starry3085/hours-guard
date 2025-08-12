@@ -28,5 +28,5 @@ steps:
   run: |
     echo "🚀 开始部署到Cloudflare Pages..."
     echo "项目: hours-guard"
-    echo "提交: ${{ GITEE_COMMIT_SHA }}"
-    wrangler pages deploy public --project-name=hours-guard --commit-message="Gitee自动部署: ${GITEE_COMMIT_SHA:0:7}"
+    echo "提交: ${CI_COMMIT_SHA}"
+    wrangler pages deploy public --project-name=hours-guard --commit-message="Gitee自动部署: ${CI_COMMIT_SHA:0:7}"
