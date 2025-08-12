@@ -1,32 +1,28 @@
-/* 全局变量 */
+/* 极简变量 */
 :root {
-    --primary-color: #007AFF;
-    --secondary-color: #34C759;
-    --danger-color: #FF3B30;
-    --warning-color: #FF9500;
-    --text-primary: #000000;
-    --text-secondary: #8E8E93;
-    --background: #FFFFFF;
-    --surface: #F2F2F7;
-    --border: #E5E5EA;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    --border-radius: 12px;
-    --transition: all 0.3s ease;
+    --primary: #2563EB;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --text: #111827;
+    --text-secondary: #6B7280;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+    --transition: all 0.2s ease;
 }
 
-/* 深色模式变量 */
+/* 深色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-primary: #FFFFFF;
-        --text-secondary: #8E8E93;
-        --background: #000000;
-        --surface: #1C1C1E;
-        --border: #38383A;
-        --shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+        --bg: #0F172A;
+        --surface: #1E293B;
+        --text: #F1F5F9;
+        --text-secondary: #94A3B8;
     }
 }
 
-/* 重置样式 */
+/* 极简重置 */
 * {
     margin: 0;
     padding: 0;
@@ -34,211 +30,130 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--background);
-    color: var(--text-primary);
-    line-height: 1.6;
-    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
 }
 
-/* 应用容器 */
 #app {
     min-height: 100vh;
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
 }
 
-/* 头部样式 */
-.app-header {
-    background: var(--surface);
-    padding: 1rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+.header {
+    text-align: center;
+    margin-bottom: 24px;
 }
 
-.app-header h1 {
-    font-size: 1.5rem;
+.title {
+    font-size: 24px;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--text);
+    margin: 0;
 }
 
-.header-actions {
-    display: flex;
-    gap: 0.5rem;
+.main-content {
+    flex: 1;
 }
 
-/* 按钮样式 */
-.btn-primary, .btn-secondary, .btn-icon, .btn-text {
+.footer {
+    margin-top: 24px;
+    text-align: center;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.tip-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* 极简按钮 */
+.btn-primary {
+    background: var(--primary);
+    color: white;
     border: none;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
+    border-radius: var(--radius);
+    padding: 16px 32px;
+    font-size: 16px;
+    width: 100%;
     cursor: pointer;
     transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #0051D5;
-    transform: translateY(-1px);
+    opacity: 0.9;
 }
 
 .btn-primary:disabled {
-    background: var(--text-secondary);
+    opacity: 0.5;
     cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.btn-secondary {
-    background: var(--surface);
-    color: var(--text-primary);
-    padding: 0.75rem 1.5rem;
-    border: 1px solid var(--border);
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: var(--border);
-}
-
-.btn-secondary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-icon {
-    background: none;
-    color: var(--text-secondary);
-    font-size: 1.25rem;
-    padding: 0.5rem;
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-}
-
-.btn-icon:hover {
-    background: var(--surface);
-    color: var(--text-primary);
 }
 
 .btn-text {
+    color: var(--primary);
     background: none;
-    color: var(--primary-color);
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
 }
 
-.btn-text:hover {
-    text-decoration: underline;
-}
-
-/* 主要内容区域 */
-.main-content {
-    flex: 1;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-/* 打卡区域 */
-.clock-section {
+/* 极简卡片 */
+.card {
     background: var(--surface);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
     box-shadow: var(--shadow);
+}
+
+.time-date-display {
+    text-align: center;
+    margin-bottom: 24px;
 }
 
 .current-time {
-    font-size: 3rem;
+    font-size: 40px;
     font-weight: 300;
-    font-family: 'Courier New', monospace;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.1em;
+    font-family: ui-monospace, monospace;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
 }
 
-.clock-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.status-display {
-    font-size: 1.1rem;
+.current-date {
+    font-size: 16px;
     color: var(--text-secondary);
-    font-weight: 500;
+    font-family: ui-monospace, monospace;
 }
 
-/* 统计区域 */
-.today-stats, .history-section, .monthly-stats {
-    background: var(--surface);
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
-}
-
-.today-stats h2, .history-section h2, .monthly-stats h2 {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
+/* 统计项 */
 .stat-item {
-    text-align: center;
-    padding: 1rem;
-    background: var(--background);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border);
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-}
-
-.stat-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    font-family: 'Courier New', monospace;
-}
-
-/* 历史记录 */
-.section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    padding: 8px 0;
 }
 
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.stat-value {
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+    font-family: ui-monospace, monospace;
+}
+
+/* 极简历史 */
 .history-list {
     max-height: 400px;
     overflow-y: auto;
@@ -248,6 +163,61 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(107, 114, 128, 0.1);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-date {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.history-times {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-times span {
+    font-family: ui-monospace, monospace;
+}
+
+/* 月度统计 */
+.month-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(107, 114, 128, 0.1);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item span:first-child {
+    color: var(--text-secondary);
+}
+
+.summary-item span:last-child {
+    color: var(--text);
+    font-weight: 600;
+}
     padding: 1rem;
     margin-bottom: 0.5rem;
     background: var(--background);

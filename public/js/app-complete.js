@@ -62,30 +62,18 @@ class HoursGuardApp {
     }
 
     bindEvents() {
-        // 打卡按钮
-        document.getElementById('clockInBtn').addEventListener('click', () => this.handleClockIn());
-        document.getElementById('clockOutBtn').addEventListener('click', () => this.handleClockOut());
-
-        // 导出按钮
-        document.getElementById('exportBtn').addEventListener('click', () => this.showExportModal());
-        document.getElementById('exportCSV').addEventListener('click', () => this.exportData('csv'));
-        document.getElementById('exportImage').addEventListener('click', () => this.exportData('image'));
-
-        // 语言切换
-        document.getElementById('langToggle').addEventListener('click', () => this.toggleLanguage());
-
-        // 历史记录切换
-        document.getElementById('toggleHistory').addEventListener('click', () => this.toggleHistory());
-
-        // 月份导航
-        document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
-        document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
-
-        // 模态框关闭
-        document.querySelector('.close').addEventListener('click', () => this.closeExportModal());
-        window.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('exportModal')) {
-                this.closeExportModal();
+        // 主按钮 - 根据状态执行不同操作
+        document.getElementById('clockInBtn').addEventListener('click', () => {
+            switch (this.currentState) {
+                case 'ready':
+                    this.handleClockIn();
+                    break;
+                case 'clockedIn':
+                    this.handleClockOut();
+                    break;
+                case 'clockedOut':
+                    this.showTodaySummary();
+                    break;
             }
         });
 
@@ -93,10 +81,6 @@ class HoursGuardApp {
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {
-                    case 'e':
-                        e.preventDefault();
-                        this.showExportModal();
-                        break;
                     case 'i':
                         e.preventDefault();
                         if (this.currentState === 'ready') {
@@ -110,9 +94,6 @@ class HoursGuardApp {
                         }
                         break;
                 }
-            }
-            if (e.key === 'Escape') {
-                this.closeExportModal();
             }
         });
     }
@@ -314,8 +295,11 @@ class HoursGuardApp {
             };
             
             const monthName = monthNames[i18n.currentLang][month];
-            document.getElementById('currentMonth').textContent = 
-                i18n.currentLang === 'zh' ? `${year}年${monthName}` : `${monthName} ${year}`;
+            const currentMonthEl = document.getElementById('currentMonth');
+            if (currentMonthEl) {
+                currentMonthEl.textContent = 
+                    i18n.currentLang === 'zh' ? `${year}年${monthName}` : `${monthName} ${year}`;
+            }
             
             const totalDays = completedRecords.length;
             const totalMinutes = completedRecords.reduce((total, record) => {
@@ -333,17 +317,19 @@ class HoursGuardApp {
             const avgMins = avgMinutes % 60;
             
             const monthSummary = document.getElementById('monthSummary');
-            monthSummary.innerHTML = `
-                <div class="summary-item">
-                    <span data-i18n="work.days">${i18n.t('work.days')}</span>: ${totalDays}
-                </div>
-                <div class="summary-item">
-                    <span data-i18n="total.duration">${i18n.t('total.duration')}</span>: ${totalHours}h ${totalMins}m
-                </div>
-                <div class="summary-item">
-                    <span data-i18n="average.duration">${i18n.t('average.duration')}</span>: ${avgHours}h ${avgMins}m
-                </div>
-            `;
+            if (monthSummary) {
+                monthSummary.innerHTML = `
+                    <div class="summary-item">
+                        <span data-i18n="work.days">${i18n.t('work.days')}</span>: ${totalDays}
+                    </div>
+                    <div class="summary-item">
+                        <span data-i18n="total.duration">${i18n.t('total.duration')}</span>: ${totalHours}h ${totalMins}m
+                    </div>
+                    <div class="summary-item">
+                        <span data-i18n="average.duration">${i18n.t('average.duration')}</span>: ${avgHours}h ${avgMins}m
+                    </div>
+                `;
+            }
         } catch (error) {
             console.error('Load monthly data error:', error);
         }
@@ -365,29 +351,37 @@ class HoursGuardApp {
         console.log('Month change:', direction);
     }
 
+    showTodaySummary() {
+        const today = new Date().toISOString().split('T')[0];
+        this.showNotification(`今日工作已完成！`, 'success');
+    }
+
     updateUI() {
         const clockInBtn = document.getElementById('clockInBtn');
-        const clockOutBtn = document.getElementById('clockOutBtn');
         const statusDisplay = document.getElementById('statusDisplay');
+        const statusDot = document.getElementById('statusDot');
 
         switch (this.currentState) {
             case 'ready':
                 clockInBtn.disabled = false;
-                clockOutBtn.disabled = true;
-                statusDisplay.textContent = i18n.t('status.ready');
-                statusDisplay.className = 'status-ready';
+                clockInBtn.textContent = '开始工作';
+                clockInBtn.style.background = 'var(--primary)';
+                statusDisplay.textContent = '准备就绪';
+                statusDot.className = 'status-dot rest';
                 break;
             case 'clockedIn':
-                clockInBtn.disabled = true;
-                clockOutBtn.disabled = false;
-                statusDisplay.textContent = i18n.t('status.working');
-                statusDisplay.className = 'status-working';
+                clockInBtn.disabled = false;
+                clockInBtn.textContent = '结束工作';
+                clockInBtn.style.background = 'var(--warning)';
+                statusDisplay.textContent = '工作中';
+                statusDot.className = 'status-dot working';
                 break;
             case 'clockedOut':
-                clockInBtn.disabled = true;
-                clockOutBtn.disabled = true;
-                statusDisplay.textContent = i18n.t('status.finished');
-                statusDisplay.className = 'status-finished';
+                clockInBtn.disabled = false;
+                clockInBtn.textContent = '查看详情';
+                clockInBtn.style.background = 'var(--text-secondary)';
+                statusDisplay.textContent = '已完成';
+                statusDot.className = 'status-dot completed';
                 break;
         }
     }

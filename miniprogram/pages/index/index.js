@@ -174,7 +174,16 @@ Page({
   },
   
   async checkIn() {
-    const { selectedDate, isToday, storageManager, isLoading } = this.data;
+    const { selectedDate, isToday, storageManager, isLoading, todayRecord } = this.data;
+    
+    // 检查是否已经打卡
+    if (todayRecord.on) {
+      wx.showToast({
+        title: '已经上班打卡了',
+        icon: 'none'
+      });
+      return;
+    }
     
     // 防止重复操作
     if (isLoading) {
@@ -276,6 +285,15 @@ Page({
     if (!todayRecord.on) {
       wx.showToast({
         title: '请先上班打卡',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 检查是否已经下班打卡
+    if (todayRecord.off) {
+      wx.showToast({
+        title: '已经下班打卡了',
         icon: 'none'
       });
       return;

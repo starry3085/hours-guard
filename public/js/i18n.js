@@ -257,5 +257,5 @@ window.i18n = new I18nManager();
 
 // 初始化语言
 document.addEventListener('DOMContentLoaded', () => {
-    i18n.initializeLanguage();
+    i18n.setLanguage(i18n.detectLanguage());
 });

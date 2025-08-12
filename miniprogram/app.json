@@ -8,7 +8,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "秒打打卡工具",
+    "navigationBarTitleText": "工时卫士",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": false,
     "onReachBottomDistance": 50,

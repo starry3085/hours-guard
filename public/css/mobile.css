@@ -1,136 +1,31 @@
-/* 移动端优化样式 */
+/* 极简移动端 */
 @media (max-width: 768px) {
-    /* 整体布局调整 */
-    .main-content {
-        padding: 0.5rem;
+    #app {
+        padding: 16px;
     }
-
-    /* 头部样式 */
-    .app-header {
-        padding: 0.75rem 1rem;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .app-header h1 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-        text-align: center;
-    }
-
-    .header-actions {
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    /* 打卡区域 */
-    .clock-section {
-        padding: 1.5rem 1rem;
-        margin-bottom: 1rem;
-    }
-
+    
     .current-time {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+        font-size: 32px;
     }
-
-    .clock-actions {
-        flex-direction: column;
-        gap: 0.75rem;
+    
+    .card {
+        padding: 16px;
+        margin-bottom: 16px;
     }
-
-    .btn-primary, .btn-secondary {
-        width: 100%;
-        max-width: 250px;
-        padding: 1rem;
-        font-size: 1.1rem;
+    
+    .title {
+        font-size: 20px;
     }
-
-    /* 统计区域 */
-    .today-stats, .history-section, .monthly-stats {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .stat-item {
-        padding: 0.75rem;
-        text-align: center;
-    }
-
-    .stat-label {
-        font-size: 0.875rem;
-    }
-
-    .stat-value {
-        font-size: 1.25rem;
-    }
-
-    /* 历史记录 */
-    .history-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-
+    
     .history-item {
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
-
-    .history-date {
-        font-size: 0.875rem;
-    }
-
+    
     .history-times {
-        font-size: 0.8rem;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    /* 月度统计 */
-    .month-selector {
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    #currentMonth {
-        font-size: 1.1rem;
-    }
-
-    .summary-item {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    /* 模态框 */
-    .modal-content {
-        margin: 10% 1rem;
-        padding: 1.5rem;
-        max-width: 90%;
-    }
-
-    .export-options {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .export-options button {
-        width: 100%;
-    }
-
-    /* 触摸优化 */
-    button {
-        min-height: 44px;
-        touch-action: manipulation;
-    }
-
-    /* 滚动优化 */
-    * {
-        -webkit-overflow-scrolling: touch;
+        flex-direction: row;
+        gap: 16px;
     }
 }
 

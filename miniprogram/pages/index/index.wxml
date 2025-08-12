@@ -2,31 +2,20 @@
   <!-- 页面标题 - 添加点击事件 -->
   <view class="header">
     <text class="title" bindtap="toggleMode">{{isToday ? '今日打卡' : '补录打卡'}}</text>
+    <picker 
+      mode="date" 
+      value="{{selectedDate}}"
+      start="2020-01-01"
+      end="2030-12-31"
+      bindchange="onDateChange"
+      class="date-picker-simple">
+      <view class="date-display-simple">
+        <text class="date-text-simple">{{selectedDate}}</text>
+      </view>
+    </picker>
   </view>
 
-  <!-- 日期和时间显示 -->
-  <view class="datetime-section">
-    <view class="date-time-wrapper">
-      <picker 
-        mode="date" 
-        value="{{selectedDate}}"
-        start="2020-01-01"
-        end="2030-12-31"
-        bindchange="onDateChange"
-        class="date-picker">
-        <view class="date-display">
-          <view class="date-icon">
-            <view class="calendar-icon"></view>
-          </view>
-          <text class="date-text">{{selectedDate}}</text>
-        </view>
-      </picker>
-      <view class="time-container" wx:if="{{isToday}}">
-        <text class="time-value">{{currentTime}}</text>
-        <view class="time-pulse"></view>
-      </view>
-    </view>
-  </view>
+
 
   <!-- 打卡记录卡片 -->
   <view class="record-card">
@@ -59,29 +48,19 @@
 
   <!-- 打卡按钮组 -->
   <view class="action-section">
-    <!-- 上班打卡按钮 - 使用view而不是button -->
-    <block wx:if="{{!todayRecord.on}}">
-      <view class="custom-btn custom-btn-out" bindtap="checkIn">
-        <text>{{isToday ? '上班打卡' : '补录上班'}}</text>
+    <!-- 上班打卡按钮 -->
+    <view class="punch-btn {{!todayRecord.on ? 'punch-in-active' : 'punch-disabled'}}" bindtap="checkIn">
+      <view class="btn-content">
+        <text class="btn-text">{{isToday ? '上班打卡' : '补录上班'}}</text>
       </view>
-    </block>
-    <block wx:else>
-      <view class="custom-btn custom-btn-disabled">
-        <text>{{isToday ? '上班打卡' : '补录上班'}}</text>
-      </view>
-    </block>
+    </view>
     
-    <!-- 下班打卡按钮 - 使用view而不是button -->
-    <block wx:if="{{!todayRecord.off && todayRecord.on}}">
-      <view class="custom-btn custom-btn-out" bindtap="checkOut">
-        <text>{{isToday ? '下班打卡' : '补录下班'}}</text>
+    <!-- 下班打卡按钮 -->
+    <view class="punch-btn {{!todayRecord.off && todayRecord.on ? 'punch-out-active' : 'punch-disabled'}}" bindtap="checkOut">
+      <view class="btn-content">
+        <text class="btn-text">{{isToday ? '下班打卡' : '补录下班'}}</text>
       </view>
-    </block>
-    <block wx:else>
-      <view class="custom-btn custom-btn-disabled">
-        <text>{{isToday ? '下班打卡' : '补录下班'}}</text>
-      </view>
-    </block>
+    </view>
   </view>
 
   <!-- 提示信息 -->
