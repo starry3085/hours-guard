@@ -1,35 +1,29 @@
 /* 移动端优化样式 */
 @media (max-width: 768px) {
-    /* 基础调整 */
-    body {
-        font-size: 16px;
+    /* 整体布局调整 */
+    .main-content {
+        padding: 0.5rem;
     }
 
-    /* 头部优化 */
+    /* 头部样式 */
     .app-header {
         padding: 0.75rem 1rem;
-        position: sticky;
-        top: 0;
-        backdrop-filter: blur(10px);
-        background: rgba(242, 242, 247, 0.8);
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .app-header {
-            background: rgba(28, 28, 30, 0.8);
-        }
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .app-header h1 {
         font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
     }
 
-    /* 主要内容区域 */
-    .main-content {
-        padding: 0.75rem;
+    .header-actions {
+        justify-content: center;
+        gap: 1rem;
     }
 
-    /* 打卡区域优化 */
+    /* 打卡区域 */
     .clock-section {
         padding: 1.5rem 1rem;
         margin-bottom: 1rem;
@@ -42,18 +36,17 @@
 
     .clock-actions {
         flex-direction: column;
-        align-items: center;
         gap: 0.75rem;
     }
 
     .btn-primary, .btn-secondary {
         width: 100%;
-        max-width: 280px;
-        padding: 1rem 1.5rem;
+        max-width: 250px;
+        padding: 1rem;
         font-size: 1.1rem;
     }
 
-    /* 统计区域优化 */
+    /* 统计区域 */
     .today-stats, .history-section, .monthly-stats {
         padding: 1rem;
         margin-bottom: 1rem;
@@ -61,134 +54,127 @@
 
     .stats-grid {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 1rem;
     }
 
     .stat-item {
         padding: 0.75rem;
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
     }
 
     .stat-value {
         font-size: 1.25rem;
     }
 
-    /* 历史记录优化 */
-    .history-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        padding: 0.75rem;
+    /* 历史记录 */
+    .history-list {
+        max-height: 300px;
+        overflow-y: auto;
     }
 
-    .history-times {
-        flex-direction: column;
-        gap: 0.25rem;
+    .history-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-date {
         font-size: 0.875rem;
     }
 
-    /* 月度统计优化 */
-    .month-summary {
-        grid-template-columns: 1fr;
+    .history-times {
+        font-size: 0.8rem;
+        flex-direction: column;
+        gap: 0.25rem;
     }
 
-    .summary-card {
-        padding: 1rem;
+    /* 月度统计 */
+    .month-selector {
+        justify-content: center;
+        gap: 1rem;
     }
 
-    .summary-card .value {
-        font-size: 1.5rem;
+    #currentMonth {
+        font-size: 1.1rem;
     }
 
-    /* 模态框优化 */
+    .summary-item {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* 模态框 */
     .modal-content {
-        margin: 10% auto;
+        margin: 10% 1rem;
         padding: 1.5rem;
-        width: 95%;
-        max-width: 350px;
+        max-width: 90%;
     }
 
     .export-options {
         flex-direction: column;
+        gap: 0.75rem;
     }
 
-    .export-options .btn-primary,
-    .export-options .btn-secondary {
-        max-width: none;
+    .export-options button {
+        width: 100%;
     }
 
     /* 触摸优化 */
-    .btn-primary, .btn-secondary, .btn-icon, .btn-text {
+    button {
         min-height: 44px;
-        min-width: 44px;
+        touch-action: manipulation;
     }
 
     /* 滚动优化 */
-    .history-list {
-        max-height: 300px;
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* 小屏幕手机优化 */
+@media (max-width: 480px) {
+    .app-header {
+        padding: 0.5rem;
     }
 
-    /* 底部优化 */
-    .app-footer {
-        padding: 0.75rem;
+    .clock-section {
+        padding: 1rem;
     }
 
-    .footer-info {
-        font-size: 0.75rem;
+    .current-time {
+        font-size: 2rem;
     }
 
-    /* 手势操作提示 */
-    .swipe-hint {
-        display: block;
-        text-align: center;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        margin: 0.5rem 0;
+    .today-stats h2, .history-section h2, .monthly-stats h2 {
+        font-size: 1.1rem;
     }
 
-    /* 固定底部操作栏 */
-    .fixed-bottom-actions {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--background);
-        padding: 0.75rem;
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-around;
-        z-index: 99;
+    .stat-value {
+        font-size: 1.1rem;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .clock-section {
+        padding: 1rem;
     }
 
-    .fixed-bottom-actions .btn-icon {
-        flex: 1;
-        margin: 0 0.25rem;
+    .current-time {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
     }
 
-    /* 为固定底部留出空间 */
-    .main-content {
-        padding-bottom: 80px;
+    .clock-actions {
+        flex-direction: row;
+        justify-content: center;
     }
 
-    /* 横向模式优化 */
-    @media (max-height: 500px) and (orientation: landscape) {
-        .clock-section {
-            padding: 1rem;
-        }
-
-        .current-time {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .clock-actions {
-            flex-direction: row;
-            justify-content: center;
-        }
-
-        .btn-primary, .btn-secondary {
-            max-width: 200px;
-            padding: 0.75rem 1rem;
-        }
+    .btn-primary, .btn-secondary {
+        max-width: 200px;
     }
 }
 

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工时卫士 - Hours Guard</title>
-    <meta name="description" content="简单易用的工时记录工具，帮助您轻松管理工作时间">
+    <title data-i18n="app.title">工时卫士 - Hours Guard</title>
+    <meta name="description" content="简单易用的工时记录工具，帮助您轻松管理工作时间" data-i18n-meta="app.description">
     <meta name="keywords" content="工时记录,时间管理,打卡,考勤">
     
     <!-- PWA配置 -->
@@ -22,10 +22,10 @@
     <div id="app">
         <!-- 头部导航 -->
         <header class="app-header">
-            <h1>工时卫士</h1>
+            <h1 data-i18n="app.title">工时卫士</h1>
             <div class="header-actions">
-                <button id="langToggle" class="btn-icon" title="切换语言">🌐</button>
-                <button id="exportBtn" class="btn-icon" title="导出数据">📊</button>
+                <button id="langToggle" class="btn-icon" title="切换语言" data-i18n-title="language.switch">🌐</button>
+                <button id="exportBtn" class="btn-icon" title="导出数据" data-i18n-title="export.data">📊</button>
             </div>
         </header>
 
@@ -37,30 +37,30 @@
                 <div class="clock-actions">
                     <button id="clockInBtn" class="btn-primary" data-action="clockin">
                         <span class="btn-icon">⏰</span>
-                        <span class="btn-text">上班打卡</span>
+                        <span class="btn-text" data-i18n="clock.in">上班打卡</span>
                     </button>
                     <button id="clockOutBtn" class="btn-secondary" data-action="clockout" disabled>
                         <span class="btn-icon">🏠</span>
-                        <span class="btn-text">下班打卡</span>
+                        <span class="btn-text" data-i18n="clock.out">下班打卡</span>
                     </button>
                 </div>
-                <div class="status-display" id="statusDisplay">准备就绪</div>
+                <div class="status-display" id="statusDisplay" data-i18n="status.ready">准备就绪</div>
             </section>
 
             <!-- 今日统计 -->
             <section class="today-stats">
-                <h2>今日统计</h2>
+                <h2 data-i18n="today.stats">今日统计</h2>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-label">上班时间</span>
+                        <span class="stat-label" data-i18n="clock.in.time">上班时间</span>
                         <span class="stat-value" id="clockInTime">--:--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">下班时间</span>
+                        <span class="stat-label" data-i18n="clock.out.time">下班时间</span>
                         <span class="stat-value" id="clockOutTime">--:--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">工作时长</span>
+                        <span class="stat-label" data-i18n="work.duration">工作时长</span>
                         <span class="stat-value" id="workDuration">--:--</span>
                     </div>
                 </div>
@@ -69,8 +69,8 @@
             <!-- 历史记录 -->
             <section class="history-section">
                 <div class="section-header">
-                    <h2>历史记录</h2>
-                    <button id="toggleHistory" class="btn-text">展开/收起</button>
+                    <h2 data-i18n="history.records">历史记录</h2>
+                    <button id="toggleHistory" class="btn-text" data-i18n="toggle.history">展开/收起</button>
                 </div>
                 <div class="history-list" id="historyList">
                     <!-- 历史记录将在这里动态生成 -->
@@ -79,11 +79,11 @@
 
             <!-- 月度统计 -->
             <section class="monthly-stats">
-                <h2>月度统计</h2>
+                <h2 data-i18n="monthly.stats">月度统计</h2>
                 <div class="month-selector">
-                    <button id="prevMonth" class="btn-icon">‹</button>
+                    <button id="prevMonth" class="btn-icon" data-i18n-title="previous.month">‹</button>
                     <span id="currentMonth">2024年1月</span>
-                    <button id="nextMonth" class="btn-icon">›</button>
+                    <button id="nextMonth" class="btn-icon" data-i18n-title="next.month">›</button>
                 </div>
                 <div class="month-summary" id="monthSummary">
                     <!-- 月度统计数据将在这里显示 -->
@@ -100,23 +100,24 @@
     </div>
 
     <!-- 模态框 -->
-    <div id="exportModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>导出数据</h3>
-            <div class="export-options">
-                <button id="exportCSV" class="btn-primary">导出CSV</button>
-                <button id="exportImage" class="btn-secondary">导出图片</button>
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3 data-i18n="export.data">导出数据</h3>
+                <div class="export-options">
+                    <button id="exportCSV" class="btn-primary" data-i18n="export.csv">导出CSV</button>
+                    <button id="exportImage" class="btn-secondary" data-i18n="export.image">导出图片</button>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- JavaScript -->
     <script src="js/storage.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/export.js"></script>
+    <script src="js/notification.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app-complete.js"></script>
     
     <!-- Service Worker -->
     <script>
