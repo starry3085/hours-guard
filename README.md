@@ -82,8 +82,13 @@
 - 在小程序内使用"系统诊断"功能
 - 导出错误日志进行问题排查
 
-## 📄 许可证
+## 🚀 自动部署状态
+[![Deploy to Cloudflare Pages](https://gitee.com/starry3085/hours-guard/workflows/Deploy%20to%20Cloudflare%20Pages/badge.svg)](https://gitee.com/starry3085/hours-guard/actions)
 
+- **生产环境**: https://e07c9c41.hours-guard.pages.dev
+- **验证页面**: https://e07c9c41.hours-guard.pages.dev/deployment-verification.html
+
+## 📄 许可证
 本项目采用 ISC 许可证。
 
 ---

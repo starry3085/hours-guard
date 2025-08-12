@@ -28,4 +28,6 @@ jobs:
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       run: |
         echo "🚀 Starting deployment to Cloudflare Pages..."
-        wrangler pages deploy public --project-name=hours-guard --commit-message="Auto-deploy from Gitee: ${{ github.sha }}"
+        echo "Project: hours-guard"
+        echo "Commit: ${{ github.sha }}"
+        wrangler pages deploy public --project-name=hours-guard --commit-message="Auto-deploy from Gitee: $(date +%Y-%m-%d_%H:%M:%S)"
