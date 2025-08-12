@@ -1,32 +1,32 @@
-name: Deploy to Cloudflare Pages
+name: 部署到Cloudflare Pages
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
-display-name: "部署到Cloudflare Pages"
+display-name: "自动部署"
 
-steps:
-- name: 检出代码
-  uses: git-checkout
-  
-- name: 安装Node.js
-  uses: node-setup
-  with:
-    version: '18'
-    
-- name: 安装Wrangler CLI
-  run: |
-    npm install -g wrangler
-    
-- name: 部署到Cloudflare Pages
-  env:
-    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  run: |
-    echo "🚀 开始部署到Cloudflare Pages..."
-    echo "项目: hours-guard"
-    echo "提交: ${CI_COMMIT_SHA}"
-    wrangler pages deploy public --project-name=hours-guard --commit-message="Gitee自动部署: ${CI_COMMIT_SHA:0:7}"
+stages:
+  - name: 部署
+    steps:
+    - name: 检出代码
+      uses: git-checkout
+      
+    - name: 安装Node.js
+      uses: node-setup
+      with:
+        version: '18'
+        
+    - name: 安装依赖
+      run: npm install
+      
+    - name: 安装Wrangler
+      run: npm install -g wrangler
+      
+    - name: 部署
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      run: |
+        echo "开始部署..."
+        wrangler pages deploy public --project-name=hours-guard --commit-message="Auto deploy"
