@@ -1,25 +1,31 @@
-name: TapTap CI
-on: [push, pull_request]
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run test:unit
-      - run: npm run test:e2e
-      - uses: actions/upload-artifacts@v3
-        if: failure()
-        with:
-          name: test-results
-          path: |
-            tests/unit/**/__snapshots__
-            tests/e2e/**/__snapshots__
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Wrangler CLI
+      run: npm install -g wrangler
+      
+    - name: Deploy to Cloudflare Pages
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      run: |
+        echo "🚀 Starting deployment to Cloudflare Pages..."
+        wrangler pages deploy public --project-name=hours-guard --commit-message="Auto-deploy from Gitee: ${{ github.sha }}"

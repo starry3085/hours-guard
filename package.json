@@ -1,6 +1,6 @@
 {
   "name": "tap-tap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "秒打打卡工具小程序",
   "main": "miniprogram/app.js",
   "scripts": {
