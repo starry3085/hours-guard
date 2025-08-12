@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工时卫士 - Hours Guard</title>
+    <meta name="description" content="简单易用的工时记录工具，帮助您轻松管理工作时间">
+    <meta name="keywords" content="工时记录,时间管理,打卡,考勤">
+    
+    <!-- PWA配置 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    
+    <!-- CSS样式 -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mobile.css" media="(max-width: 768px)">
+    <link rel="stylesheet" href="css/desktop.css" media="(min-width: 769px)">
+</head>
+<body>
+    <div id="app">
+        <!-- 头部导航 -->
+        <header class="app-header">
+            <h1>工时卫士</h1>
+            <div class="header-actions">
+                <button id="langToggle" class="btn-icon" title="切换语言">🌐</button>
+                <button id="exportBtn" class="btn-icon" title="导出数据">📊</button>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 打卡区域 -->
+            <section class="clock-section">
+                <div class="current-time" id="currentTime">--:--:--</div>
+                <div class="clock-actions">
+                    <button id="clockInBtn" class="btn-primary" data-action="clockin">
+                        <span class="btn-icon">⏰</span>
+                        <span class="btn-text">上班打卡</span>
+                    </button>
+                    <button id="clockOutBtn" class="btn-secondary" data-action="clockout" disabled>
+                        <span class="btn-icon">🏠</span>
+                        <span class="btn-text">下班打卡</span>
+                    </button>
+                </div>
+                <div class="status-display" id="statusDisplay">准备就绪</div>
+            </section>
+
+            <!-- 今日统计 -->
+            <section class="today-stats">
+                <h2>今日统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">上班时间</span>
+                        <span class="stat-value" id="clockInTime">--:--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">下班时间</span>
+                        <span class="stat-value" id="clockOutTime">--:--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">工作时长</span>
+                        <span class="stat-value" id="workDuration">--:--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 历史记录 -->
+            <section class="history-section">
+                <div class="section-header">
+                    <h2>历史记录</h2>
+                    <button id="toggleHistory" class="btn-text">展开/收起</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里动态生成 -->
+                </div>
+            </section>
+
+            <!-- 月度统计 -->
+            <section class="monthly-stats">
+                <h2>月度统计</h2>
+                <div class="month-selector">
+                    <button id="prevMonth" class="btn-icon">‹</button>
+                    <span id="currentMonth">2024年1月</span>
+                    <button id="nextMonth" class="btn-icon">›</button>
+                </div>
+                <div class="month-summary" id="monthSummary">
+                    <!-- 月度统计数据将在这里显示 -->
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部操作栏 -->
+        <footer class="app-footer">
+            <div class="footer-info">
+                <p>&copy; 2024 工时卫士 | <span id="appVersion">v1.0.0</span></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>导出数据</h3>
+            <div class="export-options">
+                <button id="exportCSV" class="btn-primary">导出CSV</button>
+                <button id="exportImage" class="btn-secondary">导出图片</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>

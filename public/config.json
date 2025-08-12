@@ -1,0 +1,132 @@
+{
+  "app": {
+    "name": "工时卫士",
+    "version": "1.0.0",
+    "description": "简单高效的工时记录工具",
+    "author": "HoursGuard Team",
+    "homepage": "https://hours-guard.com"
+  },
+  "database": {
+    "name": "HoursGuardDB",
+    "version": 1,
+    "stores": {
+      "records": {
+        "keyPath": "id",
+        "autoIncrement": false,
+        "indexes": [
+          {
+            "name": "date",
+            "keyPath": "date",
+            "unique": false
+          },
+          {
+            "name": "createdAt",
+            "keyPath": "createdAt",
+            "unique": false
+          }
+        ]
+      },
+      "settings": {
+        "keyPath": "key",
+        "autoIncrement": false
+      }
+    }
+  },
+  "ui": {
+    "theme": {
+      "default": "light",
+      "options": ["light", "dark", "auto"]
+    },
+    "language": {
+      "default": "zh-CN",
+      "options": ["zh-CN", "en-US"]
+    },
+    "dateFormat": {
+      "default": "YYYY-MM-DD",
+      "options": ["YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY"]
+    },
+    "timeFormat": {
+      "default": "24h",
+      "options": ["12h", "24h"]
+    }
+  },
+  "features": {
+    "autoClockOut": {
+      "enabled": true,
+      "defaultTime": "18:00"
+    },
+    "reminders": {
+      "enabled": true,
+      "clockInReminder": "09:00",
+      "clockOutReminder": "18:00"
+    },
+    "overtimeCalculation": {
+      "enabled": true,
+      "threshold": 8 // 超过8小时算加班
+    },
+    "export": {
+      "enabled": true,
+      "formats": ["csv", "json", "excel", "pdf"],
+      "maxRecords": 10000
+    },
+    "backup": {
+      "enabled": true,
+      "autoBackup": true,
+      "backupInterval": 7 // 7天自动备份一次
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "types": {
+      "clockIn": {
+        "title": "上班打卡",
+        "body": "已记录上班时间"
+      },
+      "clockOut": {
+        "title": "下班打卡",
+        "body": "已记录下班时间"
+      },
+      "error": {
+        "title": "错误",
+        "body": "操作失败，请重试"
+      }
+    }
+  },
+  "api": {
+    "baseUrl": "https://api.hours-guard.com",
+    "timeout": 5000,
+    "retry": 3,
+    "endpoints": {
+      "sync": "/api/v1/sync",
+      "backup": "/api/v1/backup",
+      "export": "/api/v1/export"
+    }
+  },
+  "security": {
+    "encryption": {
+      "enabled": false,
+      "algorithm": "AES-256-GCM"
+    },
+    "permissions": {
+      "storage": true,
+      "notifications": true,
+      "clipboard": true
+    }
+  },
+  "performance": {
+    "cache": {
+      "enabled": true,
+      "maxSize": 50, // MB
+      "ttl": 3600000 // 1小时
+    },
+    "lazyLoading": {
+      "enabled": true,
+      "pageSize": 50
+    }
+  },
+  "analytics": {
+    "enabled": false,
+    "trackingId": "",
+    "metrics": ["usage", "performance", "errors"]
+  }
+}
