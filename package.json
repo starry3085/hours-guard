@@ -4,10 +4,8 @@
   "description": "Hours Guard (工时卫士) - 隐私优先的工时记录工具，支持Web版和小程序版",
   "main": "public/index.html",
   "scripts": {
-    "test": "vitest run",
-    "test:unit": "vitest run tests/unit",
-    "test:e2e": "vitest run tests/e2e",
-    "test:ui": "vitest --ui"
+    "dev": "npx http-server public -p 8000",
+    "deploy": "wrangler pages deploy public --project-name hours-guard"
   },
   "keywords": [
     "time-tracking",
@@ -20,13 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@vitest/ui": "^0.34.6",
-    "miniprogram-automator": "^0.12.1",
-    "typescript": "^5.0.0",
-    "vitest": "^0.34.6"
+    "wrangler": "^3.0.0"
   },
-  "dependencies": {
-    "@vant/weapp": "^1.11.7"
-  }
+  "dependencies": {}
 }
