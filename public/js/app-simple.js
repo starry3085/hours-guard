@@ -18,6 +18,7 @@ class HoursGuardApp {
         this.loadTodayData();
         this.loadHistoryData();
         this.loadMonthlyData();
+        this.loadStorageStats();
     }
 
     updateDateLabel() {
@@ -66,6 +67,25 @@ class HoursGuardApp {
             this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
             this.updateMonthLabel();
             this.loadMonthlyData();
+        });
+
+        // 数据管理事件
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            this.showExportModal();
+        });
+
+        document.getElementById('backupBtn').addEventListener('click', () => {
+            this.createBackup();
+        });
+
+        document.getElementById('importBtn').addEventListener('click', () => {
+            document.getElementById('importFile').click();
+        });
+
+        document.getElementById('importFile').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.importData(e.target.files[0]);
+            }
         });
     }
 
@@ -606,70 +626,175 @@ class HoursGuardApp {
         }
     }
 
-    // 存储相关方法
+    // 存储相关方法 - 使用StorageManager
     getRecords() {
-        try {
-            const records = localStorage.getItem('hoursGuard_records');
-            return records ? JSON.parse(records) : [];
-        } catch (error) {
-            console.error('Get records error:', error);
-            return [];
-        }
+        return window.storageManager ? window.storageManager.getRecords() : [];
     }
 
     saveRecords(records) {
-        try {
-            localStorage.setItem('hoursGuard_records', JSON.stringify(records));
-            return true;
-        } catch (error) {
-            console.error('Save records error:', error);
-            return false;
-        }
+        return window.storageManager ? window.storageManager.saveRecords(records) : false;
     }
 
     getTodayString() {
         return new Date().toISOString().split('T')[0];
     }
 
-    showNotification(message) {
-        // 创建通知元素
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
+    showNotification(message, type = 'success') {
+        if (window.errorHandler) {
+            window.errorHandler.showUserFriendlyMessage(message, type);
+        } else {
+            // 备用通知方法
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            
+            Object.assign(notification.style, {
+                position: 'fixed',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                backgroundColor: type === 'error' ? '#ef4444' : 'var(--success)',
+                color: 'white',
+                fontWeight: '500',
+                zIndex: '1001',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                opacity: '0',
+                transition: 'opacity 0.3s ease'
+            });
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 2000);
+        }
+    }
+
+    // 数据管理功能
+    showExportModal() {
+        const modalHTML = `
+            <div id="exportDataModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>导出数据</h3>
+                    <div class="export-options">
+                        <button id="exportJSON" class="btn-primary">导出JSON</button>
+                        <button id="exportCSV" class="btn-secondary">导出CSV</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('exportDataModal');
+        modal.style.display = 'block';
+
+        const closeBtn = modal.querySelector('.close');
+        const exportJSONBtn = modal.querySelector('#exportJSON');
+        const exportCSVBtn = modal.querySelector('#exportCSV');
+
+        const closeModal = () => {
+            modal.remove();
+        };
+
+        closeBtn.addEventListener('click', closeModal);
         
-        // 样式
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            backgroundColor: 'var(--success)',
-            color: 'white',
-            fontWeight: '500',
-            zIndex: '1001',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            opacity: '0',
-            transition: 'opacity 0.3s ease'
+        exportJSONBtn.addEventListener('click', () => {
+            this.exportData('json');
+            closeModal();
         });
 
-        document.body.appendChild(notification);
+        exportCSVBtn.addEventListener('click', () => {
+            this.exportData('csv');
+            closeModal();
+        });
 
-        // 动画显示
-        setTimeout(() => {
-            notification.style.opacity = '1';
-        }, 100);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
 
-        // 自动移除
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
+    exportData(format) {
+        if (window.storageManager) {
+            const result = window.storageManager.exportData(format);
+            if (result.success) {
+                this.showNotification(`数据已导出：${result.filename}`);
+            } else {
+                this.showNotification(`导出失败：${result.error}`, 'error');
+            }
+        }
+    }
+
+    createBackup() {
+        if (window.storageManager) {
+            const result = window.storageManager.createBackup('手动备份');
+            if (result.success) {
+                this.showNotification(`备份已创建，共${result.totalBackups}个备份`);
+                this.loadStorageStats();
+            } else {
+                this.showNotification(`备份失败：${result.error}`, 'error');
+            }
+        }
+    }
+
+    async importData(file) {
+        if (window.storageManager) {
+            try {
+                const result = await window.storageManager.importData(file);
+                if (result.success) {
+                    this.showNotification(`导入成功：${result.imported}条记录，总计${result.total}条`);
+                    this.loadTodayData();
+                    this.loadHistoryData();
+                    this.loadMonthlyData();
+                    this.loadStorageStats();
+                } else {
+                    this.showNotification(`导入失败：${result.error}`, 'error');
                 }
-            }, 300);
-        }, 2000);
+            } catch (error) {
+                this.showNotification(`导入失败：${error.error || error.message}`, 'error');
+            }
+        }
+        
+        // 清空文件输入
+        document.getElementById('importFile').value = '';
+    }
+
+    loadStorageStats() {
+        if (window.storageManager) {
+            const stats = window.storageManager.getStorageStats();
+            if (stats) {
+                const statsElement = document.getElementById('storageStats');
+                statsElement.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span>记录数量</span>
+                            <span>${stats.recordCount}条</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>备份数量</span>
+                            <span>${stats.backupCount}个</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>存储大小</span>
+                            <span>${Math.round(stats.totalSize / 1024)}KB</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     }
 }
 

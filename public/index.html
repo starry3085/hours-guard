@@ -78,6 +78,22 @@
             </section>
         </main>
 
+        <!-- 数据管理 -->
+        <section class="card">
+            <div class="data-management">
+                <h3>数据管理</h3>
+                <div class="management-actions">
+                    <button id="exportBtn" class="btn-secondary">导出数据</button>
+                    <button id="backupBtn" class="btn-secondary">创建备份</button>
+                    <button id="importBtn" class="btn-secondary">导入数据</button>
+                    <input type="file" id="importFile" accept=".json,.csv" style="display: none;">
+                </div>
+                <div class="storage-stats" id="storageStats">
+                    <!-- 存储统计信息 -->
+                </div>
+            </div>
+        </section>
+
         <!-- 底部提示 -->
         <footer class="footer">
             <div class="tip-text">所有数据仅保存在本机，请定期导出备份</div>
@@ -97,6 +113,8 @@
         </div>
 
     <!-- JavaScript -->
+    <script src="js/error-handler.js"></script>
+    <script src="js/storage-manager.js"></script>
     <script src="js/app-simple.js"></script>
     
     <!-- Service Worker -->

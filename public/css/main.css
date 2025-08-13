@@ -955,6 +955,75 @@ body {
     }
 }
 
+/* 数据管理 */
+.data-management h3 {
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.management-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.management-actions .btn-secondary {
+    flex: 1;
+    min-width: 100px;
+    max-width: 120px;
+}
+
+.storage-stats {
+    margin-top: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.stats-grid .stat-item {
+    background: var(--surface-glass);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-small);
+    padding: 12px;
+    text-align: center;
+    position: relative;
+}
+
+.stats-grid .stat-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.stats-grid .stat-item span:first-child {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stats-grid .stat-item span:last-child {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: ui-monospace, monospace;
+}
+
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
     .notification {
