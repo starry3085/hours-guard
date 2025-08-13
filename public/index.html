@@ -27,6 +27,14 @@
 
         <!-- 主要内容区域 -->
         <main class="main-content">
+            <!-- 日期选择区域 -->
+            <section class="card date-selector-card">
+                <div class="date-selector">
+                    <input type="date" id="dateSelector" class="date-input">
+                    <span class="date-label" id="dateLabel">今天</span>
+                </div>
+            </section>
+
             <!-- 主操作区域 -->
             <section class="card main-action-card">
                 <button id="clockInBtn" class="btn-primary">
@@ -59,6 +67,11 @@
 
             <!-- 月度统计 -->
             <section class="card">
+                <div class="month-header">
+                    <button id="prevMonth" class="month-nav-btn">&lt;</button>
+                    <span id="currentMonth" class="month-title"></span>
+                    <button id="nextMonth" class="month-nav-btn">&gt;</button>
+                </div>
                 <div class="month-summary" id="monthSummary">
                     <!-- 月度统计数据将在这里显示 -->
                 </div>

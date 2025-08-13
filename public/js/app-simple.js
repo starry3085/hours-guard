@@ -5,6 +5,7 @@ class HoursGuardApp {
         this.todayRecord = null;
         this.selectedDate = this.getTodayString();
         this.isToday = true;
+        this.currentMonthDate = new Date(); // 当前查看的月份
         
         this.init();
     }
@@ -12,15 +13,59 @@ class HoursGuardApp {
     init() {
         this.bindEvents();
         this.startClock();
+        this.updateDateLabel();
+        this.updateMonthLabel();
         this.loadTodayData();
         this.loadHistoryData();
         this.loadMonthlyData();
+    }
+
+    updateDateLabel() {
+        const dateLabel = document.getElementById('dateLabel');
+        if (this.isToday) {
+            dateLabel.textContent = '今天';
+            dateLabel.className = 'date-label today';
+        } else {
+            const selectedDate = new Date(this.selectedDate);
+            dateLabel.textContent = selectedDate.toLocaleDateString('zh-CN');
+            dateLabel.className = 'date-label historical';
+        }
+    }
+
+    updateMonthLabel() {
+        const monthLabel = document.getElementById('currentMonth');
+        const year = this.currentMonthDate.getFullYear();
+        const month = this.currentMonthDate.getMonth() + 1;
+        monthLabel.textContent = `${year}年${month}月`;
     }
 
     bindEvents() {
         // 主按钮事件
         document.getElementById('clockInBtn').addEventListener('click', () => {
             this.handleMainButtonClick();
+        });
+
+        // 日期选择事件
+        const dateSelector = document.getElementById('dateSelector');
+        dateSelector.value = this.selectedDate;
+        dateSelector.addEventListener('change', (e) => {
+            this.selectedDate = e.target.value;
+            this.isToday = this.selectedDate === this.getTodayString();
+            this.updateDateLabel();
+            this.loadTodayData();
+        });
+
+        // 月份切换事件
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() - 1);
+            this.updateMonthLabel();
+            this.loadMonthlyData();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
+            this.updateMonthLabel();
+            this.loadMonthlyData();
         });
     }
 
@@ -229,23 +274,267 @@ class HoursGuardApp {
         div.innerHTML = `
             <div class="history-date">${dateStr}</div>
             <div class="history-times">
-                <span>${record.on || '--:--'}</span>
-                <span>${record.off || '--:--'}</span>
-                <span>${duration}</span>
+                <span class="time-input" data-type="on" data-date="${record.date}">${record.on || '--:--'}</span>
+                <span class="time-input" data-type="off" data-date="${record.date}">${record.off || '--:--'}</span>
+                <span class="duration">${duration}</span>
+            </div>
+            <div class="history-actions">
+                <button class="btn-edit" data-date="${record.date}">编辑</button>
+                <button class="btn-delete" data-date="${record.date}">删除</button>
             </div>
         `;
 
+        // 绑定编辑和删除事件
+        this.bindHistoryItemEvents(div, record);
+
         return div;
+    }
+
+    bindHistoryItemEvents(itemElement, record) {
+        // 编辑按钮事件
+        const editBtn = itemElement.querySelector('.btn-edit');
+        editBtn.addEventListener('click', () => {
+            this.editRecord(record.date);
+        });
+
+        // 删除按钮事件
+        const deleteBtn = itemElement.querySelector('.btn-delete');
+        deleteBtn.addEventListener('click', () => {
+            this.deleteRecord(record.date);
+        });
+
+        // 时间点击编辑事件
+        const timeInputs = itemElement.querySelectorAll('.time-input');
+        timeInputs.forEach(input => {
+            input.addEventListener('click', () => {
+                const type = input.dataset.type;
+                const date = input.dataset.date;
+                this.editTimeInline(input, date, type);
+            });
+        });
+    }
+
+    editRecord(date) {
+        const records = this.getRecords();
+        const record = records.find(r => r.date === date);
+        if (!record) return;
+
+        // 创建编辑模态框
+        this.showEditModal(record);
+    }
+
+    showEditModal(record) {
+        // 创建模态框HTML
+        const modalHTML = `
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>编辑记录 - ${new Date(record.date).toLocaleDateString('zh-CN')}</h3>
+                    <div class="edit-form">
+                        <div class="form-group">
+                            <label>上班时间:</label>
+                            <input type="time" id="editOnTime" value="${record.on || ''}" />
+                        </div>
+                        <div class="form-group">
+                            <label>下班时间:</label>
+                            <input type="time" id="editOffTime" value="${record.off || ''}" />
+                        </div>
+                        <div class="form-actions">
+                            <button id="saveEdit" class="btn-primary">保存</button>
+                            <button id="cancelEdit" class="btn-secondary">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 添加到页面
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'block';
+
+        // 绑定事件
+        const closeBtn = modal.querySelector('.close');
+        const saveBtn = modal.querySelector('#saveEdit');
+        const cancelBtn = modal.querySelector('#cancelEdit');
+
+        const closeModal = () => {
+            modal.remove();
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        saveBtn.addEventListener('click', () => {
+            const onTime = document.getElementById('editOnTime').value;
+            const offTime = document.getElementById('editOffTime').value;
+            
+            if (this.saveEditedRecord(record.date, onTime, offTime)) {
+                this.showNotification('记录已更新');
+                this.loadTodayData();
+                this.loadHistoryData();
+                this.loadMonthlyData();
+                closeModal();
+            }
+        });
+
+        // 点击模态框外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    editTimeInline(element, date, type) {
+        const currentValue = element.textContent === '--:--' ? '' : element.textContent;
+        
+        // 创建时间输入框
+        const input = document.createElement('input');
+        input.type = 'time';
+        input.value = currentValue;
+        input.className = 'inline-time-input';
+        
+        // 替换显示元素
+        element.style.display = 'none';
+        element.parentNode.insertBefore(input, element.nextSibling);
+        input.focus();
+
+        const saveInlineEdit = () => {
+            const newValue = input.value;
+            if (this.updateRecordTime(date, type, newValue)) {
+                element.textContent = newValue || '--:--';
+                this.loadTodayData();
+                this.loadHistoryData();
+                this.loadMonthlyData();
+                this.showNotification('时间已更新');
+            }
+            
+            input.remove();
+            element.style.display = '';
+        };
+
+        const cancelInlineEdit = () => {
+            input.remove();
+            element.style.display = '';
+        };
+
+        // 绑定事件
+        input.addEventListener('blur', saveInlineEdit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                saveInlineEdit();
+            } else if (e.key === 'Escape') {
+                cancelInlineEdit();
+            }
+        });
+    }
+
+    updateRecordTime(date, type, newValue) {
+        try {
+            const records = this.getRecords();
+            const recordIndex = records.findIndex(r => r.date === date);
+            
+            if (recordIndex >= 0) {
+                records[recordIndex][type] = newValue;
+                this.saveRecords(records);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Update record time error:', error);
+            return false;
+        }
+    }
+
+    saveEditedRecord(date, onTime, offTime) {
+        try {
+            const records = this.getRecords();
+            const recordIndex = records.findIndex(r => r.date === date);
+            
+            if (recordIndex >= 0) {
+                records[recordIndex].on = onTime;
+                records[recordIndex].off = offTime;
+                this.saveRecords(records);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Save edited record error:', error);
+            return false;
+        }
+    }
+
+    deleteRecord(date) {
+        // 显示确认对话框
+        this.showDeleteConfirmModal(date);
+    }
+
+    showDeleteConfirmModal(date) {
+        const dateStr = new Date(date).toLocaleDateString('zh-CN');
+        const modalHTML = `
+            <div id="deleteModal" class="modal">
+                <div class="modal-content">
+                    <h3>确认删除</h3>
+                    <p>确定要删除 ${dateStr} 的打卡记录吗？</p>
+                    <div class="form-actions">
+                        <button id="confirmDelete" class="btn-danger">删除</button>
+                        <button id="cancelDelete" class="btn-secondary">取消</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('deleteModal');
+        modal.style.display = 'block';
+
+        const confirmBtn = modal.querySelector('#confirmDelete');
+        const cancelBtn = modal.querySelector('#cancelDelete');
+
+        const closeModal = () => {
+            modal.remove();
+        };
+
+        confirmBtn.addEventListener('click', () => {
+            if (this.performDeleteRecord(date)) {
+                this.showNotification('记录已删除');
+                this.loadTodayData();
+                this.loadHistoryData();
+                this.loadMonthlyData();
+            }
+            closeModal();
+        });
+
+        cancelBtn.addEventListener('click', closeModal);
+
+        // 点击模态框外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    performDeleteRecord(date) {
+        try {
+            const records = this.getRecords();
+            const filteredRecords = records.filter(r => r.date !== date);
+            this.saveRecords(filteredRecords);
+            return true;
+        } catch (error) {
+            console.error('Delete record error:', error);
+            return false;
+        }
     }
 
     loadMonthlyData() {
         try {
             const records = this.getRecords();
-            const currentDate = new Date();
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+            const year = this.currentMonthDate.getFullYear();
+            const month = this.currentMonthDate.getMonth();
             
-            // 筛选本月记录
+            // 筛选指定月份记录
             const monthRecords = records.filter(record => {
                 const recordDate = new Date(record.date);
                 return recordDate.getFullYear() === year && recordDate.getMonth() === month;
@@ -277,7 +566,7 @@ class HoursGuardApp {
                     <span>${totalDays}天</span>
                 </div>
                 <div class="summary-item">
-                    <span>本月总时长</span>
+                    <span>总时长</span>
                     <span>${totalHours}小时${totalMins}分钟</span>
                 </div>
                 <div class="summary-item">

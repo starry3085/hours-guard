@@ -62,6 +62,54 @@ stages:
 - ✅ 支持master和main分支
 - ✅ 改进错误处理和日志输出
 
+### 第6次尝试：极简标准格式 🎯
+**时间**: 2025年1月最终修正
+**配置**: `.gitee/go.yml` (最简GitHub Actions)
+**核心策略**:
+- ✅ 使用最基础的GitHub Actions语法
+- ✅ 标准actions版本: `checkout@v2`, `setup-node@v2`
+- ✅ 内联HTML生成，避免文件依赖
+- ✅ 详细调试日志，便于排查问题
+- ✅ 简化环境变量引用
+- ✅ 移除所有复杂配置项
+
+```yaml
+name: hours-guard-deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+          
+      - name: Prepare Files
+        run: |
+          # 内联HTML生成和项目准备
+          
+      - name: Install Wrangler
+        run: |
+          npm install -g wrangler
+          wrangler --version
+          
+      - name: Deploy to Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler pages deploy public --project-name=hours-guard
+```
+
 ```yaml
 name: deploy-to-cloudflare
 
@@ -156,7 +204,8 @@ hours-guard/
 | 2 | 变量名修正 | ❌ |
 | 3 | 语法结构调整 | ❌ |
 | 4 | 官方标准格式 | ❌ |
-| 5 | GitHub Actions兼容格式 | ⏳ |
+| 5 | GitHub Actions兼容格式 | ❌ |
+| 6 | 极简标准格式 | ⏳ |
 
 ## 🔗 相关链接
 - Gitee仓库: https://gitee.com/starry3085/hours-guard
