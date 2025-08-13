@@ -1,8 +1,8 @@
 {
-  "name": "tap-tap",
-  "version": "1.0.2",
-  "description": "秒打打卡工具小程序",
-  "main": "miniprogram/app.js",
+  "name": "hours-guard",
+  "version": "2.0.0",
+  "description": "Hours Guard (工时卫士) - 隐私优先的工时记录工具，支持Web版和小程序版",
+  "main": "public/index.html",
   "scripts": {
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
@@ -10,8 +10,12 @@
     "test:ui": "vitest --ui"
   },
   "keywords": [
-    "miniprogram",
-    "checkin"
+    "time-tracking",
+    "work-hours",
+    "privacy-first",
+    "pwa",
+    "web-app",
+    "miniprogram"
   ],
   "author": "",
   "license": "ISC",

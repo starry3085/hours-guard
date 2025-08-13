@@ -3,51 +3,87 @@
 
 | 条目 | 内容 |
 |---|---|
-| 产品名 | 秒打打卡工具 |
+| 产品名 | Hours Guard (工时卫士) |
+| 版本 | Web版 2.0.0 + 小程序版 1.0.0 |
 | 目标用户 | 对隐私极度敏感、不愿数据上云的上班族 |
-| 核心场景 | 上班/下班各点一次按钮 → 月末一键导出 PDF → 自行保存到微信聊天记录或手机本地 |
-| 功能列表 | ① 上班打卡 ② 下班打卡 ③ 本月统计 ④ 导出 PDF ⑤ 本地风险提示 |
-| 非功能 | • 纯本地，无网络请求 • 包体 ≤ 1 MB • 换机/清缓存会丢数据（弹窗告知） |
+| 核心场景 | 上班/下班各点一次按钮 → 月末一键导出数据 → 自行保存备份 |
+| 功能列表 | ① 上班打卡 ② 下班打卡 ③ 历史记录编辑 ④ 月度统计 ⑤ 多格式导出 ⑥ 智能备份 |
+| 非功能 | • 纯本地，无网络请求 • Web版<500KB • PWA离线支持 • 响应式设计 |
 
 ---
 
-# 🏗️ 2. 技术架构（纯前端版）
-要符合微信小程序官方文档的要求和最佳实践: https://developers.weixin.qq.com/miniprogram/dev/framework/ 
+# 🏗️ 2. 技术架构
+
+## 2.1 Web版架构（主要版本）
 
 | 层级 | 技术 | 备注 |
 |---|---|---|
-| 小程序 | 原生框架 | 微信开发者工具「普通 QuickStart」即可 |
-| UI | 微信官方组件 + WeUI | 无第三方依赖 |
-| 图表 | 无图表，文字列表 | 省包体 |
-| 存储 | wx.setStorageSync | 本地 KV，上限 10 MB |
-| PDF | 前端 canvas 手写表格 + wx.canvasToTempFilePath | 无外部库 |
-| 成本 | 0 元 | 无服务器、无域名、无备案 |
+| 前端 | HTML5 + CSS3 + ES6+ JavaScript | 现代Web技术栈 |
+| UI | 响应式设计 + HYDRATE MOVE风格 | 无第三方依赖 |
+| 存储 | localStorage + IndexedDB | 本地存储，支持大数据 |
+| 导出 | JSON + CSV + 图片 | 多格式支持 |
+| PWA | Service Worker + Manifest | 离线支持，可安装 |
+| 部署 | Cloudflare Pages | 全球CDN，零成本 |
 
-目录结构（3 个页面）  
+Web版目录结构：
+```
+/public
+ ├─ index.html          # 单页面应用
+ ├─ css/main.css        # 主样式
+ ├─ js/
+ │  ├─ app-simple.js    # 应用核心
+ │  ├─ error-handler.js # 错误处理
+ │  └─ storage-manager.js # 存储管理
+ ├─ manifest.json       # PWA配置
+ └─ sw.js              # Service Worker
+```
+
+## 2.2 小程序版架构（参考版本）
+
+| 层级 | 技术 | 备注 |
+|---|---|---|
+| 小程序 | 原生框架 | 微信开发者工具开发 |
+| UI | 微信官方组件 | 无第三方依赖 |
+| 存储 | wx.setStorageSync | 本地 KV，上限 10 MB |
+| 导出 | Canvas + 文本 | 基础导出功能 |
+
+小程序目录结构：
 ```
 /miniprogram
  ├─ app.json
  ├─ app.js
  ├─ pages/index/        # 打卡
  ├─ pages/stat/         # 统计
- └─ pages/export/       # PDF + 本地备份
+ └─ pages/export/       # 导出
 ```
 
 ---
 
-# 🔧 3. 具体技术实现（离线完整版）
+# 🔧 3. Web版技术实现（已完成）
 
-## 3.1 数据模型（本地 storage）
+## 3.1 Web版数据模型
 
 ```js
-// key: 'records'   value: Array<Object>
+// localStorage: 'hoursGuard_records'
 [
   {
-    date: "2025-07-14",
-    on: "09:31",    // HH:mm
-    off: "18:45"
+    id: "2025-01-15",
+    date: "2025-01-15",
+    clockIn: "09:00",
+    clockOut: "18:00",
+    duration: 9,
+    note: "",
+    createdAt: "2025-01-15T09:00:00.000Z",
+    updatedAt: "2025-01-15T18:00:00.000Z"
   }
 ]
+
+// 配置存储
+localStorage.setItem('hoursGuard_config', JSON.stringify({
+  language: 'zh-CN',
+  theme: 'light',
+  autoBackup: true
+}));
 ```
 
 ## 3.2 首次启动弹窗：告知数据本地存储
@@ -181,20 +217,39 @@ Page({
 
 ---
 
-## ✅ 4. 交付 checklist（本地版）
+## ✅ 4. 交付状态
 
-| 任务 | 交付物 | 状态 |
+### Web版 (已完成 ✅)
+
+| 功能模块 | 实现状态 | 部署状态 |
 |---|---|---|
-| 新建项目 | app.json / app.js / 3 个页面 | TODO |
-| 首次启动弹窗 | app.js 内 onLaunch | TODO |
-| 打卡逻辑 | index.js | TODO |
-| 统计列表 | stat.wxml + stat.js | TODO |
-| PDF 导出 + 本地保存 | export.js + canvas | TODO |
-| 真机测试 | 安卓 / iOS 各 1 台 | TODO |
+| 核心打卡功能 | ✅ 完成 | ✅ 在线 |
+| 历史记录管理 | ✅ 完成 | ✅ 在线 |
+| 月度统计分析 | ✅ 完成 | ✅ 在线 |
+| 多格式导出 | ✅ 完成 | ✅ 在线 |
+| 智能备份系统 | ✅ 完成 | ✅ 在线 |
+| 错误处理系统 | ✅ 完成 | ✅ 在线 |
+| PWA离线功能 | ✅ 完成 | ✅ 在线 |
+| 响应式设计 | ✅ 完成 | ✅ 在线 |
+| 国际化支持 | ✅ 完成 | ✅ 在线 |
+
+**访问地址**: https://hours-guard.lightyearai.info
+
+### 小程序版 (已完成 ✅)
+
+| 功能模块 | 实现状态 | 测试状态 |
+|---|---|---|
+| 基础打卡功能 | ✅ 完成 | ✅ 通过 |
+| 统计查看功能 | ✅ 完成 | ✅ 通过 |
+| 数据导出功能 | ✅ 完成 | ✅ 通过 |
+| 本地存储管理 | ✅ 完成 | ✅ 通过 |
+| 错误处理机制 | ✅ 完成 | ✅ 通过 |
 
 ---
 
-### 🎯 一句话总结（离线版）
+### 🎯 项目总结
 
-> 0 后端、0 费用、0 云开发——3 个页面、1 个本地 storage、2 个按钮就能跑；  
-> 换机或清缓存会丢数据，务必在首次启动 + 导出 PDF 时双重提示用户。
+> **Web版**: 现代化工时记录工具，PWA支持，全球CDN部署，100%功能完整性  
+> **小程序版**: 轻量级打卡工具，纯本地存储，隐私优先设计  
+> 
+> 两个版本都遵循：0后端、0费用、纯本地存储、隐私优先的设计原则
