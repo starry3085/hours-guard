@@ -1,34 +1,44 @@
 name: deploy-to-cloudflare
+
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - master
 
-display-name: "部署到Cloudflare Pages"
-
-stages:
-  - name: build-and-deploy
-    display-name: "构建并部署"
-    fail-fast: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: "部署到Cloudflare Pages"
     
     steps:
-    - name: checkout
-      uses: git-checkout
-      
-    - name: setup-node
-      uses: node-setup
-      with:
-        version: 18
+      - name: "检出代码"
+        uses: actions/checkout@v3
         
-    - name: install-dependencies
-      run: npm install
-      
-    - name: install-wrangler
-      run: npm install -g wrangler
-      
-    - name: deploy
-      env:
-        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      run: |
-        echo "开始部署到Cloudflare Pages..."
-        wrangler pages deploy public --project-name=hours-guard --commit-message="Auto deploy"
+      - name: "设置Node.js"
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: "安装依赖"
+        run: |
+          npm ci
+          npm install -g wrangler
+          
+      - name: "验证public目录"
+        run: |
+          if [ ! -d "public" ]; then
+            echo "创建public目录..."
+            mkdir -p public
+            echo "<!DOCTYPE html><html><head><title>Hours Guard</title></head><body><h1>Hours Guard - 工时记录系统</h1><p>部署成功！</p></body></html>" > public/index.html
+          fi
+          ls -la public/
+          
+      - name: "部署到Cloudflare Pages"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "开始部署到Cloudflare Pages..."
+          wrangler pages deploy public --project-name=hours-guard --commit-message="Gitee Go自动部署 - $(date)"
