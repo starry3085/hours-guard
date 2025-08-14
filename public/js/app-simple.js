@@ -12,26 +12,15 @@ class HoursGuardApp {
 
     init() {
         this.bindEvents();
-        this.startClock();
-        this.updateDateLabel();
         this.updateMonthLabel();
         this.loadTodayData();
-        this.loadHistoryData();
         this.loadMonthlyData();
+        this.loadWeeklyData();
+        this.loadDailyRecords();
         this.loadStorageStats();
     }
 
-    updateDateLabel() {
-        const dateLabel = document.getElementById('dateLabel');
-        if (this.isToday) {
-            dateLabel.textContent = '今天';
-            dateLabel.className = 'date-label today';
-        } else {
-            const selectedDate = new Date(this.selectedDate);
-            dateLabel.textContent = selectedDate.toLocaleDateString('zh-CN');
-            dateLabel.className = 'date-label historical';
-        }
-    }
+
 
     updateMonthLabel() {
         const monthLabel = document.getElementById('currentMonth');
@@ -52,8 +41,13 @@ class HoursGuardApp {
         dateSelector.addEventListener('change', (e) => {
             this.selectedDate = e.target.value;
             this.isToday = this.selectedDate === this.getTodayString();
-            this.updateDateLabel();
             this.loadTodayData();
+        });
+
+        // 时间输入事件
+        const clockInInput = document.getElementById('clockInInput');
+        clockInInput.addEventListener('change', (e) => {
+            this.updateClockInTime(e.target.value);
         });
 
         // 月份切换事件
@@ -61,12 +55,16 @@ class HoursGuardApp {
             this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() - 1);
             this.updateMonthLabel();
             this.loadMonthlyData();
+            this.loadWeeklyData();
+            this.loadDailyRecords();
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
             this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
             this.updateMonthLabel();
             this.loadMonthlyData();
+            this.loadWeeklyData();
+            this.loadDailyRecords();
         });
 
         // 数据管理事件
@@ -78,15 +76,7 @@ class HoursGuardApp {
             this.createBackup();
         });
 
-        document.getElementById('importBtn').addEventListener('click', () => {
-            document.getElementById('importFile').click();
-        });
 
-        document.getElementById('importFile').addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                this.importData(e.target.files[0]);
-            }
-        });
     }
 
     startClock() {
@@ -172,8 +162,9 @@ class HoursGuardApp {
                 this.currentState = 'finished';
                 
                 this.updateUI();
-                this.loadHistoryData();
                 this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
                 this.showNotification('下班打卡成功！');
                 
                 // 3秒后重置状态
@@ -243,96 +234,37 @@ class HoursGuardApp {
     }
 
     updateTodayStats() {
-        if (this.todayRecord) {
-            document.getElementById('clockInTime').textContent = this.todayRecord.on || '--:--';
-            document.getElementById('clockOutTime').textContent = this.todayRecord.off || '--:--';
-            
-            if (this.todayRecord.on && this.todayRecord.off) {
-                const duration = this.calculateDuration(this.todayRecord.on, this.todayRecord.off);
-                document.getElementById('workDuration').textContent = duration;
-            } else {
-                document.getElementById('workDuration').textContent = '--:--';
-            }
-        } else {
-            document.getElementById('clockInTime').textContent = '--:--';
-            document.getElementById('clockOutTime').textContent = '--:--';
-            document.getElementById('workDuration').textContent = '--:--';
-        }
-    }
-
-    loadHistoryData() {
-        try {
-            const records = this.getRecords();
-            const historyList = document.getElementById('historyList');
-            
-            if (records.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">暂无记录</p>';
-                return;
-            }
-
-            // 按日期倒序排序
-            const sortedRecords = records.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            historyList.innerHTML = '';
-            sortedRecords.slice(0, 10).forEach(record => { // 只显示最近10条
-                const item = this.createHistoryItem(record);
-                historyList.appendChild(item);
-            });
-        } catch (error) {
-            console.error('Load history error:', error);
-        }
-    }
-
-    createHistoryItem(record) {
-        const div = document.createElement('div');
-        div.className = 'history-item';
+        const clockInInput = document.getElementById('clockInInput');
         
-        const date = new Date(record.date);
-        const dateStr = date.toLocaleDateString('zh-CN');
-        const duration = record.on && record.off ? this.calculateDuration(record.on, record.off) : '--:--';
-
-        div.innerHTML = `
-            <div class="history-date">${dateStr}</div>
-            <div class="history-times">
-                <span class="time-input" data-type="on" data-date="${record.date}">${record.on || '--:--'}</span>
-                <span class="time-input" data-type="off" data-date="${record.date}">${record.off || '--:--'}</span>
-                <span class="duration">${duration}</span>
-            </div>
-            <div class="history-actions">
-                <button class="btn-edit" data-date="${record.date}">编辑</button>
-                <button class="btn-delete" data-date="${record.date}">删除</button>
-            </div>
-        `;
-
-        // 绑定编辑和删除事件
-        this.bindHistoryItemEvents(div, record);
-
-        return div;
+        if (this.todayRecord) {
+            clockInInput.value = this.todayRecord.on || '';
+        } else {
+            clockInInput.value = '';
+        }
     }
 
-    bindHistoryItemEvents(itemElement, record) {
-        // 编辑按钮事件
-        const editBtn = itemElement.querySelector('.btn-edit');
-        editBtn.addEventListener('click', () => {
-            this.editRecord(record.date);
-        });
-
-        // 删除按钮事件
-        const deleteBtn = itemElement.querySelector('.btn-delete');
-        deleteBtn.addEventListener('click', () => {
-            this.deleteRecord(record.date);
-        });
-
-        // 时间点击编辑事件
-        const timeInputs = itemElement.querySelectorAll('.time-input');
-        timeInputs.forEach(input => {
-            input.addEventListener('click', () => {
-                const type = input.dataset.type;
-                const date = input.dataset.date;
-                this.editTimeInline(input, date, type);
-            });
-        });
+    updateClockInTime(timeValue) {
+        const records = this.getRecords();
+        let todayRecord = records.find(r => r.date === this.selectedDate);
+        
+        if (todayRecord) {
+            todayRecord.on = timeValue;
+        } else {
+            todayRecord = {
+                date: this.selectedDate,
+                on: timeValue
+            };
+            records.push(todayRecord);
+        }
+        
+        this.saveRecords(records);
+        this.todayRecord = todayRecord;
+        this.loadMonthlyData();
+        this.loadWeeklyData();
+        this.loadDailyRecords();
     }
+
+
 
     editRecord(date) {
         const records = this.getRecords();
@@ -392,8 +324,9 @@ class HoursGuardApp {
             if (this.saveEditedRecord(record.date, onTime, offTime)) {
                 this.showNotification('记录已更新');
                 this.loadTodayData();
-                this.loadHistoryData();
                 this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
                 closeModal();
             }
         });
@@ -425,8 +358,9 @@ class HoursGuardApp {
             if (this.updateRecordTime(date, type, newValue)) {
                 element.textContent = newValue || '--:--';
                 this.loadTodayData();
-                this.loadHistoryData();
                 this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
                 this.showNotification('时间已更新');
             }
             
@@ -520,8 +454,9 @@ class HoursGuardApp {
             if (this.performDeleteRecord(date)) {
                 this.showNotification('记录已删除');
                 this.loadTodayData();
-                this.loadHistoryData();
                 this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
             }
             closeModal();
         });
@@ -579,24 +514,152 @@ class HoursGuardApp {
             const avgMins = avgMinutes % 60;
             
             // 更新UI
-            const monthSummary = document.getElementById('monthSummary');
-            monthSummary.innerHTML = `
-                <div class="summary-item">
-                    <span>工作天数</span>
-                    <span>${totalDays}天</span>
-                </div>
-                <div class="summary-item">
-                    <span>总时长</span>
-                    <span>${totalHours}小时${totalMins}分钟</span>
-                </div>
-                <div class="summary-item">
-                    <span>平均工作时长</span>
-                    <span>${avgHours}小时${avgMins}分钟</span>
-                </div>
-            `;
+            document.getElementById('monthWorkDays').textContent = `${totalDays}天`;
+            document.getElementById('monthTotalHours').textContent = `${totalHours}小时${totalMins}分钟`;
+            document.getElementById('monthAvgHours').textContent = `${avgHours}小时${avgMins}分钟`;
         } catch (error) {
             console.error('Load monthly data error:', error);
         }
+    }
+
+    loadWeeklyData() {
+        try {
+            const records = this.getRecords();
+            const today = new Date();
+            
+            // 获取本周的开始和结束日期
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay() + 1); // 周一
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6); // 周日
+            
+            // 筛选本周记录
+            const weekRecords = records.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate >= startOfWeek && recordDate <= endOfWeek;
+            });
+            
+            const completedRecords = weekRecords.filter(r => r.on && r.off);
+            
+            // 计算统计数据
+            let totalMinutes = 0;
+            completedRecords.forEach(record => {
+                const duration = this.calculateDuration(record.on, record.off);
+                const [hours, minutes] = duration.split(':').map(Number);
+                totalMinutes += hours * 60 + minutes;
+            });
+            
+            const avgMinutes = completedRecords.length > 0 ? Math.round(totalMinutes / completedRecords.length) : 0;
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = totalMinutes % 60;
+            const avgHours = Math.floor(avgMinutes / 60);
+            const avgMins = avgMinutes % 60;
+            
+            // 更新UI
+            const weekPeriodElement = document.getElementById('weekPeriod');
+            const weekTotalElement = document.getElementById('weekTotalHours');
+            const weekAvgElement = document.getElementById('weekAvgHours');
+            
+            if (weekPeriodElement) {
+                weekPeriodElement.textContent = `${startOfWeek.toISOString().split('T')[0]} 至 ${endOfWeek.toISOString().split('T')[0]}`;
+            }
+            if (weekTotalElement) {
+                weekTotalElement.textContent = `${totalHours}小时${totalMins}分钟`;
+            }
+            if (weekAvgElement) {
+                weekAvgElement.textContent = `${avgHours}小时${avgMins}分钟`;
+            }
+        } catch (error) {
+            console.error('Load weekly data error:', error);
+        }
+    }
+
+    loadDailyRecords() {
+        try {
+            const records = this.getRecords();
+            const year = this.currentMonthDate.getFullYear();
+            const month = this.currentMonthDate.getMonth();
+            
+            // 筛选指定月份记录
+            const monthRecords = records.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate.getFullYear() === year && recordDate.getMonth() === month;
+            });
+            
+            // 按日期倒序排序
+            const sortedRecords = monthRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const dailyRecordsElement = document.getElementById('dailyRecords');
+            if (!dailyRecordsElement) return;
+            
+            if (sortedRecords.length === 0) {
+                dailyRecordsElement.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">暂无记录</p>';
+                return;
+            }
+            
+            dailyRecordsElement.innerHTML = '';
+            sortedRecords.forEach(record => {
+                const item = this.createDailyRecordItem(record);
+                dailyRecordsElement.appendChild(item);
+            });
+        } catch (error) {
+            console.error('Load daily records error:', error);
+        }
+    }
+
+    createDailyRecordItem(record) {
+        const div = document.createElement('div');
+        div.className = 'daily-record';
+        
+        const date = new Date(record.date);
+        const dateStr = date.toLocaleDateString('zh-CN');
+        const duration = record.on && record.off ? this.calculateDuration(record.on, record.off) : '--:--';
+        const [hours, minutes] = duration.split(':').map(Number);
+        const durationText = duration !== '--:--' ? `${hours}小时${minutes}分钟` : '--:--';
+
+        div.innerHTML = `
+            <div class="record-header">
+                <div class="record-date">${dateStr}</div>
+                <div class="record-duration">${durationText}</div>
+            </div>
+            <div class="record-times">
+                <span class="record-time" data-type="on" data-date="${record.date}">${record.on || '--:--'} (上班)</span>
+                <span class="record-time" data-type="off" data-date="${record.date}">${record.off || '--:--'} (下班)</span>
+                <div class="record-actions">
+                    <button class="btn-edit" data-date="${record.date}">编辑</button>
+                    <button class="btn-delete" data-date="${record.date}">删除</button>
+                </div>
+            </div>
+        `;
+
+        // 绑定事件
+        this.bindDailyRecordEvents(div, record);
+
+        return div;
+    }
+
+    bindDailyRecordEvents(itemElement, record) {
+        // 编辑按钮事件
+        const editBtn = itemElement.querySelector('.btn-edit');
+        editBtn.addEventListener('click', () => {
+            this.editRecord(record.date);
+        });
+
+        // 删除按钮事件
+        const deleteBtn = itemElement.querySelector('.btn-delete');
+        deleteBtn.addEventListener('click', () => {
+            this.deleteRecord(record.date);
+        });
+
+        // 时间点击编辑事件
+        const timeInputs = itemElement.querySelectorAll('.record-time');
+        timeInputs.forEach(input => {
+            input.addEventListener('click', () => {
+                const type = input.dataset.type;
+                const date = input.dataset.date;
+                this.editTimeInline(input, date, type);
+            });
+        });
     }
 
     updateUI() {
@@ -608,23 +671,22 @@ class HoursGuardApp {
         switch (this.currentState) {
             case 'ready':
                 clockInBtn.disabled = false;
-                clockInBtn.textContent = '开始工作';
-                clockInBtn.style.background = '';
+                clockInBtn.textContent = '上班打卡';
                 break;
             case 'working':
                 clockInBtn.disabled = false;
-                clockInBtn.textContent = '结束工作';
+                clockInBtn.textContent = '下班打卡';
                 clockInBtn.classList.add('working');
-                clockInBtn.style.background = '';
                 break;
             case 'finished':
                 clockInBtn.disabled = false;
-                clockInBtn.textContent = '查看详情';
+                clockInBtn.textContent = '已完成';
                 clockInBtn.classList.add('finished');
-                clockInBtn.style.background = '';
                 break;
         }
     }
+
+
 
     // 存储相关方法 - 使用StorageManager
     getRecords() {
@@ -750,27 +812,7 @@ class HoursGuardApp {
         }
     }
 
-    async importData(file) {
-        if (window.storageManager) {
-            try {
-                const result = await window.storageManager.importData(file);
-                if (result.success) {
-                    this.showNotification(`导入成功：${result.imported}条记录，总计${result.total}条`);
-                    this.loadTodayData();
-                    this.loadHistoryData();
-                    this.loadMonthlyData();
-                    this.loadStorageStats();
-                } else {
-                    this.showNotification(`导入失败：${result.error}`, 'error');
-                }
-            } catch (error) {
-                this.showNotification(`导入失败：${error.error || error.message}`, 'error');
-            }
-        }
-        
-        // 清空文件输入
-        document.getElementById('importFile').value = '';
-    }
+
 
     loadStorageStats() {
         if (window.storageManager) {

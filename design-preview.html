@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工时卫士 - 新设计预览</title>
+    <style>
+        /* HYDRATE MOVE 极简配色 */
+        :root {
+            --primary: #4A90E2;
+            --primary-hover: #357ABD;
+            --success: #7ED321;
+            --warning: #F5A623;
+            --danger: #D0021B;
+            --bg: #F8F9FA;
+            --surface: #FFFFFF;
+            --surface-hover: #F5F6F7;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --text-muted: #BDC3C7;
+            --border: #E1E8ED;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --radius: 8px;
+            --radius-lg: 12px;
+            --radius-sm: 6px;
+            --transition: all 0.2s ease;
+            --spacing: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, Roboto, sans-serif;
+            background: #f3f4f6;
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        #app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        /* 工时记录卡片 */
+        .work-record-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* 日期显示 */
+        .date-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .date-input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .today-btn {
+            background: var(--surface-hover);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .today-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .clock-action {
+            text-align: center;
+        }
+
+        /* 主要按钮样式 */
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn-text {
+            font-weight: 500;
+        }
+
+        /* 工时统计区域 */
+        .work-stats-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .time-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .time-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .time-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            font-family: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        }
+
+        .time-separator {
+            font-size: 20px;
+            color: var(--text-light);
+            font-weight: 300;
+        }
+
+        .duration-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1.5;
+            min-width: 120px;
+        }
+
+        .duration-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .duration-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        }
+
+        /* 月度概览 */
+        .month-overview {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .month-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .month-nav {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        .month-nav:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .month-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .month-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-item {
+            background: #faf5ff;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e9d5ff;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-item:hover {
+            background: #f3e8ff;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #7c3aed;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #7c3aed;
+            font-family: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* 周期统计 */
+        .period-stats {
+            margin-bottom: 24px;
+        }
+
+        .period-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .period-header {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .period-date {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .period-content {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .period-stat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .period-stat.weekly {
+            background: #eff6ff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #dbeafe;
+        }
+
+        .period-stat.daily-avg {
+            background: #f0fdf4;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #dcfce7;
+        }
+
+        .period-info {
+            flex: 1;
+        }
+
+        .period-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .period-stat.weekly .period-label {
+            color: #1d4ed8;
+        }
+
+        .period-stat.daily-avg .period-label {
+            color: #16a34a;
+        }
+
+        .period-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        }
+
+        .period-stat.weekly .period-value {
+            color: #1d4ed8;
+        }
+
+        .period-stat.daily-avg .period-value {
+            color: #16a34a;
+        }
+
+        /* 数据管理 */
+        .data-actions {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .action-btn:hover {
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .action-text {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .action-btn.export:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .action-btn.backup:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 16px;
+            background: var(--surface-glass);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+        }
+
+        .tip-text {
+            color: var(--text-light);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .main-content {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .period-content {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .record-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .record-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .date-row,
+            .time-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .input-label {
+                min-width: auto;
+            }
+
+            .time-input,
+            .date-input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 12px;
+                gap: 16px;
+            }
+
+            .work-record-section,
+            .work-stats-section,
+            .data-actions {
+                padding: 16px;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 页面标题 -->
+        <header class="header">
+            <h1 class="title">工时卫士</h1>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 工时记录 -->
+            <section class="work-record-section">
+                <div class="section-header">
+                    <h2 class="section-title">工时记录</h2>
+                </div>
+                <div class="record-card">
+                    <div class="date-row">
+                        <label class="input-label">日期</label>
+                        <input type="date" class="date-input" value="2025-08-14">
+                    </div>
+                    <div class="time-row">
+                        <label class="input-label">上班时间</label>
+                        <input type="time" class="time-input" value="09:00">
+                        <button class="btn-primary">上班打卡</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 工时统计 -->
+            <section class="work-stats-section">
+                <div class="section-header">
+                    <h2 class="section-title">工时统计</h2>
+                </div>
+
+                <!-- 月度统计 -->
+                <div class="stats-card">
+                    <div class="stats-header">
+                        <button class="nav-btn">‹</button>
+                        <h3 class="stats-period">2025年08月统计</h3>
+                        <button class="nav-btn">›</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item monthly">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">月累计工时</div>
+                                <div class="stat-value">9小时12分钟</div>
+                            </div>
+                        </div>
+                        <div class="stat-item daily">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                <polyline points="16 7 22 7 22 13"></polyline>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">日均工时</div>
+                                <div class="stat-value">9小时12分钟</div>
+                            </div>
+                        </div>
+                        <div class="stat-item workdays">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">工作天数</div>
+                                <div class="stat-value">1天</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 周期统计 -->
+                <div class="period-stats">
+                    <div class="period-item">
+                        <div class="period-header">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg>
+                            <span class="period-date">2025-07-27 至 2025-08-02</span>
+                        </div>
+                        <div class="period-content">
+                            <div class="period-stat weekly">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <div class="period-info">
+                                    <div class="period-label">周累计工时</div>
+                                    <div class="period-value">9小时12分钟</div>
+                                </div>
+                            </div>
+                            <div class="period-stat daily-avg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                    <polyline points="16 7 22 7 22 13"></polyline>
+                                </svg>
+                                <div class="period-info">
+                                    <div class="period-label">日均工时</div>
+                                    <div class="period-value">9小时12分钟</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 每日记录 -->
+                <div class="daily-records">
+                    <div class="daily-record">
+                        <div class="record-header">
+                            <h3 class="record-date">2025-08-01</h3>
+                            <div class="record-duration-badge">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>9小时12分钟</span>
+                            </div>
+                        </div>
+                        <div class="record-details">
+                            <div class="record-time-info">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span class="time-range">09:56 - 19:08</span>
+                                <span class="time-duration">(9小时12分钟)</span>
+                            </div>
+                            <div class="record-actions">
+                                <button class="btn-edit" title="编辑记录">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                        <path d="m15 5 4 4"></path>
+                                    </svg>
+                                </button>
+                                <button class="btn-delete" title="删除记录">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                        <line x1="10" x2="10" y1="11" y2="17"></line>
+                                        <line x1="14" x2="14" y1="11" y2="17"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 数据管理 -->
+            <section class="data-actions">
+                <div class="action-grid">
+                    <button class="action-btn export">
+                        <span class="action-text">导出数据</span>
+                    </button>
+                    <button class="action-btn backup">
+                        <span class="action-text">创建备份</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部提示 -->
+        <footer class="footer">
+            <div class="tip-text">所有数据仅保存在本机，请定期导出备份</div>
+        </footer>
+    </div>
+</body>
+
+</html>
+/* 每日记录 */
+.daily-records {
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+
+.daily-record {
+background: white;
+border-radius: 8px;
+padding: 16px;
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+border: 1px solid #e5e7eb;
+transition: var(--transition);
+}
+
+.daily-record:hover {
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.record-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 12px;
+}
+
+.record-date {
+font-size: 18px;
+font-weight: 600;
+color: var(--text);
+margin: 0;
+}
+
+.record-duration-badge {
+display: flex;
+align-items: center;
+gap: 8px;
+color: #16a34a;
+font-weight: 500;
+}
+
+.record-details {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding-top: 12px;
+border-top: 1px solid #f3f4f6;
+}
+
+.record-time-info {
+display: flex;
+align-items: center;
+gap: 8px;
+color: #6b7280;
+font-size: 14px;
+}
+
+.time-range {
+font-weight: 500;
+font-family: ui-monospace, 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+}
+
+.time-duration {
+color: #9ca3af;
+}
+
+.record-actions {
+display: flex;
+gap: 8px;
+}
+
+.btn-edit, .btn-delete {
+background: none;
+border: none;
+padding: 8px;
+border-radius: 4px;
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.btn-edit:hover {
+background: #eff6ff;
+}
+
+.btn-delete:hover {
+background: #fef2f2;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+.main-content {
+padding: 16px;
+}
+
+.stats-grid {
+grid-template-columns: 1fr;
+gap: 12px;
+}
+
+.period-content {
+grid-template-columns: 1fr;
+gap: 12px;
+}
+
+.record-header {
+flex-direction: column;
+align-items: flex-start;
+gap: 8px;
+}
+
+.record-details {
+flex-direction: column;
+align-items: flex-start;
+gap: 12px;
+}
+}
+</style>
+</head>

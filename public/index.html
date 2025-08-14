@@ -38,72 +38,116 @@
 
         <!-- 主要内容区域 -->
         <main class="main-content">
-            <!-- 日期选择区域 -->
-            <section class="card date-selector-card">
-                <div class="date-selector">
-                    <input type="date" id="dateSelector" class="date-input">
-                    <span class="date-label" id="dateLabel">今天</span>
+            <!-- 工时记录 -->
+            <section class="work-record-section">
+                <div class="section-header">
+                    <h2 class="section-title">工时记录</h2>
+                </div>
+                <div class="record-card">
+                    <div class="date-row">
+                        <label class="input-label">日期</label>
+                        <input type="date" id="dateSelector" class="date-input">
+                    </div>
+                    <div class="time-row">
+                        <label class="input-label">上班时间</label>
+                        <input type="time" id="clockInInput" class="time-input">
+                        <button id="clockInBtn" class="btn-primary">上班打卡</button>
+                    </div>
                 </div>
             </section>
 
-            <!-- 主操作区域 -->
-            <section class="card main-action-card">
-                <button id="clockInBtn" class="btn-primary">
-                    开始工作
-                </button>
+            <!-- 工时统计 -->
+            <section class="work-stats-section">
+                <div class="section-header">
+                    <h2 class="section-title">工时统计</h2>
+                </div>
+                
+                <!-- 月度统计 -->
+                <div class="stats-card">
+                    <div class="stats-header">
+                        <button id="prevMonth" class="nav-btn">‹</button>
+                        <h3 id="currentMonth" class="stats-period">2025年08月统计</h3>
+                        <button id="nextMonth" class="nav-btn">›</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item monthly">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">月累计工时</div>
+                                <div class="stat-value" id="monthTotalHours">9小时12分钟</div>
+                            </div>
+                        </div>
+                        <div class="stat-item daily">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                <polyline points="16 7 22 7 22 13"></polyline>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">日均工时</div>
+                                <div class="stat-value" id="monthAvgHours">9小时12分钟</div>
+                            </div>
+                        </div>
+                        <div class="stat-item workdays">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg>
+                            <div class="stat-content">
+                                <div class="stat-label">工作天数</div>
+                                <div class="stat-value" id="monthWorkDays">1天</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 周期统计 -->
+                <div class="period-stats">
+                    <div class="period-item">
+                        <div class="period-header">
+                            <span class="period-date" id="weekPeriod">2025-07-27 至 2025-08-02</span>
+                        </div>
+                        <div class="period-content">
+                            <div class="period-stat">
+                                <div class="period-icon">🕐</div>
+                                <div class="period-info">
+                                    <div class="period-label">周累计工时</div>
+                                    <div class="period-value" id="weekTotalHours">9小时12分钟</div>
+                                </div>
+                            </div>
+                            <div class="period-stat">
+                                <div class="period-icon">📊</div>
+                                <div class="period-info">
+                                    <div class="period-label">日均工时</div>
+                                    <div class="period-value" id="weekAvgHours">9小时12分钟</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 每日记录 -->
+                <div class="daily-records" id="dailyRecords">
+                    <!-- 每日记录将在这里动态生成 -->
+                </div>
             </section>
 
-            <!-- 今日统计 -->
-            <section class="card">
-                <div class="stat-item">
-                    <span class="stat-label">上班时间</span>
-                    <span class="stat-value" id="clockInTime">--:--</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">下班时间</span>
-                    <span class="stat-value" id="clockOutTime">--:--</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">工作时长</span>
-                    <span class="stat-value" id="workDuration">--:--</span>
-                </div>
-            </section>
-
-            <!-- 历史记录 -->
-            <section class="card">
-                <div class="history-list" id="historyList">
-                    <!-- 历史记录将在这里动态生成 -->
-                </div>
-            </section>
-
-            <!-- 月度统计 -->
-            <section class="card">
-                <div class="month-header">
-                    <button id="prevMonth" class="month-nav-btn">&lt;</button>
-                    <span id="currentMonth" class="month-title"></span>
-                    <button id="nextMonth" class="month-nav-btn">&gt;</button>
-                </div>
-                <div class="month-summary" id="monthSummary">
-                    <!-- 月度统计数据将在这里显示 -->
+            <!-- 数据管理 -->
+            <section class="data-actions">
+                <div class="action-grid">
+                    <button id="exportBtn" class="action-btn export">
+                        <span class="action-text">导出数据</span>
+                    </button>
+                    <button id="backupBtn" class="action-btn backup">
+                        <span class="action-text">创建备份</span>
+                    </button>
                 </div>
             </section>
         </main>
-
-        <!-- 数据管理 -->
-        <section class="card">
-            <div class="data-management">
-                <h3>数据管理</h3>
-                <div class="management-actions">
-                    <button id="exportBtn" class="btn-secondary">导出数据</button>
-                    <button id="backupBtn" class="btn-secondary">创建备份</button>
-                    <button id="importBtn" class="btn-secondary">导入数据</button>
-                    <input type="file" id="importFile" accept=".json,.csv" style="display: none;">
-                </div>
-                <div class="storage-stats" id="storageStats">
-                    <!-- 存储统计信息 -->
-                </div>
-            </div>
-        </section>
 
         <!-- 底部提示 -->
         <footer class="footer">
