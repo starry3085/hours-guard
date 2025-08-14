@@ -72,10 +72,6 @@ class HoursGuardApp {
             this.showExportModal();
         });
 
-        document.getElementById('backupBtn').addEventListener('click', () => {
-            this.createBackup();
-        });
-
 
     }
 
@@ -612,22 +608,24 @@ class HoursGuardApp {
         div.className = 'daily-record';
         
         const date = new Date(record.date);
-        const dateStr = date.toLocaleDateString('zh-CN');
+        const dateStr = date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
         const duration = record.on && record.off ? this.calculateDuration(record.on, record.off) : '--:--';
         const [hours, minutes] = duration.split(':').map(Number);
         const durationText = duration !== '--:--' ? `${hours}小时${minutes}分钟` : '--:--';
 
+        // 格式化时间范围显示
+        const timeRange = (record.on && record.off) ? 
+            `${record.on} - ${record.off}` : 
+            '未打卡';
+
         div.innerHTML = `
-            <div class="record-header">
+            <div class="record-row">
                 <div class="record-date">${dateStr}</div>
+                <div class="record-time-range">${timeRange}</div>
                 <div class="record-duration">${durationText}</div>
-            </div>
-            <div class="record-times">
-                <span class="record-time" data-type="on" data-date="${record.date}">${record.on || '--:--'} (上班)</span>
-                <span class="record-time" data-type="off" data-date="${record.date}">${record.off || '--:--'} (下班)</span>
                 <div class="record-actions">
-                    <button class="btn-edit" data-date="${record.date}">编辑</button>
-                    <button class="btn-delete" data-date="${record.date}">删除</button>
+                    <button class="record-action-btn edit-btn" data-date="${record.date}" title="编辑">✏️</button>
+                    <button class="record-action-btn delete-btn" data-date="${record.date}" title="删除">🗑️</button>
                 </div>
             </div>
         `;
@@ -640,25 +638,15 @@ class HoursGuardApp {
 
     bindDailyRecordEvents(itemElement, record) {
         // 编辑按钮事件
-        const editBtn = itemElement.querySelector('.btn-edit');
+        const editBtn = itemElement.querySelector('.edit-btn');
         editBtn.addEventListener('click', () => {
             this.editRecord(record.date);
         });
 
         // 删除按钮事件
-        const deleteBtn = itemElement.querySelector('.btn-delete');
+        const deleteBtn = itemElement.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', () => {
             this.deleteRecord(record.date);
-        });
-
-        // 时间点击编辑事件
-        const timeInputs = itemElement.querySelectorAll('.record-time');
-        timeInputs.forEach(input => {
-            input.addEventListener('click', () => {
-                const type = input.dataset.type;
-                const date = input.dataset.date;
-                this.editTimeInline(input, date, type);
-            });
         });
     }
 
