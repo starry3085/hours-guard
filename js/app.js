@@ -11,13 +11,32 @@ class HoursGuardApp {
     }
 
     init() {
-        this.bindEvents();
-        this.updateMonthLabel();
-        this.loadTodayData();
-        this.loadMonthlyData();
-        this.loadWeeklyData();
-        this.loadDailyRecords();
-        this.loadStorageStats();
+        try {
+            console.log('初始化工时卫士应用...');
+            
+            // 检查依赖
+            if (!window.storageManager) {
+                throw new Error('存储管理器未加载');
+            }
+            if (!window.errorHandler) {
+                throw new Error('错误处理器未加载');
+            }
+            
+            this.bindEvents();
+            this.updateMonthLabel();
+            this.loadTodayData();
+            this.loadMonthlyData();
+            this.loadWeeklyData();
+            this.loadDailyRecords();
+            
+            console.log('工时卫士应用初始化完成');
+        } catch (error) {
+            console.error('应用初始化失败:', error);
+            this.showNotification('应用初始化失败，请刷新页面重试', 'error');
+            
+            // 尝试基本功能
+            this.bindEvents();
+        }
     }
 
 

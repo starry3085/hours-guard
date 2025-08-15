@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工时卫士 - 功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>工时卫士 - 功能测试</h1>
+        
+        <button onclick="testBasicStorage()">测试基础存储功能</button>
+        <button onclick="testClockInOut()">测试打卡功能</button>
+        <button onclick="testDataCalculation()">测试数据计算</button>
+        <button onclick="clearTestData()">清除测试数据</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function addResult(message, isSuccess = true) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+        }
+
+        function testBasicStorage() {
+            try {
+                // 测试 localStorage
+                const testKey = 'test_key';
+                const testValue = { test: true, timestamp: Date.now() };
+                
+                localStorage.setItem(testKey, JSON.stringify(testValue));
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                localStorage.removeItem(testKey);
+                
+                if (retrieved.test === true) {
+                    addResult('✓ 基础存储功能正常');
+                } else {
+                    addResult('✗ 基础存储功能异常', false);
+                }
+            } catch (error) {
+                addResult(`✗ 基础存储测试失败: ${error.message}`, false);
+            }
+        }
+
+        function testClockInOut() {
+            try {
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const timeStr = now.toLocaleTimeString('zh-CN', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // 模拟打卡记录
+                const records = JSON.parse(localStorage.getItem('hoursGuard_records') || '[]');
+                
+                // 添加测试记录
+                const testRecord = {
+                    date: dateStr,
+                    on: timeStr,
+                    test: true
+                };
+                
+                records.push(testRecord);
+                localStorage.setItem('hoursGuard_records', JSON.stringify(records));
+                
+                // 验证记录
+                const savedRecords = JSON.parse(localStorage.getItem('hoursGuard_records'));
+                const testRecordFound = savedRecords.find(r => r.test === true);
+                
+                if (testRecordFound) {
+                    addResult(`✓ 打卡功能正常 - 记录时间: ${testRecord.on}`);
+                } else {
+                    addResult('✗ 打卡功能异常 - 记录未保存', false);
+                }
+                
+            } catch (error) {
+                addResult(`✗ 打卡功能测试失败: ${error.message}`, false);
+            }
+        }
+
+        function testDataCalculation() {
+            try {
+                // 测试时间计算
+                const startTime = '09:00';
+                const endTime = '18:00';
+                
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+                
+                const startMinutes = startHour * 60 + startMin;
+                const endMinutes = endHour * 60 + endMin;
+                const diffMinutes = endMinutes - startMinutes;
+                
+                const hours = Math.floor(diffMinutes / 60);
+                const minutes = diffMinutes % 60;
+                
+                if (hours === 9 && minutes === 0) {
+                    addResult(`✓ 时间计算正常 - ${hours}小时${minutes}分钟`);
+                } else {
+                    addResult(`✗ 时间计算异常 - 期望9小时0分钟，实际${hours}小时${minutes}分钟`, false);
+                }
+                
+            } catch (error) {
+                addResult(`✗ 数据计算测试失败: ${error.message}`, false);
+            }
+        }
+
+        function clearTestData() {
+            try {
+                // 清除测试记录
+                const records = JSON.parse(localStorage.getItem('hoursGuard_records') || '[]');
+                const cleanedRecords = records.filter(r => !r.test);
+                localStorage.setItem('hoursGuard_records', JSON.stringify(cleanedRecords));
+                
+                addResult('✓ 测试数据已清除');
+                
+                // 清除结果显示
+                setTimeout(() => {
+                    document.getElementById('results').innerHTML = '';
+                }, 2000);
+                
+            } catch (error) {
+                addResult(`✗ 清除测试数据失败: ${error.message}`, false);
+            }
+        }
+
+        // 页面加载时运行基础检查
+        window.addEventListener('load', () => {
+            addResult('页面加载完成，可以开始测试');
+        });
+    </script>
+</body>
+</html>

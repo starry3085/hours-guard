@@ -5,10 +5,12 @@ const urlsToCache = [
   '/css/main.css',
   '/css/mobile.css',
   '/css/desktop.css',
-  '/js/app-simple.js',
-  '/js/error-handler.js',
-  '/js/storage-manager.js',
-  '/manifest.json'
+  '/js/app.js',
+  '/js/error.js',
+  '/js/storage.js',
+  '/js/utils.js',
+  '/manifest.json',
+  '/assets/icons/icon-192x192.svg'
 ];
 
 // 安装事件
