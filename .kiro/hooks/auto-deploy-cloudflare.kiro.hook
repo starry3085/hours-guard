@@ -13,7 +13,7 @@
     {
       "type": "command",
       "name": "Deploy to Cloudflare Pages",
-      "command": "wrangler pages deploy . --project-name=hours-guard --compatibility-date=2024-01-01",
+      "command": "wrangler pages deploy . --project-name=hours-guard",
       "workingDirectory": ".",
       "timeout": 300,
       "retries": 2,
@@ -37,6 +37,6 @@
   "settings": {
     "runInBackground": true,
     "logLevel": "info",
-    "autoApprove": false
+    "autoApprove": true
   }
 }
