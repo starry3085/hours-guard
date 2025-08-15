@@ -6,7 +6,7 @@
     "events": ["onGitPush"],
     "conditions": {
       "branches": ["main", "master"],
-      "remote": "origin"
+      "remote": ["origin", "gitee"]
     }
   },
   "actions": [
