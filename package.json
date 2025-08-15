@@ -4,8 +4,8 @@
   "description": "Hours Guard (工时卫士) - 隐私优先的工时记录工具 Web版",
   "main": "public/index.html",
   "scripts": {
-    "dev": "python -m http.server 8000 --directory public",
-    "deploy": "wrangler pages deploy public --project-name hours-guard"
+    "dev": "python -m http.server 8000",
+    "deploy": "wrangler pages deploy . --project-name hours-guard"
   },
   "keywords": [
     "time-tracking",
