@@ -1,10 +1,10 @@
 {
   "name": "hours-guard",
   "version": "2.0.0",
-  "description": "Hours Guard (工时卫士) - 隐私优先的工时记录工具，支持Web版和小程序版",
+  "description": "Hours Guard (工时卫士) - 隐私优先的工时记录工具 Web版",
   "main": "public/index.html",
   "scripts": {
-    "dev": "npx http-server public -p 8000",
+    "dev": "python -m http.server 8000 --directory public",
     "deploy": "wrangler pages deploy public --project-name hours-guard"
   },
   "keywords": [
@@ -12,13 +12,8 @@
     "work-hours",
     "privacy-first",
     "pwa",
-    "web-app",
-    "miniprogram"
+    "web-app"
   ],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "wrangler": "^3.0.0"
-  },
-  "dependencies": {}
+  "license": "ISC"
 }
