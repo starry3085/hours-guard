@@ -1,0 +1,42 @@
+{
+  "name": "Auto Deploy to Cloudflare Pages",
+  "description": "Automatically deploy to Cloudflare Pages when code is pushed to Gitee",
+  "version": "1.0.0",
+  "trigger": {
+    "events": ["onGitPush"],
+    "conditions": {
+      "branches": ["main", "master"],
+      "remote": "origin"
+    }
+  },
+  "actions": [
+    {
+      "type": "command",
+      "name": "Deploy to Cloudflare Pages",
+      "command": "wrangler pages deploy . --project-name=hours-guard --compatibility-date=2024-01-01",
+      "workingDirectory": ".",
+      "timeout": 300,
+      "retries": 2,
+      "environment": {
+        "NODE_ENV": "production"
+      },
+      "successMessage": "✅ Successfully deployed to Cloudflare Pages!",
+      "errorMessage": "❌ Failed to deploy to Cloudflare Pages. Check logs for details."
+    }
+  ],
+  "notifications": {
+    "onSuccess": {
+      "enabled": true,
+      "message": "🚀 Hours Guard deployed successfully to https://hours-guard.pages.dev"
+    },
+    "onError": {
+      "enabled": true,
+      "message": "💥 Deployment failed. Please check the logs and try again."
+    }
+  },
+  "settings": {
+    "runInBackground": true,
+    "logLevel": "info",
+    "autoApprove": false
+  }
+}
