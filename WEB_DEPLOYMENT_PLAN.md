@@ -123,7 +123,7 @@ name = "hours-guard"
 name = "hours-guard-staging"
 ```
 
-### 2. 静态文件Headers配置 (public/_headers)
+### 2. 简化的Headers配置 (_headers)
 ```
 # Security headers
 /*
@@ -131,38 +131,27 @@ name = "hours-guard-staging"
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self';
 
-# Cache static assets
-/static/*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Cache CSS and JS
+# Cache CSS and JS files
 /*.css
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400
 /*.js
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400
 
-# Cache images
+# Cache images and assets
 /assets/*
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400
 
-# HTML files - shorter cache
-/*.html
-  Cache-Control: public, max-age=3600
-
-# Service worker - no cache
+# Service worker - no cache for updates
 /sw.js
   Cache-Control: no-cache
 ```
 
-### 3. 重定向配置 (public/_redirects)
+### 3. 简化配置说明
 ```
-# SPA路由支持
-/*    /index.html   200
-
-# 旧域名重定向（如需要）
-# https://old-domain.com/* https://hours-guard.lightyearai.info/:splat 301
+# 不需要_redirects文件
+# 应用使用传统的单页面设计，无需SPA路由支持
+# 所有功能通过JavaScript标签页切换实现
 ```
 
 ## 🚀 部署流程
