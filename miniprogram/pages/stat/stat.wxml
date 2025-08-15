@@ -81,36 +81,29 @@
   <!-- 记录列表 -->
   <view class="records-section" wx:if="{{list.length > 0}}">
     <view class="record-card">
-      <view class="list-header">
-        <text class="header-date">日期</text>
-        <text class="header-time">上班</text>
-        <text class="header-time">下班</text>
-        <text class="header-workhours">日工时</text>
-      </view>
-      
       <scroll-view scroll-y class="record-list" enable-back-to-top>
         <view wx:for="{{list}}" wx:key="date" class="record-row">
           <view class="cell-date">
             <text class="date-text">{{item.displayDate}}</text>
-            <text class="weekday">{{item.weekday ? item.weekday : ''}}</text>
           </view>
           
-          <view class="cell-time" bindtap="onEditTime" data-type="on" data-date="{{item.date}}">
-            <view class="time-container">
-              <text wx:if="{{!(editingDate === item.date && editingType === 'on')}}" class="time-text {{item.on ? 'has-time' : 'no-time'}}">{{item.on ? item.on : '未打卡'}}</text>
-              <input wx:else class="time-input" type="text" value="{{editingValue}}" focus="{{true}}" bindinput="onTimeInput" bindblur="onTimeInputBlur" />
-            </view>
-          </view>
-          
-          <view class="cell-time" bindtap="onEditTime" data-type="off" data-date="{{item.date}}">
-            <view class="time-container">
-              <text wx:if="{{!(editingDate === item.date && editingType === 'off')}}" class="time-text {{item.off ? 'has-time' : 'no-time'}}">{{item.off ? item.off : '未打卡'}}</text>
-              <input wx:else class="time-input" type="text" value="{{editingValue}}" focus="{{true}}" bindinput="onTimeInput" bindblur="onTimeInputBlur" />
-            </view>
+          <view class="cell-time-range">
+            <text class="time-range-text {{(item.on && item.off) ? 'has-time' : 'no-time'}}">
+              {{(item.on && item.off) ? (item.on + ' - ' + item.off) : '未打卡'}}
+            </text>
           </view>
           
           <view class="cell-workhours">
             <text class="time-text work-hours {{item.workHours ? 'has-time' : 'no-time'}}">{{item.workHours ? item.workHours : '-'}}</text>
+          </view>
+          
+          <view class="cell-actions">
+            <view class="action-btn edit-btn" bindtap="onEditRecord" data-date="{{item.date}}">
+              <text class="action-icon">✏️</text>
+            </view>
+            <view class="action-btn delete-btn" bindtap="onDeleteRecord" data-date="{{item.date}}">
+              <text class="action-icon">🗑️</text>
+            </view>
           </view>
         </view>
       </scroll-view>

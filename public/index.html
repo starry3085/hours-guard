@@ -139,7 +139,7 @@
             <section class="data-actions">
                 <div class="action-grid">
                     <button id="exportBtn" class="action-btn export">
-                        <span class="action-text">导出数据</span>
+                        <span class="action-text">导出备份</span>
                     </button>
                 </div>
             </section>
@@ -151,17 +151,20 @@
         </footer>
     </div>
 
-    <!-- 模态框 -->
-        <div id="exportModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3 data-i18n="export.data">导出数据</h3>
-                <div class="export-options">
-                    <button id="exportCSV" class="btn-primary" data-i18n="export.csv">导出CSV</button>
-                    <button id="exportImage" class="btn-secondary" data-i18n="export.image">导出图片</button>
-                </div>
+    <!-- 文本预览模态框 -->
+    <div id="textPreviewModal" class="modal">
+        <div class="modal-content text-preview-content">
+            <span class="close">&times;</span>
+            <h3>文本记录预览</h3>
+            <div class="preview-actions">
+                <button id="copyText" class="btn-primary">复制到剪贴板</button>
+                <button id="downloadText" class="btn-secondary">下载文件</button>
+            </div>
+            <div class="text-preview">
+                <pre id="textContent"></pre>
             </div>
         </div>
+    </div>
 
     <!-- JavaScript -->
     <script src="js/error-handler.js"></script>

@@ -24,53 +24,74 @@ class HoursGuardApp {
 
     updateMonthLabel() {
         const monthLabel = document.getElementById('currentMonth');
-        const year = this.currentMonthDate.getFullYear();
-        const month = this.currentMonthDate.getMonth() + 1;
-        monthLabel.textContent = `${year}年${month}月`;
+        if (monthLabel) {
+            const year = this.currentMonthDate.getFullYear();
+            const month = this.currentMonthDate.getMonth() + 1;
+            monthLabel.textContent = `${year}年${month}月`;
+        }
     }
 
     bindEvents() {
         // 主按钮事件
-        document.getElementById('clockInBtn').addEventListener('click', () => {
-            this.handleMainButtonClick();
-        });
+        const clockInBtn = document.getElementById('clockInBtn');
+        if (clockInBtn) {
+            clockInBtn.addEventListener('click', () => {
+                this.handleMainButtonClick();
+            });
+        }
 
         // 日期选择事件
         const dateSelector = document.getElementById('dateSelector');
-        dateSelector.value = this.selectedDate;
-        dateSelector.addEventListener('change', (e) => {
-            this.selectedDate = e.target.value;
-            this.isToday = this.selectedDate === this.getTodayString();
-            this.loadTodayData();
-        });
+        if (dateSelector) {
+            dateSelector.value = this.selectedDate;
+            dateSelector.addEventListener('change', (e) => {
+                this.selectedDate = e.target.value;
+                this.isToday = this.selectedDate === this.getTodayString();
+                this.loadTodayData();
+            });
+        }
 
         // 时间输入事件
         const clockInInput = document.getElementById('clockInInput');
-        clockInInput.addEventListener('change', (e) => {
-            this.updateClockInTime(e.target.value);
-        });
+        if (clockInInput) {
+            clockInInput.addEventListener('change', (e) => {
+                this.updateClockInTime(e.target.value);
+            });
+        }
 
         // 月份切换事件
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() - 1);
-            this.updateMonthLabel();
-            this.loadMonthlyData();
-            this.loadWeeklyData();
-            this.loadDailyRecords();
-        });
+        const prevMonth = document.getElementById('prevMonth');
+        if (prevMonth) {
+            prevMonth.addEventListener('click', () => {
+                this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() - 1);
+                this.updateMonthLabel();
+                this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
+            });
+        }
 
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
-            this.updateMonthLabel();
-            this.loadMonthlyData();
-            this.loadWeeklyData();
-            this.loadDailyRecords();
-        });
+        const nextMonth = document.getElementById('nextMonth');
+        if (nextMonth) {
+            nextMonth.addEventListener('click', () => {
+                this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
+                this.updateMonthLabel();
+                this.loadMonthlyData();
+                this.loadWeeklyData();
+                this.loadDailyRecords();
+            });
+        }
 
         // 数据管理事件
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            this.showExportModal();
-        });
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                console.log('导出按钮被点击');
+                this.exportTextReport();
+            });
+        } else {
+            console.error('未找到导出按钮元素');
+        }
 
 
     }
@@ -232,10 +253,12 @@ class HoursGuardApp {
     updateTodayStats() {
         const clockInInput = document.getElementById('clockInInput');
         
-        if (this.todayRecord) {
-            clockInInput.value = this.todayRecord.on || '';
-        } else {
-            clockInInput.value = '';
+        if (clockInInput) {
+            if (this.todayRecord) {
+                clockInInput.value = this.todayRecord.on || '';
+            } else {
+                clockInInput.value = '';
+            }
         }
     }
 
@@ -510,9 +533,19 @@ class HoursGuardApp {
             const avgMins = avgMinutes % 60;
             
             // 更新UI
-            document.getElementById('monthWorkDays').textContent = `${totalDays}天`;
-            document.getElementById('monthTotalHours').textContent = `${totalHours}小时${totalMins}分钟`;
-            document.getElementById('monthAvgHours').textContent = `${avgHours}小时${avgMins}分钟`;
+            const monthWorkDaysElement = document.getElementById('monthWorkDays');
+            const monthTotalHoursElement = document.getElementById('monthTotalHours');
+            const monthAvgHoursElement = document.getElementById('monthAvgHours');
+            
+            if (monthWorkDaysElement) {
+                monthWorkDaysElement.textContent = `${totalDays}天`;
+            }
+            if (monthTotalHoursElement) {
+                monthTotalHoursElement.textContent = `${totalHours}小时${totalMins}分钟`;
+            }
+            if (monthAvgHoursElement) {
+                monthAvgHoursElement.textContent = `${avgHours}小时${avgMins}分钟`;
+            }
         } catch (error) {
             console.error('Load monthly data error:', error);
         }
@@ -653,24 +686,26 @@ class HoursGuardApp {
     updateUI() {
         const clockInBtn = document.getElementById('clockInBtn');
 
-        // 清除所有状态类
-        clockInBtn.classList.remove('working', 'finished');
+        if (clockInBtn) {
+            // 清除所有状态类
+            clockInBtn.classList.remove('working', 'finished');
 
-        switch (this.currentState) {
-            case 'ready':
-                clockInBtn.disabled = false;
-                clockInBtn.textContent = '上班打卡';
-                break;
-            case 'working':
-                clockInBtn.disabled = false;
-                clockInBtn.textContent = '下班打卡';
-                clockInBtn.classList.add('working');
-                break;
-            case 'finished':
-                clockInBtn.disabled = false;
-                clockInBtn.textContent = '已完成';
-                clockInBtn.classList.add('finished');
-                break;
+            switch (this.currentState) {
+                case 'ready':
+                    clockInBtn.disabled = false;
+                    clockInBtn.textContent = '上班打卡';
+                    break;
+                case 'working':
+                    clockInBtn.disabled = false;
+                    clockInBtn.textContent = '下班打卡';
+                    clockInBtn.classList.add('working');
+                    break;
+                case 'finished':
+                    clockInBtn.disabled = false;
+                    clockInBtn.textContent = '已完成';
+                    clockInBtn.classList.add('finished');
+                    break;
+            }
         }
     }
 
@@ -731,43 +766,185 @@ class HoursGuardApp {
         }
     }
 
-    // 数据管理功能
-    showExportModal() {
-        const modalHTML = `
-            <div id="exportDataModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h3>导出数据</h3>
-                    <div class="export-options">
-                        <button id="exportJSON" class="btn-primary">导出JSON</button>
-                        <button id="exportCSV" class="btn-secondary">导出CSV</button>
-                    </div>
-                </div>
-            </div>
-        `;
+    // 数据管理功能 - 直接导出文本报告
 
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        const modal = document.getElementById('exportDataModal');
-        modal.style.display = 'block';
+    // 导出文本报告（类似小程序版本）
+    exportTextReport() {
+        try {
+            const records = this.getRecords();
+            if (records.length === 0) {
+                this.showNotification('暂无打卡数据', 'error');
+                return;
+            }
 
-        const closeBtn = modal.querySelector('.close');
-        const exportJSONBtn = modal.querySelector('#exportJSON');
-        const exportCSVBtn = modal.querySelector('#exportCSV');
+            // 生成文本内容
+            const textContent = this.generateTextReport(records);
+            
+            // 显示预览模态框
+            this.showTextPreview(textContent);
+            
+        } catch (error) {
+            console.error('Export text report error:', error);
+            this.showNotification('导出失败，请重试', 'error');
+        }
+    }
 
-        const closeModal = () => {
-            modal.remove();
-        };
+    // 生成文本报告
+    generateTextReport(records) {
+        const now = new Date();
+        let content = `工时卫士 - 打卡记录报告\n`;
+        content += `生成时间: ${now.toLocaleString('zh-CN')}\n`;
+        content += `${'='.repeat(50)}\n\n`;
 
-        closeBtn.addEventListener('click', closeModal);
+        // 按月份分组记录
+        const recordsByMonth = this.groupRecordsByMonth(records);
         
-        exportJSONBtn.addEventListener('click', () => {
-            this.exportData('json');
-            closeModal();
+        // 遍历每个月份的记录
+        for (const [monthKey, monthRecords] of Object.entries(recordsByMonth)) {
+            const [year, month] = monthKey.split('-');
+            const monthTitle = `${year}年${month}月`;
+
+            // 计算当前月份的工时统计
+            const monthStats = this.calculateMonthStats(monthRecords);
+
+            // 添加月份工时统计
+            content += `${monthTitle}工时统计:\n`;
+            content += `${'='.repeat(50)}\n`;
+            content += `本月平均工时: ${monthStats.avgHours}\n`;
+            content += `本月打卡天数: ${monthStats.workDays}天\n`;
+            content += `本月总工时: ${monthStats.totalHours}\n`;
+            content += `${'='.repeat(50)}\n\n`;
+
+            // 添加当月详细记录
+            content += `${monthTitle}详细记录:\n`;
+            content += `${'='.repeat(50)}\n`;
+
+            // 按日期排序（从早到晚）
+            monthRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            monthRecords.forEach(record => {
+                const date = new Date(record.date);
+                const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                const weekday = `周${weekdays[date.getDay()]}`;
+
+                content += `${record.date} (${weekday})\n`;
+                content += `  上班时间: ${record.on || '未打卡'}\n`;
+                content += `  下班时间: ${record.off || '未打卡'}\n`;
+
+                // 计算日工时
+                let dailyHours = '未知';
+                if (record.on && record.off) {
+                    const duration = this.calculateDuration(record.on, record.off);
+                    const [hours, minutes] = duration.split(':').map(Number);
+                    if (hours > 0 || minutes > 0) {
+                        dailyHours = `${hours}小时${minutes}分钟`;
+                    }
+                }
+                content += `  日工时: ${dailyHours}\n`;
+                content += `${'-'.repeat(30)}\n`;
+            });
+
+            // 添加月份分隔符
+            content += `\n`;
+        }
+
+        content += `数据说明: 所有数据仅保存在本机，请妥善保管备份。\n`;
+        content += `导出工具: 工时卫士 Web版 - https://hours-guard.lightyearai.info`;
+
+        return content;
+    }
+
+    // 按月份分组记录
+    groupRecordsByMonth(records) {
+        const recordsByMonth = {};
+
+        records.forEach(record => {
+            if (!record.date) return;
+
+            // 提取年月作为分组键
+            const date = new Date(record.date);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+
+            // 初始化月份分组
+            if (!recordsByMonth[monthKey]) {
+                recordsByMonth[monthKey] = [];
+            }
+
+            // 添加记录到对应月份
+            recordsByMonth[monthKey].push(record);
         });
 
-        exportCSVBtn.addEventListener('click', () => {
-            this.exportData('csv');
-            closeModal();
+        return recordsByMonth;
+    }
+
+    // 计算月份统计
+    calculateMonthStats(monthRecords) {
+        const completedRecords = monthRecords.filter(r => r.on && r.off);
+        const workDays = completedRecords.length;
+        
+        let totalMinutes = 0;
+        completedRecords.forEach(record => {
+            const duration = this.calculateDuration(record.on, record.off);
+            const [hours, minutes] = duration.split(':').map(Number);
+            totalMinutes += hours * 60 + minutes;
+        });
+
+        const avgMinutes = workDays > 0 ? Math.round(totalMinutes / workDays) : 0;
+        const totalHours = Math.floor(totalMinutes / 60);
+        const totalMins = totalMinutes % 60;
+        const avgHours = Math.floor(avgMinutes / 60);
+        const avgMins = avgMinutes % 60;
+
+        return {
+            workDays,
+            totalHours: totalHours > 0 || totalMins > 0 ? `${totalHours}小时${totalMins}分钟` : '0小时',
+            avgHours: avgHours > 0 || avgMins > 0 ? `${avgHours}小时${avgMins}分钟` : '0小时'
+        };
+    }
+
+    // 显示文本预览
+    showTextPreview(textContent) {
+        const modal = document.getElementById('textPreviewModal');
+        const textContentElement = document.getElementById('textContent');
+        const copyBtn = document.getElementById('copyText');
+        const downloadBtn = document.getElementById('downloadText');
+        
+        if (!modal || !textContentElement || !copyBtn || !downloadBtn) {
+            console.error('文本预览模态框元素未找到');
+            this.showNotification('预览功能暂不可用', 'error');
+            return;
+        }
+        
+        const closeBtn = modal.querySelector('.close');
+
+        textContentElement.textContent = textContent;
+        modal.style.display = 'block';
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        // 移除之前的事件监听器
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        
+        const newCopyBtn = copyBtn.cloneNode(true);
+        copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+        
+        const newDownloadBtn = downloadBtn.cloneNode(true);
+        downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
+
+        // 绑定新的事件监听器
+        newCloseBtn.addEventListener('click', closeModal);
+        
+        newCopyBtn.addEventListener('click', () => {
+            this.copyToClipboard(textContent);
+        });
+
+        newDownloadBtn.addEventListener('click', () => {
+            this.downloadTextFile(textContent);
         });
 
         modal.addEventListener('click', (e) => {
@@ -777,16 +954,69 @@ class HoursGuardApp {
         });
     }
 
-    exportData(format) {
-        if (window.storageManager) {
-            const result = window.storageManager.exportData(format);
-            if (result.success) {
-                this.showNotification(`数据已导出：${result.filename}`);
-            } else {
-                this.showNotification(`导出失败：${result.error}`, 'error');
-            }
+    // 复制到剪贴板
+    copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showNotification('已复制到剪贴板');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                this.fallbackCopyToClipboard(text);
+            });
+        } else {
+            this.fallbackCopyToClipboard(text);
         }
     }
+
+    // 备用复制方法
+    fallbackCopyToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            this.showNotification('已复制到剪贴板');
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            this.showNotification('复制失败，请手动复制', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    // 下载文本文件
+    downloadTextFile(content) {
+        try {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const filename = `工时记录_${dateStr}.txt`;
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showNotification(`文件已下载：${filename}`);
+        } catch (error) {
+            console.error('Download failed:', error);
+            this.showNotification('下载失败，请重试', 'error');
+        }
+    }
+
+
 
     createBackup() {
         if (window.storageManager) {
@@ -807,22 +1037,25 @@ class HoursGuardApp {
             const stats = window.storageManager.getStorageStats();
             if (stats) {
                 const statsElement = document.getElementById('storageStats');
-                statsElement.innerHTML = `
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span>记录数量</span>
-                            <span>${stats.recordCount}条</span>
+                if (statsElement) {
+                    statsElement.innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span>记录数量</span>
+                                <span>${stats.recordCount}条</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>备份数量</span>
+                                <span>${stats.backupCount}个</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>存储大小</span>
+                                <span>${Math.round(stats.totalSize / 1024)}KB</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span>备份数量</span>
-                            <span>${stats.backupCount}个</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>存储大小</span>
-                            <span>${Math.round(stats.totalSize / 1024)}KB</span>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
+                // 如果没有storageStats元素，就不显示统计信息，这是正常的
             }
         }
     }

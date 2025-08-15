@@ -202,21 +202,54 @@ Page({
     }
   },
 
-  // 编辑时间 - 直接在列表中编辑
-  onEditTime(e) {
-    const { date, type } = e.currentTarget.dataset;
+  // 编辑记录
+  onEditRecord(e) {
+    const { date } = e.currentTarget.dataset;
     const record = this.data.list.find(item => item.date === date);
-    const currentValue = record ? record[type] : null;
     
-    // 设置默认值
-    const defaultValue = currentValue || (type === 'on' ? '09:00' : '18:00');
-    
-    // 激活内联编辑模式
-    this.setData({
-      editingDate: date,
-      editingType: type,
-      editingValue: defaultValue
+    // 显示编辑弹窗
+    wx.showModal({
+      title: '编辑打卡记录',
+      content: `编辑 ${date} 的打卡时间`,
+      showCancel: true,
+      confirmText: '编辑',
+      success: (res) => {
+        if (res.confirm) {
+          this.showEditDialog(date, record);
+        }
+      }
     });
+  },
+
+  // 显示编辑对话框
+  showEditDialog(date, record) {
+    const currentOnTime = record ? record.on : '09:00';
+    const currentOffTime = record ? record.off : '18:00';
+    
+    // 使用时间选择器编辑上班时间
+    this.editTimeWithPicker(date, 'on', currentOnTime, () => {
+      // 编辑完上班时间后，编辑下班时间
+      const updatedRecord = this.data.list.find(item => item.date === date);
+      const newOffTime = updatedRecord ? updatedRecord.off : currentOffTime;
+      this.editTimeWithPicker(date, 'off', newOffTime);
+    });
+  },
+
+  // 使用选择器编辑时间
+  editTimeWithPicker(date, type, currentTime, callback) {
+    const [currentHour, currentMinute] = currentTime.split(':').map(Number);
+    const hourIndex = currentHour;
+    const minuteIndex = currentMinute;
+    
+    this.setData({
+      showPicker: true,
+      pickerType: type,
+      pickerDate: date,
+      pickerValue: [hourIndex, minuteIndex]
+    });
+    
+    // 保存回调函数
+    this.editCallback = callback;
   },
   
   // 处理时间输入变化
@@ -279,6 +312,14 @@ Page({
           title: '修改成功',
           icon: 'success'
         });
+        
+        // 如果有回调函数，执行它
+        if (this.editCallback) {
+          setTimeout(() => {
+            this.editCallback();
+            this.editCallback = null;
+          }, 500);
+        }
       }
     });
     this.setData({ showPicker: false });

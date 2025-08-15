@@ -800,12 +800,44 @@ body {
     color: var(--text-primary);
 }
 
-.export-options {
+
+
+/* 文本预览模态框 */
+.text-preview-content {
+    max-width: 800px;
+    width: 95%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 1.5rem;
+    margin: 1rem 0;
     flex-wrap: wrap;
+}
+
+.text-preview {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    background-color: var(--background);
+    max-height: 60vh;
+}
+
+.text-preview pre {
+    margin: 0;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text-primary);
 }
 
 /* 响应式隐藏/显示 */

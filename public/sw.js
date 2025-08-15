@@ -1,18 +1,14 @@
-const CACHE_NAME = 'hours-guard-v1';
+const CACHE_NAME = 'hours-guard-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/css/main.css',
   '/css/mobile.css',
   '/css/desktop.css',
-  '/js/app.js',
-  '/js/storage.js',
-  '/js/i18n.js',
-  '/js/export.js',
-  '/js/utils.js',
-  '/config.json',
-  '/assets/icons/icon-192x192.png',
-  '/assets/icons/icon-512x512.png'
+  '/js/app-simple.js',
+  '/js/error-handler.js',
+  '/js/storage-manager.js',
+  '/manifest.json'
 ];
 
 // 安装事件

@@ -67,11 +67,7 @@
     <view class="section-title">管理操作</view>
     
     <view class="action-grid">
-      <view class="action-item" bindtap="onCreateBackup">
-        <text class="action-icon">💾</text>
-        <text class="action-text">手动备份</text>
-        <text class="action-desc">创建数据备份</text>
-      </view>
+
       
       <view class="action-item" bindtap="onOptimizeStorage">
         <text class="action-icon">🔧</text>
