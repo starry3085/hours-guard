@@ -1,0 +1,38 @@
+{
+  "name": "Auto Deploy on File Change",
+  "description": "Deploy to Cloudflare Pages when important files are modified",
+  "version": "1.0.0",
+  "trigger": {
+    "events": [
+      "onFileSave"
+    ],
+    "conditions": {
+      "filePatterns": [
+        "index.html",
+        "js/*.js",
+        "css/*.css",
+        "*.md"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "type": "command",
+      "name": "Deploy to Cloudflare Pages",
+      "command": "wrangler pages deploy . --project-name=hours-guard",
+      "workingDirectory": ".",
+      "timeout": 300,
+      "environment": {
+        "NODE_ENV": "production"
+      },
+      "successMessage": "✅ Successfully deployed to Cloudflare Pages!",
+      "errorMessage": "❌ Failed to deploy to Cloudflare Pages."
+    }
+  ],
+  "settings": {
+    "runInBackground": true,
+    "logLevel": "info",
+    "autoApprove": true,
+    "debounceMs": 5000
+  }
+}

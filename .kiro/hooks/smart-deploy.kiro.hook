@@ -1,0 +1,33 @@
+{
+  "name": "Smart Deploy Hook",
+  "description": "When I save important project files like index.html, JavaScript files, or CSS files, automatically deploy the project to Cloudflare Pages, but only if it's been more than 5 minutes since the last deployment to avoid too frequent deployments.",
+  "version": "1.0.0",
+  "trigger": {
+    "events": ["onFileSave"],
+    "conditions": {
+      "filePatterns": [
+        "index.html",
+        "js/app.js",
+        "js/error.js", 
+        "js/storage.js",
+        "css/main.css"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "type": "command",
+      "name": "Deploy to Cloudflare",
+      "command": "wrangler pages deploy . --project-name=hours-guard",
+      "workingDirectory": ".",
+      "timeout": 300,
+      "successMessage": "🚀 Deployed to https://hours-guard.pages.dev",
+      "errorMessage": "❌ Deployment failed"
+    }
+  ],
+  "settings": {
+    "runInBackground": true,
+    "autoApprove": true,
+    "debounceMs": 300000
+  }
+}

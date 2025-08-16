@@ -13,6 +13,7 @@ class HoursGuardApp {
     init() {
         try {
             console.log('初始化工时卫士应用...');
+            // Hook测试注释 - 第五次测试 - 多事件hook测试
             
             // 检查依赖
             if (!window.storageManager) {
