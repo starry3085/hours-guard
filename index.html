@@ -178,38 +178,43 @@
     </div>
 
     <!-- JavaScript -->
-    <script>
-        // 显示加载指示器
-        document.getElementById('loadingIndicator').style.display = 'block';
-        
-        // 脚本加载错误处理
-        function handleScriptError(scriptName) {
-            console.error(`${scriptName} 加载失败`);
-            document.getElementById('loadingIndicator').innerHTML = `${scriptName} 加载失败，请刷新页面重试`;
-            document.getElementById('loadingIndicator').style.background = '#dc3545';
-        }
-        
-        // 应用初始化
-        function initApp() {
-            try {
-                if (window.HoursGuardApp) {
-                    window.app = new HoursGuardApp();
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                    console.log('应用启动成功');
-                } else {
-                    throw new Error('应用类未找到');
-                }
-            } catch (error) {
-                console.error('应用启动失败:', error);
-                document.getElementById('loadingIndicator').innerHTML = '应用启动失败，请刷新页面重试';
-                document.getElementById('loadingIndicator').style.background = '#dc3545';
-            }
-        }
-    </script>
+    <script src="js/error.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
     
-    <script src="js/error.js" onerror="handleScriptError('错误处理模块')"></script>
-    <script src="js/storage.js" onerror="handleScriptError('存储管理模块')"></script>
-    <script src="js/app.js" onerror="handleScriptError('主应用模块')" onload="initApp()"></script>
+    <script>
+        // 简单直接的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                console.log('开始初始化应用...');
+                
+                // 隐藏加载指示器
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+                
+                // 创建应用实例
+                if (typeof HoursGuardApp !== 'undefined') {
+                    window.app = new HoursGuardApp();
+                    console.log('应用初始化成功');
+                } else {
+                    console.error('HoursGuardApp 类未找到');
+                }
+                
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+                
+                // 显示错误信息
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'block';
+                    loadingIndicator.style.background = '#dc2626';
+                    loadingIndicator.textContent = '应用启动失败，请刷新页面重试';
+                }
+            }
+        });
+    </script>
     
     <!-- Service Worker -->
     <script>

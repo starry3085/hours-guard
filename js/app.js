@@ -1080,7 +1080,4 @@ class HoursGuardApp {
     }
 }
 
-// 初始化应用
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new HoursGuardApp();
-});
+// 应用类定义完成，等待HTML中的初始化调用
